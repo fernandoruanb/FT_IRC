@@ -6,7 +6,7 @@
 /*   By: fruan-ba <fruan-ba@42sp.org.br>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/04 14:45:17 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/04 21:49:37 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/08 11:38:19 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,7 +133,7 @@ int	main(int argc, char **argv)
 	{
 		std::cout << BRIGHT_GREEN "Bind successfully on " BRIGHT_YELLOW "127.0.0.1:" << argv[1] << RESET << std::endl;
 		ircserver->running = true;
-		if (ircserver->running && listen(ircserver->serverIRC, 10) == 0)
+		if (ircserver->running && listen(ircserver->serverIRC, 1024) == 0)
 		{
 			std::cout << LIGHT_BLUE "Listen Mode Started =D" RESET << std::endl;
 			serverIRCStartMode();
