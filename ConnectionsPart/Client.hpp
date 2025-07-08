@@ -8,12 +8,19 @@
 typedef struct	s_server	t_server;
 t_server*					getServer(void);
 
+enum class	ClientStates
+{
+	WAITING_FOR_NAME,
+	ONLINE,
+	OFFLINE
+};
+
 class Client
 {
 	private:
 		std::string			name;
 		struct pollfd		fds;
-		bool				_isOnline;
+		ClientStates		state;
 		std::string			sendBuffer;
 		std::string			recvBuffer;
 	public:
@@ -26,7 +33,7 @@ class Client
 		void	setName(const std::string &);
 
 		//getters
-		const bool&				isOnline(void) const;
+		const ClientStates&		getState(void) const;
 		const struct pollfd&	getPollfd(void) const;
 		const std::string&		getName(void) const;
 		const std::string&		getSendBuffer(void) const;
