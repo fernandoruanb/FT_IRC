@@ -15,6 +15,7 @@ INCDIR = .
 # SRCS
 
 SRCS =  internet.cpp\
+	Client.cpp\
 	internet_utils/atoiIRC.cpp\
 	internet_utils/getServer.cpp\
 	internet_utils/manageBuffers.cpp\

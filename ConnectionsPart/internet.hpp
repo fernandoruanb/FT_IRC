@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   internet.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fruan-ba <fruan-ba@42sp.org.br>            +#+  +:+       +#+        */
+/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/04 15:04:30 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/06 18:00:49 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/08 14:25:00 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,9 @@
 # include <fcntl.h>
 # include <errno.h>
 # include "colours.hpp"
+# include "Client.hpp"
+
+class Client;
 
 typedef struct	s_server
 {
@@ -30,6 +33,7 @@ typedef struct	s_server
 	sockaddr_in	server;
 	sockaddr_in	client;
 	socklen_t	client_len;
+	Client		myClients[1024];
 	struct pollfd	fds[1024];
 	std::string	sendBuffer[1023];
 	std::string	recvBuffer[1024];

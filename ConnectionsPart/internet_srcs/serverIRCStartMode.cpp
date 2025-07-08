@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   serverIRCStartMode.cpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fruan-ba <fruan-ba@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 18:12:31 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/06 21:25:04 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/08 14:43:35 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 static void	addNewClient(void)
 {
 	t_server	*ircserver = getServer();
+	std::string	name;
 	int	index;
 
 	index = 1;
@@ -25,10 +26,7 @@ static void	addNewClient(void)
 		std::cerr << RED "Error: Maximum of FDs!!!" RESET << std::endl;
 		return ;
 	}
-	ircserver->fds[index].fd = ircserver->clFD;
-	ircserver->fds[index].events = POLLIN;
-	fcntl(ircserver->clFD, F_SETFL, O_NONBLOCK);
-	ircserver->nclFD++;
+	ircserver->myClients[index].addNewClient();
 	std::cout << BRIGHT_GREEN "New Client added: " << YELLOW << ircserver->clFD << RESET << std::endl;
 }
 
