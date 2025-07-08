@@ -6,7 +6,7 @@
 /*   By: fruan-ba <fruan-ba@42sp.org.br>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/04 14:45:17 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/08 11:38:19 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/08 11:43:26 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,25 +51,25 @@ static int	checkArguments(int argc, char **argv)
 	if (argc != 3)
 	{
 		std::cerr << LIGHT_BLUE "How to use: ./ircserver <port> <password>" RESET << std::endl;
-		return (0);
+		return (-1);
 	}
 	else if (!checkPort(argv[1]))
 	{
 		std::cerr << BRIGHT_RED "Error: Invalid Port " << BRIGHT_YELLOW << argv[1] << RESET << std::endl;
-		return (0);
+		return (-1);
 	}
 	password = argv[2];
 	if (password.empty())
 	{
 		std::cerr << BRIGHT_RED "Error: You need to set a password" RESET << std::endl;
-		return (0);
+		return (-1);
 	}
 	err = 0;
 	result = atoiIRC(argv[1], &err);
 	if (err == 1)
 	{
 		std::cerr << BRIGHT_RED "Error: Maximum port is 65535" RESET << std::endl;
-		return (0);
+		return (-1);
 	}
 	return (result);
 }
@@ -116,7 +116,7 @@ int	main(int argc, char **argv)
 	ircserver->fds[0].events = POLLIN;
 	ircserver->nclFD = 1;
 	result = checkArguments(argc, argv);
-	if (result == 0)
+	if (result == -1)
 	{
 		close(ircserver->serverIRC);
 		return (1);
@@ -131,7 +131,7 @@ int	main(int argc, char **argv)
 
 	if (bind(ircserver->serverIRC, (struct sockaddr *)&ircserver->server, sizeof(ircserver->server)) == 0)
 	{
-		std::cout << BRIGHT_GREEN "Bind successfully on " BRIGHT_YELLOW "127.0.0.1:" << argv[1] << RESET << std::endl;
+		std::cout << BRIGHT_GREEN "Bind successfully on " BRIGHT_YELLOW "127.0.0.1:" << result << RESET << std::endl;
 		ircserver->running = true;
 		if (ircserver->running && listen(ircserver->serverIRC, 1024) == 0)
 		{
