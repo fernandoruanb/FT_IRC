@@ -31,6 +31,8 @@ class Client
 
 		//Setter
 		void	setName(const std::string &);
+		void	setSendBuffer(const std::string &);
+		void	setRecvBuffer(const std::string &);
 
 		//getters
 		const ClientStates&		getState(void) const;
