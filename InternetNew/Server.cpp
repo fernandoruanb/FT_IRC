@@ -244,7 +244,7 @@ void	Server::init(int port, std::string password)
 		this->numClients = 1;
 		server.sin_family = AF_INET;
 		server.sin_port = htons(port);
-		server.sin_addr.s_addr = inet_addr("127.0.0.1");
+		server.sin_addr.s_addr = INADDR_ANY;
 
 		setsockopt(this->serverIRC, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
