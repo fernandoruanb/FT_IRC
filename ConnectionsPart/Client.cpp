@@ -24,6 +24,14 @@ Client&	Client::operator=(const Client &other)
 }
 Client::~Client(void){}
 
+void	Client::setSendBuffer(const std::string &buf)
+{
+	this->sendBuffer = buf;
+}
+void	Client::setRecvBuffer(const std::string &buf)
+{
+	this->recvBuffer = buf;
+}
 
 const ClientStates&		Client::getState(void) const { return (this->state); }
 const struct pollfd&	Client::getPollfd(void) const { return (this->fds); }
