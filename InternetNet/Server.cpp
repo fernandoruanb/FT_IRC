@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
+/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/10 01:01:19 by nasser           ###   ########.fr       */
+/*   Updated: 2025/07/10 13:12:08 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,21 +33,25 @@ bool Server::handleClientAuthentication(std::map<int, Client*>* clients, int fd,
     if (it != clients->end()) {
         Client* client = it->second;
         if (!client->getAuthenticated()) {
+			std::cout << "TESTING AUTHENTICATION" << std::endl; // Debugging line
 			struct pollfd (&fds)[1024] = *getMyFds();
 			std::string input(buffer);
 			if (input.rfind("PASS ", 0) == 0) {
+				std::cout << "Received PASS command" << std::endl; // Debugging line
 				std::string pass = input.substr(5);
+				pass.erase(pass.find_last_not_of("\r\n") + 1);
 				if (pass == this->getPassword()) {
 					client->setAuthenticated(true);
-					this->sendBuffer[pollIndex] = msg_notice("Authentication successful");
+					std::cout << "Authentication successful for client " << fd << std::endl; // Debugging line
+					this->sendBuffer[pollIndex] += msg_notice("Authentication successful");
 					fds[pollIndex].events |= POLLOUT;
 					return true;
 				} else {
-					this->sendBuffer[pollIndex] = msg_err_passwdmismatch();
+					this->sendBuffer[pollIndex] += msg_err_passwdmismatch();
 					return false;
 				}
 			} else {
-				this->sendBuffer[pollIndex] = msg_err_needmoreparams("PASS");
+				this->sendBuffer[pollIndex] += msg_err_needmoreparams("PASS");
 				return false;
 			}
         }
@@ -78,7 +82,7 @@ void	Server::addNewClient(int clientFD)
 	fcntl(clientFD, F_SETFL, O_NONBLOCK);
 	this->numClients++;
 	// NOTICE message to the new client. Asking for authentication.
-	this->sendBuffer[index] = ":irc.example.com NOTICE * :Connection established. Please authenticate with: PASS <password>\n";
+	this->sendBuffer[index] = msg_notice("Connected. Please authenticate with \"PASS <password>\"");
 	fds[index].events |= POLLOUT;
 	std::cout << BRIGHT_GREEN "New Client added: " << YELLOW << clientFD << RESET << std::endl;
 }
@@ -378,7 +382,7 @@ void	Server::broadcast(int sender)
 				index++;
 				continue ;
 			}
-			this->sendBuffer[index] = this->sendBuffer[sender];
+			this->sendBuffer[index] += this->sendBuffer[sender];
 			fds[index].events |= POLLOUT;
 			index++;
 		}
