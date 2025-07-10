@@ -18,6 +18,7 @@ BIN_DIR = ./bin/
 SRCS =  Server.cpp \
 	Client.cpp \
 	Channel.cpp \
+	messages.cpp \
 	main.cpp
 
 # OBJS

@@ -6,12 +6,13 @@
 /*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/10 00:09:11 by nasser           ###   ########.fr       */
+/*   Updated: 2025/07/10 01:01:19 by nasser           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include "Client.hpp"
+#include "messages.hpp"
 
 static std::map<int, Client*>* getClientsMap(void)
 {
@@ -27,10 +28,60 @@ static struct pollfd(*getMyFds(void))[1024]
 	return (&fds);
 }
 
-// void	Server::handleNewClient(int clientFD)
-// {
-	
-// }
+bool Server::handleClientAuthentication(std::map<int, Client*>* clients, int fd, char* buffer, int pollIndex) {
+    std::map<int, Client*>::iterator it = clients->find(fd);
+    if (it != clients->end()) {
+        Client* client = it->second;
+        if (!client->getAuthenticated()) {
+			struct pollfd (&fds)[1024] = *getMyFds();
+			std::string input(buffer);
+			if (input.rfind("PASS ", 0) == 0) {
+				std::string pass = input.substr(5);
+				if (pass == this->getPassword()) {
+					client->setAuthenticated(true);
+					this->sendBuffer[pollIndex] = msg_notice("Authentication successful");
+					fds[pollIndex].events |= POLLOUT;
+					return true;
+				} else {
+					this->sendBuffer[pollIndex] = msg_err_passwdmismatch();
+					return false;
+				}
+			} else {
+				this->sendBuffer[pollIndex] = msg_err_needmoreparams("PASS");
+				return false;
+			}
+        }
+    }
+    return true;
+}
+
+void	Server::addNewClient(int clientFD)
+{
+	int	index;
+	struct pollfd (&fds)[1024] = getPollFds();
+
+	index = 1;
+	while (index < 1024)
+	{
+		if (fds[index].fd == -1)
+			break ;
+		index++;
+	}
+	if (index == 1024)
+	{
+		std::cerr << RED "Error: Maximum of FDs!!!" RESET << std::endl;
+		return ;
+	}
+	(*this->clients)[clientFD] = new Client(clientFD);
+	fds[index].fd = clientFD;
+	fds[index].events = POLLIN;
+	fcntl(clientFD, F_SETFL, O_NONBLOCK);
+	this->numClients++;
+	// NOTICE message to the new client. Asking for authentication.
+	this->sendBuffer[index] = ":irc.example.com NOTICE * :Connection established. Please authenticate with: PASS <password>\n";
+	fds[index].events |= POLLOUT;
+	std::cout << BRIGHT_GREEN "New Client added: " << YELLOW << clientFD << RESET << std::endl;
+}
 
 void	Server::PollServerRoom(void)
 {
@@ -46,7 +97,6 @@ void	Server::PollServerRoom(void)
 		newClientFD = accept(this->serverIRC, (struct sockaddr *)&client, &client_len);
 		if (newClientFD != -1) {
 			this->addNewClient(newClientFD);
-			// this->handleNewClient(newClientFD);
 		}
 	}
 }
@@ -69,6 +119,16 @@ void	Server::PollInputClientMonitoring(void)
 			{
 				buffer[bytes] = '\0';
 				std::cout << BRIGHT_GREEN "Client: " << YELLOW << fds[index].fd << LIGHT_BLUE << " " << buffer << RESET << std::endl;
+				if (!handleClientAuthentication(clients, fds[index].fd, buffer, index)) {
+					index++;
+					continue ;
+				}
+				Client* client = (*clients)[fds[index].fd];
+				if (!client->getAuthenticated())
+				{
+					index++;
+					continue ;
+				}
 				this->recvBuffer[index] = buffer;
 				this->sendBuffer[index].clear();
 				this->sendBuffer[index] += buffer;
@@ -175,51 +235,6 @@ Server::Server(std::string portCheck, std::string password)
 	}
 }
 
-std::string	Server::getPassword(void) const
-{
-	return (password);
-}
-
-int	Server::getPort(void) const
-{
-	return (port);
-}
-
-void	Server::setPort(int port)
-{
-	this->port = port;
-}
-
-void	Server::setPassword(std::string password)
-{
-	this->password = password;
-}
-
-void	Server::setIsRunning(bool signal)
-{
-	*this->running = signal;
-}
-
-void	Server::setServerIRC(int serverFD)
-{
-	this->serverIRC = serverFD;
-}
-
-int	Server::getServerIRC(void) const
-{
-	return (serverIRC);
-}
-
-struct pollfd	(&Server::getPollFds(void))[1024]
-{
-	return (*fds);
-}
-
-int	Server::getNumberOfClients(void) const
-{
-	return (numClients);
-}
-
 void	Server::handleSignal(int signal)
 {
 	struct pollfd (&fds)[1024] = *getMyFds();
@@ -323,34 +338,6 @@ void	Server::shutdownService(void)
 	}
 }
 
-void	Server::addNewClient(int clientFD)
-{
-	int	index;
-	struct pollfd (&fds)[1024] = getPollFds();
-
-	index = 1;
-	while (index < 1024)
-	{
-		if (fds[index].fd == -1)
-			break ;
-		index++;
-	}
-	if (index == 1024)
-	{
-		std::cerr << RED "Error: Maximum of FDs!!!" RESET << std::endl;
-		return ;
-	}
-	(*this->clients)[clientFD] = new Client(clientFD);
-	fds[index].fd = clientFD;
-	fds[index].events = POLLIN;
-	fcntl(clientFD, F_SETFL, O_NONBLOCK);
-	this->numClients++;
-	this->sendBuffer[index] = "Hello!!! Welcome to our server =D\n";
-	fds[index].events |= POLLOUT;
-	std::cout << BRIGHT_GREEN "New Client added: " << YELLOW << clientFD << RESET << std::endl;
-	// print the new client with overloaded operator<<
-}
-
 void	Server::startIRCService(void)
 {
 	this->startPollFds();
@@ -417,4 +404,49 @@ void	Server::manageBuffers(int index)
 	this->sendBuffer[index].clear();
 	this->sendBuffer[index] = this->sendBuffer[this->numClients - 1];
 	this->sendBuffer[this->numClients - 1].clear();
+}
+
+std::string	Server::getPassword(void) const
+{
+	return (password);
+}
+
+int	Server::getPort(void) const
+{
+	return (port);
+}
+
+void	Server::setPort(int port)
+{
+	this->port = port;
+}
+
+void	Server::setPassword(std::string password)
+{
+	this->password = password;
+}
+
+void	Server::setIsRunning(bool signal)
+{
+	*this->running = signal;
+}
+
+void	Server::setServerIRC(int serverFD)
+{
+	this->serverIRC = serverFD;
+}
+
+int	Server::getServerIRC(void) const
+{
+	return (serverIRC);
+}
+
+struct pollfd	(&Server::getPollFds(void))[1024]
+{
+	return (*fds);
+}
+
+int	Server::getNumberOfClients(void) const
+{
+	return (numClients);
 }
