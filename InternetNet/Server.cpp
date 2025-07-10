@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fruan-ba <fruan-ba@42sp.org.br>            +#+  +:+       +#+        */
+/*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/08 19:09:33 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/09 23:29:41 by nasser           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "Client.hpp"
 
 static struct pollfd(*getMyFds(void))[1024]
 {
@@ -19,20 +20,28 @@ static struct pollfd(*getMyFds(void))[1024]
 	return (&fds);
 }
 
+void	Server::handleNewClient(int clientFD)
+{
+	Client newClient(clientFD);
+	
+}
+
 void	Server::PollServerRoom(void)
 {
 	sockaddr_in	client;
 	socklen_t	client_len;
 	struct pollfd (&fds)[1024] = *getMyFds();
-	int	newClient;
+	int	newClientFD;
 
 	client_len = sizeof(client);
 
 	if (*this->running && fds[0].revents & POLLIN)
 	{
-		newClient = accept(this->serverIRC, (struct sockaddr *)&client, &client_len);
-		if (newClient != -1)
-			this->addNewClient(newClient);
+		newClientFD = accept(this->serverIRC, (struct sockaddr *)&client, &client_len);
+		if (newClientFD != -1) {
+			this->addNewClient(newClientFD);
+			this->handleNewClient(newClientFD);
+		}
 	}
 }
 

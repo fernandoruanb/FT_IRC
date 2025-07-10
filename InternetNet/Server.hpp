@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fruan-ba <fruan-ba@42sp.org.br>            +#+  +:+       +#+        */
+/*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/08 18:22:59 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/09 23:30:07 by nasser           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include "colours.hpp"
+
 
 class	Server
 {
@@ -57,6 +58,7 @@ class	Server
 		void	startIRCService(void);
 		void	shutdownService(void);
 		void	addNewClient(int clientFD);
+		void	handleNewClient(int clientFD);
 		void	startPollFds(void);
 		void	manageBuffers(int index);
 		void	broadcast(int index);

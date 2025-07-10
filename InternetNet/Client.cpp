@@ -3,14 +3,25 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fruan-ba <fruan-ba@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/09 16:06:24 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/09 23:28:59 by nasser           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
+#include <iostream>
+#include <ostream>
+
+Client::Client(int fd)
+	: clientFD(fd), authenticated(false), registered(false), isOperator(false)
+{
+}
+
+Client::~Client(void)
+{
+}
 
 void	Client::setNickName(std::string nickname)
 {
@@ -35,6 +46,21 @@ void	Client::setAuthenticated(bool authenticated)
 void	Client::setClientFD(int clientFD)
 {
 	this->clientFD = clientFD;
+}
+
+void	Client::setRegistered(bool registered)
+{
+    this->registered = registered;
+}
+
+void	Client::setIsOperator(bool isOperator)
+{
+    this->isOperator = isOperator;
+}
+
+void	Client::setHost(std::string host)
+{
+    this->host = host;
 }
 
 std::string	Client::getNickName(void) const
@@ -75,4 +101,34 @@ std::string&	Client::getBufferOut(void)
 bool	Client::getIsOperator(void) const
 {
 	return (isOperator);
+}
+
+bool	Client::getRegistered(void) const
+{
+    return (registered);
+}
+
+std::string	Client::getHost(void) const
+{
+    return (host);
+}
+
+const std::set<std::string>&	Client::getChannels(void) const
+{
+    return channels;
+}
+void	Client::removeChannel(std::string channel)
+{
+	channels.erase(channel);
+}
+std::ostream& operator<<(std::ostream &out, const Client &other)
+{
+    out << "Client(nick: " << other.getNickName()
+        << ", user: " << other.getUserName()
+        << ", fd: " << other.getClientFD()
+        << ", host: " << other.getHost()
+        << ", op: " << other.getIsOperator()
+        << ", registered: " << other.getRegistered()
+        << ")";
+    return out;
 }
