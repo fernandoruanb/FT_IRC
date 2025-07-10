@@ -29,10 +29,10 @@ static struct pollfd(*getMyFds(void))[1024]
 }
 
 bool Server::handleClientAuthentication(std::map<int, Client*>* clients, int fd, char* buffer, int pollIndex) {
-    std::map<int, Client*>::iterator it = clients->find(fd);
-    if (it != clients->end()) {
-        Client* client = it->second;
-        if (!client->getAuthenticated()) {
+	std::map<int, Client*>::iterator it = clients->find(fd);
+	if (it != clients->end()) {
+		Client* client = it->second;
+		if (!client->getAuthenticated()) {
 			std::cout << "TESTING AUTHENTICATION" << std::endl; // Debugging line
 			struct pollfd (&fds)[1024] = *getMyFds();
 			std::string input(buffer);
@@ -59,9 +59,9 @@ bool Server::handleClientAuthentication(std::map<int, Client*>* clients, int fd,
 				// send(fd, msg_err_needmoreparams("PASS").c_str(), msg_err_needmoreparams("PASS").size(), 0);
 				return false;
 			}
-        }
-    }
-    return true;
+		}
+	}
+	return true;
 }
 
 void	Server::addNewClient(int clientFD)
@@ -128,23 +128,28 @@ void	Server::PollInputClientMonitoring(void)
 			{
 				buffer[bytes] = '\0';
 				std::cout << BRIGHT_GREEN "Client: " << YELLOW << fds[index].fd << LIGHT_BLUE << " " << buffer << RESET << std::endl;
-				if (!handleClientAuthentication(clients, fds[index].fd, buffer, index)) {
-					// index++;
-					// continue ;
-					return; 
-				}
-				Client* client = (*clients)[fds[index].fd];
-				if (!client->getAuthenticated())
-				{
-					index++;
-					continue ;
-				}
-				this->recvBuffer[index] = buffer;
-				this->sendBuffer[index].clear();
-				this->sendBuffer[index] += buffer;
-				this->broadcast(index);
-                               	this->privmsg(index - 1, "You are very special =D\n");
-				fds[index].events |= POLLOUT;
+			   if (!handleClientAuthentication(clients, fds[index].fd, buffer, index)) {
+				   index++;
+				   continue ;
+			   }
+			   Client* client = (*clients)[fds[index].fd];
+			   // Se acabou de autenticar, só envie a mensagem de sucesso e espere o próximo input
+			   if (!client->getAuthenticated())
+			   {
+				   index++;
+				   continue ;
+			   }
+			   if (std::string(buffer).rfind("PASS ", 0) == 0) {
+				   // Não sobrescreva o sendBuffer após autenticação
+				   index++;
+				   continue ;
+			   }
+			   this->recvBuffer[index] = buffer;
+			   this->sendBuffer[index].clear();
+			   this->sendBuffer[index] += buffer;
+			   this->broadcast(index);
+			   this->privmsg(index - 1, "You are very special =D\n");
+			   fds[index].events |= POLLOUT;
 			}
 			if (bytes == 0)
 			{
