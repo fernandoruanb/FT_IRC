@@ -6,7 +6,7 @@
 /*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:22:05 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/09 23:28:46 by nasser           ###   ########.fr       */
+/*   Updated: 2025/07/09 23:39:51 by nasser           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ class	Client
 {
 	private:
 		int				clientFD;
+		int				index;
 		bool			authenticated;
 		bool			registered;
 		std::string		nickname;
@@ -32,6 +33,7 @@ class	Client
 		Client(const Client &other);
 		Client& operator=(const Client &other);
 		std::set<std::string>	channels;
+		Client(void);
 	public:
 		Client(int clientFD);
 		~Client(void);

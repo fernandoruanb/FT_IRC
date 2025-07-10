@@ -1,8 +1,8 @@
-# Name of the program or library
+#Name of the program or the library
 
 NAME = ircserver
 
-# Compilers and flags
+#Compilers and flags
 
 CC = c++
 CFLAGS = -Wall -Werror -Wextra -std=c++98
@@ -14,15 +14,12 @@ INCDIR = .
 
 # SRCS
 
-SRCS =  internet.cpp\
-	internet_utils/atoiIRC.cpp\
-	internet_utils/getServer.cpp\
-	internet_utils/manageBuffers.cpp\
-	internet_srcs/serverIRCStartMode.cpp\
-	internet_srcs/broadcast.cpp\
-	internet_srcs/privmsg.cpp
+SRCS =  Server.cpp \
+	Client.cpp \
+	Channel.cpp \
+	main.cpp
 
-#OBJS
+# OBJS
 
 OBJS = $(SRCS:.cpp=.o)
 
@@ -43,20 +40,18 @@ $(NAME): $(OBJS)
 #clean
 
 clean:
-	rm -f $(OBJS)
+	rm -rf $(OBJS)
 
-#full clean
+# full clear
 
 fclean: clean
-	rm -f $(NAME)
-
-#restart
-
-re: fclean all
-
-#Run Mode
+	rm -rf $(NAME)
 
 run: all
 	@valgrind --track-origins=yes --show-leak-kinds=all --track-fds=yes --leak-check=full ./ircserver 6667 12345
+
+# restart
+
+re: fclean all
 
 .PHONY: all fclean clean re

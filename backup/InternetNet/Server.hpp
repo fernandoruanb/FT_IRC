@@ -13,6 +13,8 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
+# include "Channel.hpp"
+# include "Client.hpp"
 # include <iostream>
 # include <fcntl.h>
 # include <signal.h>
@@ -36,11 +38,11 @@ class	Server
 		int	port;
 		std::string	password;
 		bool	*running;
+		Server&	operator=(const Server &other);
+		Server(const Server &other);
 	public:
 		Server(std::string portCheck, std::string password);
 		~Server(void);
-		Server&	operator=(const Server &other);
-		Server(const Server &other);
 		void	setPassword(std::string password);
 		void	setPort(int Port);
 		void	setIsRunning(bool signal);

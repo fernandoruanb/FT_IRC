@@ -36,7 +36,7 @@ class	Channel
 		Channel(const Channel &other);
 		Channel& operator=(const Channel &other);
 	public:
-		Channel(std::string name);
+		Channel(void);
 		~Channel(void);
 		void	setName(std::string name);
 		void	setTopic(std::string topic);

@@ -12,13 +12,6 @@
 
 #include "Channel.hpp"
 
-Channel::Channel(std::string name): name(name)
-{
-	std::cout << LIGHT_BLUE "Channel " << YELLOW << name << LIGHT_BLUE << "created" << RESET << std::endl;
-}
-
-Channel::~Channel(void) {}
-
 void	Channel::setName(std::string name)
 {
 	this->name = name;
