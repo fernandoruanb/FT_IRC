@@ -6,7 +6,7 @@
 /*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/10 15:11:51 by fcaldas-         ###   ########.fr       */
+/*   Updated: 2025/07/10 15:25:31 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -388,37 +388,46 @@ void	Server::startIRCService(void)
 	}	
 }
 
-void	Server::broadcast(int sender)
+void    Server::broadcast(int sender)
 {
-	struct pollfd (&fds)[1024] = *getMyFds();
-	int	index;
+    struct pollfd (&fds)[1024] = *getMyFds();
+    int    index;
 
-	index = 1;
-	if (!this->sendBuffer[sender].empty())
-	{
-		while (index < this->numClients && fds[index].fd != -1)
-		{
-			if (index == sender)
-			{
-				index++;
-				continue ;
-			}
-			this->sendBuffer[index] += this->sendBuffer[sender];
-			fds[index].events |= POLLOUT;
-			index++;
-		}
-		this->sendBuffer[sender].clear();
-	}
+    index = 1;
+    if (!this->sendBuffer[sender].empty())
+    {
+        while (index < this->numClients && fds[index].fd != -1)
+        {
+            if (index == sender)
+            {
+                index++;
+                continue ;
+            }
+           std::map<int, Client*>::iterator it = clients->find(fds[index].fd);
+           Client* client = it->second;
+           if (client->getAuthenticated())
+            {
+                this->sendBuffer[index] += this->sendBuffer[sender];
+                fds[index].events |= POLLOUT;
+            }
+            index++;
+        }
+        this->sendBuffer[sender].clear();
+    }
 }
 
-void	Server::privmsg(int index, std::string message)
+void    Server::privmsg(int index, std::string message)
 {
-	struct pollfd (&fds)[1024] = *getMyFds();
-
-	if (message.empty() || index < 0 || fds[index].fd == -1)
+    struct pollfd (&fds)[1024] = *getMyFds();
+	if (index < 1)
 		return ;
-	this->sendBuffer[index] += message;
-	fds[index].events |= POLLOUT;
+    std::map<int, Client*>::iterator it = clients->find(fds[index].fd);
+    Client* client = it->second;
+
+    if (message.empty() || index < 0 || fds[index].fd == -1 || !client->getAuthenticated())
+        return ;
+    this->sendBuffer[index] += message;
+    fds[index].events |= POLLOUT;
 }
 
 void	Server::manageBuffers(int index)
