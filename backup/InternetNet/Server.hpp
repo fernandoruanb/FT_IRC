@@ -13,6 +13,7 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
+# include <map>
 # include "Channel.hpp"
 # include "Client.hpp"
 # include <iostream>
@@ -33,6 +34,7 @@ class	Server
 		struct pollfd (*fds)[1024];
 		std::string	recvBuffer[1024];
 		std::string	sendBuffer[1024];
+		std::map<int, Client*>* clients;
 		int	serverIRC;
 		int	numClients;
 		int	port;
