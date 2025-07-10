@@ -7,11 +7,11 @@ std::string msg_welcome(const std::string& nick) {
 }
 
 std::string msg_err_needmoreparams(const std::string& cmd) {
-    return ":" SERVER_NAME " 461 " + cmd + " :Not enough parameters\r\n";
+    return (CYAN ":" SERVER_NAME " 461 " + cmd + YELLOW " :Not enough parameters\r\n" RESET);
 }
 
 std::string msg_err_passwdmismatch() {
-    return ":" SERVER_NAME " 464 * :Password incorrect\r\n";
+    return (CYAN ":" SERVER_NAME " 464 * " YELLOW ":Password incorrect\r\n" RESET);
 }
 
 std::string msg_err_nicknameinuse(const std::string& nick) {

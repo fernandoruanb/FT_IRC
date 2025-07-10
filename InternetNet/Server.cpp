@@ -6,7 +6,7 @@
 /*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/10 13:54:16 by fcaldas-         ###   ########.fr       */
+/*   Updated: 2025/07/10 14:04:20 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,21 +43,24 @@ bool Server::handleClientAuthentication(std::map<int, Client*>* clients, int fd,
 				if (pass == this->getPassword()) {
 					client->setAuthenticated(true);
 					std::cout << (client->getAuthenticated() ? "Client authenticated successfully" : "Client authentication failed") << std::endl; // Debugging line
+					this->sendBuffer[pollIndex].clear();
 					this->sendBuffer[pollIndex] += msg_notice("Authentication successful");
 					// send(fd, msg_notice("Authentication successful").c_str(), msg_notice("Authentication successful").size(), 0);
 					fds[pollIndex].events |= POLLOUT;
 					return true;
 				} else {
+					this->sendBuffer[pollIndex].clear();
 					this->sendBuffer[pollIndex] += msg_err_passwdmismatch();
 					fds[pollIndex].events |= POLLOUT;
 					// send(fd, msg_err_passwdmismatch().c_str(), msg_err_passwdmismatch().size(), 0);
 					return false;
 				}
-			} else {
-				this->sendBuffer[pollIndex] += msg_err_needmoreparams("PASS");
-				fds[pollIndex].events |= POLLOUT;
-				// send(fd, msg_err_needmoreparams("PASS").c_str(), msg_err_needmoreparams("PASS").size(), 0);
-				return false;
+			   } else {
+				   this->sendBuffer[pollIndex].clear();
+				   this->sendBuffer[pollIndex] += msg_err_needmoreparams("PASS");
+				   fds[pollIndex].events |= POLLOUT;
+				   // send(fd, msg_err_needmoreparams("PASS").c_str(), msg_err_needmoreparams("PASS").size(), 0);
+				   return false;
 			}
 		}
 	}
