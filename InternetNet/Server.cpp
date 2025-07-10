@@ -12,6 +12,13 @@
 
 #include "Server.hpp"
 
+static std::map<int, Client*>* getClientsMap(void)
+{
+	static std::map<int, Client*> clientsMap;
+
+	return (&clientsMap);
+}
+
 static struct pollfd(*getMyFds(void))[1024]
 {
 	static struct pollfd	fds[1024];
@@ -41,6 +48,7 @@ void	Server::PollInputClientMonitoring(void)
 	int	index;
 	ssize_t	bytes;
 	char	buffer[513];
+	std::map<int, Client*>* clients = getClientsMap();
 	struct pollfd (&fds)[1024] = *getMyFds();
 
 	index = 1;
@@ -63,6 +71,8 @@ void	Server::PollInputClientMonitoring(void)
 			if (bytes == 0)
 			{
 				std::cout << LIGHT_BLUE "Client " << YELLOW << fds[index].fd << LIGHT_BLUE " disconnected" << RESET << std::endl;
+				std::map<int, Client*>::iterator it = clients->find(fds[index].fd);
+				delete it->second;
 				close(fds[index].fd);
 				fds[index].fd = fds[numClients - 1].fd;
 				fds[numClients - 1].fd = -1;
@@ -138,6 +148,7 @@ Server::Server(std::string portCheck, std::string password)
 	{
 		this->running = getRunning();
 		this->fds = getMyFds();
+		this->clients = getClientsMap();
 		port = atoiIRC(portCheck);
 		if (port == -1)
 			throw std::exception();
@@ -204,6 +215,7 @@ int	Server::getNumberOfClients(void) const
 void	Server::handleSignal(int signal)
 {
 	struct pollfd (&fds)[1024] = *getMyFds();
+	std::map<int, Client*>* clients = getClientsMap();
 	int	index;
 	bool	*running = getRunning();
 
@@ -214,6 +226,11 @@ void	Server::handleSignal(int signal)
 		*running = false;
 		while (index < 1024 && fds[index].fd != -1)
 		{
+			if (index > 0)
+			{
+				std::map<int, Client*>::iterator it = clients->find(fds[index].fd);
+				delete it->second;
+			}
 			close(fds[index].fd);
 			fds[index].fd = -1;
 			index++;
@@ -315,10 +332,13 @@ void	Server::addNewClient(int clientFD)
 		std::cerr << RED "Error: Maximum of FDs!!!" RESET << std::endl;
 		return ;
 	}
+	(*this->clients)[clientFD] = new Client(clientFD);
 	fds[index].fd = clientFD;
 	fds[index].events = POLLIN;
 	fcntl(clientFD, F_SETFL, O_NONBLOCK);
 	this->numClients++;
+	this->sendBuffer[index] = "Hello!!! Welcome to our server =D\n";
+	fds[index].events |= POLLOUT;
 	std::cout << BRIGHT_GREEN "New Client added: " << YELLOW << clientFD << RESET << std::endl;
 }
 

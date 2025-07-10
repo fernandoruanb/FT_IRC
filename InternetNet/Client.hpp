@@ -31,8 +31,9 @@ class	Client
 		bool	isOperator;
 		Client(const Client &other);
 		Client& operator=(const Client &other);
-	public:
 		Client(void);
+	public:
+		Client(int clientFD);
 		~Client(void);
 		void	setNickName(std::string nickname);
 		void	setUserName(std::string username);
