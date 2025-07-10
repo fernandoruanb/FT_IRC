@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:22:05 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/10 11:49:24 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/10 14:02:32 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,21 +15,21 @@
 
 # include <iostream>
 # include <string>
-# include "Server.hpp"
+# include <unistd.h>
 
 class	Client
 {
 	private:
 		//Variables
-		int	clientFD;
-		int	index;
-		bool	authenticated;
+		int			clientFD;
+		bool		authenticated;
 		std::string	nickname;
 		std::string	username;
 		// std::string	realname;
 		std::string	sendBuffer;
 		std::string	recvBuffer;
 		bool		isOperator;
+		bool		isRegistred;
 		
 		//private methods
 		void	clear(void);
@@ -48,6 +48,7 @@ class	Client
 		// void	setRealName(const std::string&);
 		void	setAuthenticated(bool);
 		void	setClientFD(int);
+		void	setIsOperator(bool);
 		void	setRecvBuffer(const std::string&);
 		void	setSendBuffer(const std::string&);
 
@@ -55,7 +56,7 @@ class	Client
 		int		getClientFD(void) const;
 		bool	getAuthenticated(void) const;
 		bool	getIsOperator(void) const;
-		int		getIndex(void) const;
+		bool	getIsRegistred(void) const;
 		
 		const std::string&	getNickName(void) const;
 		const std::string&	getUserName(void) const;
@@ -64,7 +65,7 @@ class	Client
 		const std::string&	getRecvBuffer(void) const;
 
 		//methods
-		void	addNewClient(void);
+		void	addNewClient(int, const std::string&);
 		void	removeClient(void);
 		bool	hasDataToSend(void);
 };

@@ -6,18 +6,19 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/10 11:50:54 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/10 14:08:04 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
+#include "Server.hpp"
 
 #pragma region utils and operators
 
 void	Client::clear(void)
 {
 	this->clientFD = -1;
-	this->index = -1;
+	this->isRegistred = false;
 	this->authenticated = false;
 	this->isOperator = false;
 	this->nickname.clear();
@@ -54,11 +55,11 @@ Client& Client::operator=(const Client& other){
 	if (this != &other)
 	{
 		this->clientFD = other.getClientFD();
-		this->index = other.getIndex();
 		this->authenticated = other.getAuthenticated();
 		this->isOperator = other.getIsOperator();
 		this->nickname = other.getNickName();
 		this->username = other.getUserName();
+		this->isRegistred = other.getIsRegistred();
 		// this->realName = other.getRealName();
 		this->sendBuffer = other.getSendBuffer();
 		this->recvBuffer = other.getRecvBuffer();
@@ -92,14 +93,18 @@ void	Client::setRecvBuffer(const std::string& content){
 void	Client::setSendBuffer(const std::string& content){
 	this->sendBuffer = content;
 }
+void	Client::setIsOperator(bool flag){
+	this->isOperator = flag;
+}
 
 #pragma endregion
 
 #pragma region Getters
+
+bool	Client::getIsRegistred(void) const { return (this->isRegistred); }
 int		Client::getClientFD(void) const { return (this->clientFD); }
 bool	Client::getAuthenticated(void) const { return (this->authenticated); }
 bool	Client::getIsOperator(void) const { return (this->isOperator); }
-int		Client::getIndex(void) const { return (this->index); }
 
 const std::string&	Client::getNickName(void) const { return (this->nickname); }
 const std::string&	Client::getUserName(void) const { return (this->username); }
@@ -110,10 +115,57 @@ const std::string&	Client::getRecvBuffer(void) const { return (this->recvBuffer)
 #pragma endregion
 
 
-#pragma region Mathods
+#pragma region Methods
 
-void	Client::addNewClient(void){}
-void	Client::removeClient(void){}
+void	Client::addNewClient(int fd, const std::string& passwd){
+	if (!this->getIsRegistred())
+	{
+		std::string	ask = "Whats your name: ";
+		
+		send(fd, ask.c_str(), ask.size(), 0);
+		char	buf[512];
+		ssize_t	bytes = recv(fd, buf, sizeof(buf) - 1, 0);
+		
+		if (bytes <= 0)
+			return;
+		
+		buf[bytes] = '\0';
+		this->setRecvBuffer(buf);
+		
+		size_t	pos = this->getRecvBuffer().find('\n');
+		if (pos != std::string::npos)
+			this->setUserName(this->getRecvBuffer().substr(0, pos));
+
+		ask = "Whats the password: ";
+		bool	pass = true;
+		while (pass)
+		{
+			send(fd, ask.c_str(), ask.size(), 0);
+			ssize_t	bytes = recv(fd, buf, sizeof(buf) - 1, 0);
+		
+			if (bytes <= 0)
+				return;
+			buf[bytes] = '\0';
+			this->setRecvBuffer(buf);
+			
+			pos = this->getRecvBuffer().find('\n');
+			if (pos != std::string::npos)
+				if (this->getRecvBuffer().substr(0, pos) == passwd)
+					pass = false;
+		}
+		
+		
+		std::string	welcome = "Welcome " + this->getUserName() + "\n";
+		this->setClientFD(fd);
+		this->isRegistred = true;
+		this->recvBuffer.clear();
+		send(this->getClientFD(), welcome.c_str(), welcome.size(), 0);
+	}
+}
+void	Client::removeClient(void){
+	close(this->clientFD);
+	this->clear();
+}
 bool	Client::hasDataToSend(void){
 	return (!this->getSendBuffer().empty());
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fruan-ba <fruan-ba@42sp.org.br>            +#+  +:+       +#+        */
+/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/08 19:09:33 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/10 14:08:28 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -315,6 +315,7 @@ void	Server::addNewClient(int clientFD)
 		std::cerr << RED "Error: Maximum of FDs!!!" RESET << std::endl;
 		return ;
 	}
+	this->myClients[index].addNewClient(clientFD, this->getPassword());
 	fds[index].fd = clientFD;
 	fds[index].events = POLLIN;
 	fcntl(clientFD, F_SETFL, O_NONBLOCK);

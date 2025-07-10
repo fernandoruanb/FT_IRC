@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fruan-ba <fruan-ba@42sp.org.br>            +#+  +:+       +#+        */
+/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/08 18:22:59 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/10 11:57:44 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,14 @@
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include "colours.hpp"
+# include <vector>
+# include "Client.hpp"
 
 class	Server
 {
 	private:
 		Server(void);
+		Client	myClients[1024];
 		struct pollfd (*fds)[1024];
 		std::string	recvBuffer[1024];
 		std::string	sendBuffer[1024];
