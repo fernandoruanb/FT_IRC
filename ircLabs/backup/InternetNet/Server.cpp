@@ -6,7 +6,7 @@
 /*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/10 19:17:13 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/10 18:48:46 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,7 +171,7 @@ void	Server::PollInputClientMonitoring(void)
 				   this->sendBuffer[index].clear();
 				   this->sendBuffer[index] += line;
 				   this->broadcast(index);
-				   //this->privmsg(index - 1, "You are very special =D\n");
+				   this->privmsg(index - 1, "You are very special =D\n");
 				   fds[index].events |= POLLOUT;
 			   }
 		   }
