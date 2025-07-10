@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   colours.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fruan-ba <fruan-ba@42sp.org.br>            +#+  +:+       +#+        */
+/*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 14:30:07 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/06/02 14:30:09 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/10 00:02:29 by nasser           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 # define BLUE "\033[0;34m"
 # define MAGENTA "\033[0;35m"
 # define CYAN "\033[0;36m"
-# define ORANGE "\033[38;5;208m"
+# define ORANGE "\033[1;38;5;208m"
 # define WHITE "\033[0;37m"
 
 //	Bright colours

@@ -6,7 +6,7 @@
 /*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:22:05 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/09 23:39:51 by nasser           ###   ########.fr       */
+/*   Updated: 2025/07/09 23:57:31 by nasser           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,13 +23,13 @@ class	Client
 		int				index;
 		bool			authenticated;
 		bool			registered;
+		bool			isOperator;
 		std::string		nickname;
 		std::string		username;
 		std::string		realname;
 		std::string		bufferIn;
 		std::string		bufferOut;
 		std::string		host;
-		bool			isOperator;
 		Client(const Client &other);
 		Client& operator=(const Client &other);
 		std::set<std::string>	channels;

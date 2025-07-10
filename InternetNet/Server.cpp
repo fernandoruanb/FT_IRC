@@ -6,7 +6,7 @@
 /*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/09 23:29:41 by nasser           ###   ########.fr       */
+/*   Updated: 2025/07/10 00:09:11 by nasser           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,11 +27,10 @@ static struct pollfd(*getMyFds(void))[1024]
 	return (&fds);
 }
 
-void	Server::handleNewClient(int clientFD)
-{
-	Client newClient(clientFD);
+// void	Server::handleNewClient(int clientFD)
+// {
 	
-}
+// }
 
 void	Server::PollServerRoom(void)
 {
@@ -47,7 +46,7 @@ void	Server::PollServerRoom(void)
 		newClientFD = accept(this->serverIRC, (struct sockaddr *)&client, &client_len);
 		if (newClientFD != -1) {
 			this->addNewClient(newClientFD);
-			this->handleNewClient(newClientFD);
+			// this->handleNewClient(newClientFD);
 		}
 	}
 }
@@ -231,7 +230,7 @@ void	Server::handleSignal(int signal)
 	index = 0;
 	if (signal == SIGINT || signal == SIGTERM)
 	{
-		std::cout << ORANGE "Received signal to shutdown" RESET << std::endl;
+		std::cout << ORANGE "\nReceived signal to shutdown" RESET << std::endl;
 		*running = false;
 		while (index < 1024 && fds[index].fd != -1)
 		{
@@ -349,6 +348,7 @@ void	Server::addNewClient(int clientFD)
 	this->sendBuffer[index] = "Hello!!! Welcome to our server =D\n";
 	fds[index].events |= POLLOUT;
 	std::cout << BRIGHT_GREEN "New Client added: " << YELLOW << clientFD << RESET << std::endl;
+	// print the new client with overloaded operator<<
 }
 
 void	Server::startIRCService(void)

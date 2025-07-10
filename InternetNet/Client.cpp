@@ -6,26 +6,19 @@
 /*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/09 23:28:59 by nasser           ###   ########.fr       */
+/*   Updated: 2025/07/10 00:07:33 by nasser           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Client.hpp"
 #include <iostream>
 #include <ostream>
+#include "colours.hpp"
 
 Client::Client(int fd)
 	: clientFD(fd), authenticated(false), registered(false), isOperator(false)
 {
-}
-
-Client::~Client(void)
-{
-}
-
-Client::Client(int clientFD): clientFD(clientFD)
-{
-	std::cout << LIGHT_BLUE << "Constructor Client* Called" << RESET << std::endl;
+	std::cout << LIGHT_BLUE << "Constructor Client* Called in fd: " MAGENTA << fd << RESET << std::endl;
 }
 
 Client::~Client(void)
@@ -133,12 +126,14 @@ void	Client::removeChannel(std::string channel)
 }
 std::ostream& operator<<(std::ostream &out, const Client &other)
 {
-    out << "Client(nick: " << other.getNickName()
-        << ", user: " << other.getUserName()
-        << ", fd: " << other.getClientFD()
-        << ", host: " << other.getHost()
-        << ", op: " << other.getIsOperator()
-        << ", registered: " << other.getRegistered()
+    out << YELLOW "Client("
+		<< ORANGE "fd: " CYAN << other.getClientFD()
+		<< ORANGE ", nick: " CYAN << other.getNickName()
+        << ORANGE ", user: " CYAN << other.getUserName()
+        << ORANGE ", host: " CYAN << other.getHost()
+		<< ORANGE ", authenticated: " CYAN << (other.getAuthenticated() ? "true" : "false")
+        << ORANGE ", registered: " CYAN << (other.getRegistered() ? "true" : "false")
+        << ORANGE ", op: " CYAN << (other.getIsOperator() ? "true" : "false")
         << ")";
     return out;
 }
