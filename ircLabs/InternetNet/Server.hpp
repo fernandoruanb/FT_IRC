@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fruan-ba <fruan-ba@42sp.org.br>            +#+  +:+       +#+        */
+/*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/08 18:22:59 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/10 00:45:20 by nasser           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,9 @@
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include "colours.hpp"
+
+#define SERVER_NAME "irc.maroto.com"
+
 
 class	Server
 {
@@ -59,6 +62,7 @@ class	Server
 		void	startIRCService(void);
 		void	shutdownService(void);
 		void	addNewClient(int clientFD);
+		bool	handleClientAuthentication(std::map<int, Client*>* clients, int fd, char* buffer, int pollIndex);
 		void	startPollFds(void);
 		void	manageBuffers(int index);
 		void	broadcast(int index);
