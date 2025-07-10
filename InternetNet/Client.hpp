@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fruan-ba <fruan-ba@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:22:05 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/09 15:22:05 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/10 11:49:24 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,33 +20,55 @@
 class	Client
 {
 	private:
+		//Variables
 		int	clientFD;
 		int	index;
 		bool	authenticated;
 		std::string	nickname;
 		std::string	username;
-		std::string	realname;
-		std::string	bufferIn;
-		std::string	bufferOut;
-		bool	isOperator;
-		Client(const Client &other);
-		Client& operator=(const Client &other);
+		// std::string	realname;
+		std::string	sendBuffer;
+		std::string	recvBuffer;
+		bool		isOperator;
+		
+		//private methods
+		void	clear(void);
+		
+		//Constructors
+		Client(const Client&);
+		Client& operator=(const Client&);
 	public:
+		//Constructor/destructor
 		Client(void);
 		~Client(void);
-		void	setNickName(std::string nickname);
-		void	setUserName(std::string username);
-		void	setRealName(std::string realname);
-		void	setAuthenticated(bool authenticated);
-		void	setClientFD(int clientFD);
-		int	getClientFD(void) const;
+		
+		//setters
+		void	setNickName(const std::string&);
+		void	setUserName(const std::string&);
+		// void	setRealName(const std::string&);
+		void	setAuthenticated(bool);
+		void	setClientFD(int);
+		void	setRecvBuffer(const std::string&);
+		void	setSendBuffer(const std::string&);
+
+		//Getters
+		int		getClientFD(void) const;
 		bool	getAuthenticated(void) const;
-		std::string	getNickName(void) const;
-		std::string	getUserName(void) const;
-		std::string	getRealName(void) const;
-		std::string&	getBufferIn(void);
-		std::string&	getBufferOut(void);
 		bool	getIsOperator(void) const;
+		int		getIndex(void) const;
+		
+		const std::string&	getNickName(void) const;
+		const std::string&	getUserName(void) const;
+		// const std::string&	getRealName(void) const;
+		const std::string&	getSendBuffer(void) const;
+		const std::string&	getRecvBuffer(void) const;
+
+		//methods
+		void	addNewClient(void);
+		void	removeClient(void);
+		bool	hasDataToSend(void);
 };
-std::ofstream operator<<(std::ostream &out, const Client &other);
+
+std::ostream& operator<<(std::ostream&, const Client&);
+
 #endif /* CLIENT_HPP */
