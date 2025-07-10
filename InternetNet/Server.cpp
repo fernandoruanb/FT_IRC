@@ -6,7 +6,7 @@
 /*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/10 14:40:42 by fcaldas-         ###   ########.fr       */
+/*   Updated: 2025/07/10 15:11:51 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,51 +122,59 @@ void	Server::PollInputClientMonitoring(void)
 	index = 1;
 	while (*this->running && index < this->numClients && fds[index].fd != -1)
 	{
-		if (fds[index].revents & POLLIN)
-		{
-			bytes = recv(fds[index].fd, buffer, 512, 0);
-			if (bytes > 0)
-			{
-				buffer[bytes] = '\0';
-				std::cout << BRIGHT_GREEN "Client: " << YELLOW << fds[index].fd << LIGHT_BLUE << " " << buffer << RESET << std::endl;
-			   if (!handleClientAuthentication(clients, fds[index].fd, buffer, index)) {
-				   index++;
-				   continue ;
-			   }
-			   Client* client = (*clients)[fds[index].fd];
-			   // Se acabou de autenticar, só envie a mensagem de sucesso e espere o próximo input
-			   if (!client->getAuthenticated())
+	   if (fds[index].revents & POLLIN)
+	   {
+		   bytes = recv(fds[index].fd, buffer, 512, 0);
+		   if (bytes > 0) {
+			   buffer[bytes] = '\0';
+			   this->recvBuffer[index] += buffer; // Acumula o que chegou
+
+			   size_t pos;
+			   while ((pos = this->recvBuffer[index].find('\n')) != std::string::npos)
 			   {
-				   index++;
-				   continue ;
+				   std::string line = this->recvBuffer[index].substr(0, pos + 1);
+				   this->recvBuffer[index].erase(0, pos + 1);
+
+				   if (!line.empty() && line[line.size() - 1] == '\n')
+					   line.erase(line.size() - 1, 1);
+				   if (!line.empty() && line[line.size() - 1] == '\r')
+					   line.erase(line.size() - 1, 1);
+
+				   std::cout << BRIGHT_GREEN "Client: " << YELLOW << fds[index].fd << LIGHT_BLUE << " " << line << RESET << std::endl;
+
+				   if (!handleClientAuthentication(clients, fds[index].fd, (char*)line.c_str(), index)) {
+					   continue;
+				   }
+				   Client* client = (*clients)[fds[index].fd];
+				   if (!client->getAuthenticated())
+				   {
+					   continue;
+				   }
+				   if (line.rfind("PASS ", 0) == 0) {
+					   continue;
+				   }
+				   this->sendBuffer[index].clear();
+				   this->sendBuffer[index] += line;
+				   this->broadcast(index);
+				   this->privmsg(index - 1, "You are very special =D\n");
+				   fds[index].events |= POLLOUT;
 			   }
-			   if (std::string(buffer).rfind("PASS ", 0) == 0) {
-				   // Não sobrescreva o sendBuffer após autenticação
-				   index++;
-				   continue ;
-			   }
-			   this->recvBuffer[index] = buffer;
-			   this->sendBuffer[index].clear();
-			   this->sendBuffer[index] += buffer;
-			   this->broadcast(index);
-			   this->privmsg(index - 1, "You are very special =D\n");
-			   fds[index].events |= POLLOUT;
-			}
-			if (bytes == 0)
-			{
-				std::cout << LIGHT_BLUE "Client " << YELLOW << fds[index].fd << LIGHT_BLUE " disconnected" << RESET << std::endl;
-				std::map<int, Client*>::iterator it = clients->find(fds[index].fd);
-				delete it->second;
-				close(fds[index].fd);
-				fds[index].fd = fds[numClients - 1].fd;
-				fds[numClients - 1].fd = -1;
-				fds[numClients - 1].events = 0;
-				this->manageBuffers(index);
-				this->numClients--;
-			}
-		}
-		index++;
-	}
+		   }
+		   if (bytes == 0)
+		   {
+			   std::cout << LIGHT_BLUE "Client " << YELLOW << fds[index].fd << LIGHT_BLUE " disconnected" << RESET << std::endl;
+			   std::map<int, Client*>::iterator it = clients->find(fds[index].fd);
+			   delete it->second;
+			   close(fds[index].fd);
+			   fds[index].fd = fds[numClients - 1].fd;
+			   fds[numClients - 1].fd = -1;
+			   fds[numClients - 1].events = 0;
+			   this->manageBuffers(index);
+			   this->numClients--;
+		   }
+	   }
+	   index++;
+   }
 }
 
 void	Server::PollOutMonitoring(void)
