@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fruan-ba <fruan-ba@42sp.org.br>            +#+  +:+       +#+        */
+/*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/08 19:09:33 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/09 20:59:31 by nasser           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,7 +210,7 @@ void	Server::handleSignal(int signal)
 	index = 0;
 	if (signal == SIGINT || signal == SIGTERM)
 	{
-		std::cout << ORANGE "Received signal to shutdown" RESET << std::endl;
+		std::cout << ORANGE "\nReceived signal to shutdown" RESET << std::endl;
 		*running = false;
 		while (index < 1024 && fds[index].fd != -1)
 		{
