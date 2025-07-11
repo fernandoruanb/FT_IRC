@@ -71,7 +71,7 @@ fclean: clean
 	@echo $(RED)"Executable removed"$(END)
 
 run: re
-	@valgrind --track-origins=yes --show-leak-kinds=all --track-fds=yes --leak-check=full ./ircserver 6667 12345
+	@valgrind --track-origins=yes --show-leak-kinds=all --track-fds=yes --leak-check=full ./ircserver 6667 oi
 
 # restart
 

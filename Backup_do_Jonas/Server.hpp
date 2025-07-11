@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/10 16:00:56 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/11 12:00:15 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ class	Server
 		void	PollInputClientMonitoring(void);
 		void	PollOutMonitoring(void);
 		static void	handleSignal(int signal);
-		bool	getClientInfo(std::map<int, Client*>*, const std::string&, int);
+		bool	getClientInfo(std::map<int, Client*>*, std::string&, int, int);
 };
 std::ofstream operator<<(std::ostream &out, const Server &other);
 

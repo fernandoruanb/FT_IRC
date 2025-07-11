@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
+/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/10 00:07:33 by nasser           ###   ########.fr       */
+/*   Updated: 2025/07/11 12:34:26 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,3 +137,9 @@ std::ostream& operator<<(std::ostream &out, const Client &other)
         << ")";
     return out;
 }
+
+void			Client::setServerName(const std::string& name)
+{
+	this->serverName = name;
+}
+const std::string&	Client::getServerName(void) const { return (this->serverName); }

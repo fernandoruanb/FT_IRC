@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/10 16:19:43 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/11 13:37:54 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,24 +29,90 @@ static struct pollfd(*getMyFds(void))[1024]
 	return (&fds);
 }
 
-bool	Server::getClientInfo(std::map<int, Client*>* clients, const std::string& buffer, int fd)
+static std::string	getText(std::string& buffer, size_t *pos)
 {
-	if (buffer.find("PASS") != std::string::npos)
-		return (true);
+	size_t	j = *pos;
+	std::string	str;
 
-	std::map<int, Client*>::iterator	it = clients->find(fd);
-
-	if (it != clients->end())
+	//Get real name
+	if (*pos < buffer.size() && buffer[*pos] == ':')
 	{
-		Client*	myClient = it->second;
-		std::string	ask = "Set your username: ";
-		
-		send(fd, ask.c_str(), ask.size(), 0);
-
-		(void)myClient;
+		(*pos)++;
+		str = buffer.substr(*pos);
+		*pos = buffer.size();
+		return (str);
 	}
 	
-	return (true);
+	while (j < buffer.size() && (!std::isspace(buffer[j]) && buffer[j] != ':'))
+		j++;
+	str = buffer.substr(*pos, j - *pos);
+	*pos = ++j;
+	return (str);
+}
+
+static bool	isValidArgs(const std::string &buffer, size_t pos, bool &op)
+{
+	int		cnt = 0;
+	size_t	len = buffer.size();
+
+	while (pos < len)
+	{
+		while (std::isspace(buffer[pos]) || buffer[pos] == ':')
+			pos++;
+		if (pos == len)
+			break;
+
+		cnt++;
+
+		while (pos < len && (!std::isspace(buffer[pos]) && buffer[pos] != ':'))
+			pos++;
+	}
+	if (cnt == 4)
+		op = true;
+	return (cnt >= 3);
+}
+
+bool	Server::getClientInfo(std::map<int, Client*>* clients, std::string& buffer, int fd, int i)
+{
+	bool	_return = true;
+	bool	optional = false;
+
+	//	Find the client to register
+	std::map<int, Client*>::iterator	it = clients->find(fd);
+	struct	pollfd						(&fds)[1024] = *getMyFds();
+
+	if (it == clients->end())
+		return (_return);
+
+	//	Start to register
+	Client*	myClient = it->second;
+	if (myClient->getRegistered())
+		return (false);
+	std::string	ask = "USER <username> <hostname> <servername> :<realname>";
+	this->sendBuffer[i] += msg_notice(ask);
+
+	size_t	pos = buffer.find("USER");
+	if (pos != std::string::npos && !myClient->getRegistered())
+	{
+		pos += 5;
+		if (!isValidArgs(buffer, pos, optional))
+			return (_return);
+		myClient->setUserName(getText(buffer, &pos));
+		myClient->setHost(getText(buffer, &pos));
+		myClient->setServerName(getText(buffer, &pos));
+		if (optional)
+			myClient->setRealName(getText(buffer, &pos));
+		//this->sendBuffer[i] += "eu parei de ler no " + std::string(1, buffer[pos]) + "\n";
+		this->sendBuffer[i] += "hello " + myClient->getUserName() + " " + myClient->getHost() + " " + myClient->getServerName();
+		if (optional)
+			this->sendBuffer[i] += " " + myClient->getRealName();
+		this->sendBuffer[i] += "\n";
+		myClient->setRegistered(true);
+		_return = false;
+	}
+
+	fds[i].events |= POLLOUT;
+	return (_return);
 }
 
 bool Server::handleClientAuthentication(std::map<int, Client*>* clients, int fd, char* buffer, int pollIndex) {
@@ -166,10 +232,10 @@ void	Server::PollInputClientMonitoring(void)
 					   continue;
 				   }
 				   //WIP you can comment getInfo if necessary
-				   if (!getClientInfo(clients, line, fds[index].fd))
-				   	continue;
+				   if (!getClientInfo(clients, line, fds[index].fd, index))
+						continue;
 				   Client* client = (*clients)[fds[index].fd];
-				   if (!client->getAuthenticated())
+				   if (!client->getAuthenticated() || !client->getRegistered())
 				   {
 					   continue;
 				   }
@@ -426,10 +492,10 @@ void    Server::broadcast(int sender)
                 index++;
                 continue ;
             }
-           std::map<int, Client*>::iterator it = clients->find(fds[index].fd);
-           Client* client = it->second;
-           if (client->getAuthenticated() || client->getRegistered())
-            {
+        	std::map<int, Client*>::iterator it = clients->find(fds[index].fd);
+        	Client* client = it->second;
+        	if (client->getAuthenticated() && client->getRegistered())
+        	{
                 this->sendBuffer[index] += this->sendBuffer[sender];
                 fds[index].events |= POLLOUT;
             }
