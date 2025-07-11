@@ -6,7 +6,7 @@
 /*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/11 19:44:24 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/11 20:06:24 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,9 +141,13 @@ void	Server::addNewClient(int clientFD)
 		std::cout << LIGHT_BLUE "Adding new client " << YELLOW << clientFD << LIGHT_BLUE " To generic channel =D" << std::endl;
 		Channel* generic = it->second;
 		generic->addNewMember(clientFD);
-		this->createNewChannel("Channel One", clientFD);
+		/*if (clientFD == 4)
+			this->createNewChannel("Channel One", clientFD);
+		else if (clientFD == 5)
+			this->createNewChannel("Channel Two", clientFD);
 		//this->changeChannel("Channel One", clientFD);
-		this->deleteChannel("Channel One", clientFD);
+		if (clientFD == 5)
+			this->deleteChannel("Channel One", clientFD);*/
 	}
 	fds[index].fd = clientFD;
 	fds[index].events = POLLIN;
@@ -311,7 +315,7 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 	}
 	if (itch->second->getOperatorChannels().find(channel) == itch->second->getOperatorChannels().end())
 	{
-		std::cerr << RED "Error: The client isn't a valid operator of the channel" << YELLOW << channel << RESET << std::endl;
+		std::cerr << RED "Error: The client isn't a valid operator of the channel " << YELLOW << channel << RESET << std::endl;
 		return ;
 	}
 	index = 1;
