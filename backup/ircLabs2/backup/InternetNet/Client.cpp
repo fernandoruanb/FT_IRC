@@ -6,7 +6,7 @@
 /*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/11 18:24:37 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/10 00:07:33 by nasser           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,11 +109,6 @@ std::string	Client::getRealName(void) const
 std::string&	Client::getBufferIn(void)
 {
 	return (bufferIn);
-}
-
-std::set<std::string>&	Client::getOperatorChannels(void)
-{
-	return (operatorChannels);
 }
 
 std::string&	Client::getBufferOut(void)

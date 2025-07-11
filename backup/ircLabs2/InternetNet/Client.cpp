@@ -6,7 +6,7 @@
 /*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/11 18:24:37 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/11 19:41:33 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void	Client::setChannelOfTime(int channel)
 	this->channelOfTime = channel;
 }
 
-std::set<int>&	Client::getChannelsSet(void)
+std::set<int>&	Client::getChannels(void)
 {
 	return (channels);
 }
@@ -76,6 +76,11 @@ void	Client::setIsOperator(bool isOperator)
     this->isOperator = isOperator;
 }
 
+std::set<int>&	Client::getChannelsSet(void)
+{
+	return (channels);
+}
+
 void	Client::setHost(std::string host)
 {
     this->host = host;
@@ -111,11 +116,6 @@ std::string&	Client::getBufferIn(void)
 	return (bufferIn);
 }
 
-std::set<std::string>&	Client::getOperatorChannels(void)
-{
-	return (operatorChannels);
-}
-
 std::string&	Client::getBufferOut(void)
 {
 	return (bufferOut);
@@ -134,6 +134,11 @@ bool	Client::getRegistered(void) const
 std::string	Client::getHost(void) const
 {
     return (host);
+}
+
+std::set<std::string>&	Client::getOperatorChannels(void)
+{
+	return (operatorChannels);
 }
 
 std::ostream& operator<<(std::ostream &out, const Client &other)

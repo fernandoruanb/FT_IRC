@@ -6,7 +6,7 @@
 /*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:22:05 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/11 18:24:50 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/11 19:29:49 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,9 @@ class	Client
 		std::string		bufferIn;
 		std::string		bufferOut;
 		std::string		host;
-		std::set<std::string>	operatorChannels;
 		Client(const Client &other);
 		Client& operator=(const Client &other);
+		std::set<std::string>	operatorChannels;
 		std::set<int>	channels;
 		Client(void);
 	public:
@@ -48,7 +48,6 @@ class	Client
 		void			setRegistered(bool registered);
 		void			setIsOperator(bool isOperator);
 		void			setHost(std::string host);
-		std::set<std::string>&	getOperatorChannels(void);
 		std::set<int>&		getChannelsSet(void);
 		std::string		getNickName(void) const;
 		std::string		getUserName(void) const;
@@ -58,10 +57,11 @@ class	Client
 		int			getChannelOfTime(void) const;
 		std::string&	getBufferIn(void);
 		std::string&	getBufferOut(void);
+		std::set<std::string>&	getOperatorChannels(void);
 		bool			getIsOperator(void) const;
 		bool			getRegistered(void) const;
 		std::string		getHost(void) const; // nickname!username@host
-		const std::set<std::string>&	getChannels(void) const;
+		std::set<int>&	getChannels(void);
 		void			removeChannel(std::string channel);
 		void			addChannel(std::string channel);
 };

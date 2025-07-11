@@ -6,7 +6,7 @@
 /*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:22:05 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/11 18:24:50 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/10 18:49:17 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ class	Client
 		std::string		bufferIn;
 		std::string		bufferOut;
 		std::string		host;
-		std::set<std::string>	operatorChannels;
 		Client(const Client &other);
 		Client& operator=(const Client &other);
 		std::set<int>	channels;
@@ -48,7 +47,6 @@ class	Client
 		void			setRegistered(bool registered);
 		void			setIsOperator(bool isOperator);
 		void			setHost(std::string host);
-		std::set<std::string>&	getOperatorChannels(void);
 		std::set<int>&		getChannelsSet(void);
 		std::string		getNickName(void) const;
 		std::string		getUserName(void) const;
