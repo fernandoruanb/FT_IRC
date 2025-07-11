@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/11 13:37:54 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/11 14:51:59 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ static bool	isValidArgs(const std::string &buffer, size_t pos, bool &op)
 		while (pos < len && (!std::isspace(buffer[pos]) && buffer[pos] != ':'))
 			pos++;
 	}
-	if (cnt == 4)
+	if (cnt > 3)
 		op = true;
 	return (cnt >= 3);
 }
@@ -86,27 +86,27 @@ bool	Server::getClientInfo(std::map<int, Client*>* clients, std::string& buffer,
 
 	//	Start to register
 	Client*	myClient = it->second;
-	if (myClient->getRegistered())
-		return (false);
 	std::string	ask = "USER <username> <hostname> <servername> :<realname>";
-	this->sendBuffer[i] += msg_notice(ask);
+	
+	if (myClient->getRegistered())
+		return (!_return);
 
 	size_t	pos = buffer.find("USER");
 	if (pos != std::string::npos && !myClient->getRegistered())
 	{
 		pos += 5;
 		if (!isValidArgs(buffer, pos, optional))
+		{
+			this->sendBuffer[i] += msg_notice(ask);
+			fds[i].events |= POLLOUT;
 			return (_return);
+		}
 		myClient->setUserName(getText(buffer, &pos));
 		myClient->setHost(getText(buffer, &pos));
 		myClient->setServerName(getText(buffer, &pos));
 		if (optional)
 			myClient->setRealName(getText(buffer, &pos));
-		//this->sendBuffer[i] += "eu parei de ler no " + std::string(1, buffer[pos]) + "\n";
-		this->sendBuffer[i] += "hello " + myClient->getUserName() + " " + myClient->getHost() + " " + myClient->getServerName();
-		if (optional)
-			this->sendBuffer[i] += " " + myClient->getRealName();
-		this->sendBuffer[i] += "\n";
+		this->sendBuffer[i] += msg_notice("Welcome " + myClient->getUserName() + "!");
 		myClient->setRegistered(true);
 		_return = false;
 	}
@@ -132,6 +132,7 @@ bool Server::handleClientAuthentication(std::map<int, Client*>* clients, int fd,
 					client->setAuthenticated(true);
 					this->sendBuffer[pollIndex].clear();
 					this->sendBuffer[pollIndex] += msg_notice("Authentication successful");
+					this->sendBuffer[pollIndex] += msg_notice("USER <username> <hostname> <servername> :<realname>");
 					fds[pollIndex].events |= POLLOUT;
 					return true;
 				} else {		
