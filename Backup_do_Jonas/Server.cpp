@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/11 15:04:55 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/11 15:24:24 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,9 +49,9 @@ static std::string	getText(std::string& buffer, size_t *pos, std::map<int, Clien
 	if (check_name)
 	{
 		std::map<int, Client*>::iterator	it;
-		for (it = clients.beguin(); it != clients.end(), it++)
-			if (it->second.getUserName() == str)
-				throw std::runtime_error("User name already in use");
+		for (it = clients->begin(); it != clients->end(); it++)
+			if (it->second->getUserName() == str)
+				return ("");
 	}
 	*pos = ++j;
 	return (str);
@@ -99,7 +99,7 @@ bool	Server::getClientInfo(std::map<int, Client*>* clients, std::string& buffer,
 		return (!_return);
 
 	size_t	pos = buffer.find("USER");
-	if (pos != std::string::npos && !myClient->getRegistered())
+	if (pos != std::string::npos)
 	{
 		pos += 5;
 		if (!isValidArgs(buffer, pos, optional))
@@ -108,7 +108,15 @@ bool	Server::getClientInfo(std::map<int, Client*>* clients, std::string& buffer,
 			fds[i].events |= POLLOUT;
 			return (_return);
 		}
-		myClient->setUserName(getText(buffer, &pos, clients, true));
+		std::string	tempName = getText(buffer, &pos, clients, true);
+		if (tempName.empty())
+		{
+			this->sendBuffer[i] += std::string(BRIGHT_RED) + "Error: " + RESET + "User name already in use.\n";
+			fds[i].events |= POLLOUT;
+			return (_return);
+		}
+		
+		myClient->setUserName(tempName);
 		myClient->setHost(getText(buffer, &pos, clients));
 		myClient->setServerName(getText(buffer, &pos, clients));
 		if (optional)
