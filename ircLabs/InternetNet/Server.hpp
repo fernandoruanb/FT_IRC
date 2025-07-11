@@ -6,7 +6,7 @@
 /*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/10 18:40:04 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/11 14:14:58 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,10 @@ class	Server
 		void	init(int port, std::string password);
 		int	getNumberOfClients(void) const;
 		struct pollfd	(&getPollFds(void))[1024];
+		bool	checkName(std::string Name);
+		void	changeChannel(std::string Name, int clientFD);
+		void	deleteChannel(std::string Name, int clientFD);
+		void    createNewChannel(std::string Name);
 		void	startIRCService(void);
 		void	shutdownService(void);
 		void	addNewClient(int clientFD);

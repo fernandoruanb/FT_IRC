@@ -6,7 +6,7 @@
 /*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/10 19:17:13 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/11 15:34:22 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,36 @@ static struct pollfd(*getMyFds(void))[1024]
 	static struct pollfd	fds[1024];
 
 	return (&fds);
+}
+
+bool	Server::checkName(std::string Name)
+{
+	std::map<int, Channel*>* channels = getChannelsMap();
+	std::map<int, Channel*>::iterator it = channels->find(0);
+	std::string	channelName;
+	int	index;
+
+	index = 1;
+	while (index < this->numChannels && it != channels->end())
+	{
+		channelName = it->second->getName();
+		if (channelName == Name)
+			return (false);
+		it = channels->find(index);
+		index++;
+	}
+	return (true);
+}
+
+void	Server::createNewChannel(std::string Name)
+{
+	Channel* channel = new Channel(Name);
+	std::map<int, Channel*>* channels = getChannelsMap();
+
+	if (!this->checkName(Name))
+		std::cerr << RED "Error: The new channel name is in use" RESET << std::endl;
+	(*channels)[numChannels] = channel;
+	this->numChannels++;
 }
 
 bool Server::handleClientAuthentication(std::map<int, Client*>* clients, int fd, char* buffer, int pollIndex) {
@@ -100,6 +130,8 @@ void	Server::addNewClient(int clientFD)
 		std::cout << LIGHT_BLUE "Adding new client " << YELLOW << clientFD << LIGHT_BLUE " To generic channel =D" << std::endl;
 		Channel* generic = it->second;
 		generic->addNewMember(clientFD);
+		//this->changeChannel("Channel One", clientFD);
+		//this->deleteChannel("Channel One", clientFD);
 	}
 	fds[index].fd = clientFD;
 	fds[index].events = POLLIN;
@@ -250,7 +282,83 @@ int	Server::atoiIRC(std::string port)
 	return (result);
 }
 
-Server::Server(std::string portCheck, std::string password)
+void	Server::deleteChannel(std::string channel, int clientFD)
+{
+	std::map<int, Channel*>* channels = getChannelsMap();
+	std::map<int, Client*>* clients = getClientsMap();
+	std::map<int, Client*>::iterator itch = clients->find(clientFD);
+	std::string	channelName;
+	int	channelOfTime;
+	int	index;
+
+	if (itch == clients->end())
+	{
+		std::cerr << RED "Error: Impossible to remove a channel because the client is a ghost" RESET << std::endl;
+		return ;
+	}
+	index = 1;
+	std::map<int, Channel*>::iterator itc = channels->find(index);
+	while (index < numChannels && itc != channels->end())
+	{
+		channelName = itc->second->getName();
+		if (channelName == channel)
+		{
+			channelOfTime = itch->second->getChannelOfTime();
+			if (channelOfTime == index)
+				itch->second->setChannelOfTime(0);
+			delete itc->second;
+			channels->erase(itc);
+			itch->second->getChannelsSet().erase(index);
+			std::cout << LIGHT_BLUE "Channel " << YELLOW << channelName << LIGHT_BLUE << " removed successfully" RESET << std::endl;
+			numChannels--;
+			return ;
+		}
+		index++;
+	}
+	std::cerr << RED "Error: The channel " << YELLOW << channel << RED " doesn't exist" RESET << std::endl;
+}
+
+void	Server::changeChannel(std::string channel, int clientFD)
+{
+	std::map<int, Client*>* clients = getClientsMap();
+	std::map<int, Client*>::iterator itc = clients->find(clientFD);
+	if (itc == clients->end())
+	{
+		std::cerr << RED "Error: The client is a ghost trying to changing a channel" RESET << std::endl;
+		return ;
+	}
+	Client* client = itc->second;
+	std::map<int, Channel*>* channels = getChannelsMap();
+	std::map<int, Channel*>::iterator itm;
+	int	index;
+	std::string	channelName;
+
+	if (!client)
+	{
+		std::cerr << RED "Error: the client to change channel is a ghost" RESET << std::endl;
+		return ;
+	}
+	index = 0;
+	itm = channels->find(index);
+	while (index < numChannels && itm != channels->end())
+	{
+		itm = channels->find(index);
+		channelName = itm->second->getName();
+		if (channelName == channel)
+		{
+			Channel* channelOfficial = itm->second;
+			std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " changing to " << YELLOW << channelOfficial->getName() << RESET << std::endl;
+			client->setChannelOfTime(index);
+			itm->second->addNewMember(clientFD);
+			client->getChannelsSet().insert(index);
+			return ;
+		}
+		index++;
+	}
+	std::cerr << RED "Error: Impossible to change the channel because it's a ghost" RESET << std::endl;
+}
+
+Server::Server(std::string portCheck, std::string password): numChannels(0)
 {
 	int	port;
 
@@ -262,6 +370,7 @@ Server::Server(std::string portCheck, std::string password)
 		this->channels = getChannelsMap();
 		(*channels)[0] = new Channel("Generic");
 		numChannels++;
+		//this->createNewChannel("Channel One");
 		port = atoiIRC(portCheck);
 		if (port == -1)
 			throw std::exception();
@@ -424,7 +533,7 @@ void    Server::broadcast(int sender)
 {
 	struct pollfd (&fds)[1024] = *getMyFds();
 	std::map<int, Client*>* clients = getClientsMap();
-	std::map<int, Client*>::iterator it = clients->find(sender);
+	std::map<int, Client*>::iterator it = clients->find(fds[sender].fd);
 	if (it == clients->end())
 	{
 		std::cerr << RED "Error: The owner is a ghost!!!" RESET << std::endl;
@@ -469,14 +578,14 @@ void    Server::privmsg(int index, int sender, std::string message)
 {
 	struct pollfd (&fds)[1024] = *getMyFds();
 	std::map<int, Client*>* clients = getClientsMap();
-	std::map<int, Client*>::iterator itv = clients->find(index);
+	std::map<int, Client*>::iterator itv = clients->find(fds[index].fd);
 	int	ownerChannel;
 	int	channel;
 
 	if (index < 1 || itv == clients->end())
 		return ;
 	channel = itv->second->getChannelOfTime();
-	itv = clients->find(sender);
+	itv = clients->find(fds[sender].fd);
 	if (itv == clients->end())
 		return ;
 	ownerChannel = itv->second->getChannelOfTime();
