@@ -6,7 +6,7 @@
 /*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/11 15:34:22 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/11 16:09:41 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,12 +184,6 @@ void	Server::PollInputClientMonitoring(void)
 			   {
 				   std::string line = this->recvBuffer[index].substr(0, pos + 1);
 				   this->recvBuffer[index].erase(0, pos + 1);
-
-				   if (!line.empty() && line[line.size() - 1] == '\n')
-					   line.erase(line.size() - 1, 1);
-				   if (!line.empty() && line[line.size() - 1] == '\r')
-					   line.erase(line.size() - 1, 1);
-
 				   std::cout << BRIGHT_GREEN "Client: " << YELLOW << fds[index].fd << LIGHT_BLUE << " " << line << RESET << std::endl;
 
 				   if (!handleClientAuthentication(clients, fds[index].fd, (char*)line.c_str(), index)) {
@@ -561,8 +555,6 @@ void    Server::broadcast(int sender)
 	   }
 	   channel = it->second->getChannelOfTime();
            Client* client = it->second;
-	   std::cout << LIGHT_BLUE "Owner channel: " << YELLOW << channelTarget << RESET << std::endl;
-	   std::cout << LIGHT_BLUE "Target channel: " << YELLOW << channel << RESET << std::endl;
            if (client->getAuthenticated() && channelTarget == channel)
             {
                 this->sendBuffer[index] += this->sendBuffer[sender];
