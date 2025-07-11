@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/11 15:24:24 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/11 15:32:40 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ static struct pollfd(*getMyFds(void))[1024]
 	return (&fds);
 }
 
-static std::string	getText(std::string& buffer, size_t *pos, std::map<int, Client*>* clients, bool check_name = false)
+std::string	Server::getText(std::string& buffer, size_t *pos, std::map<int, Client*>* clients, bool check_name = false)
 {
 	size_t	j = *pos;
 	std::string	str;
@@ -57,7 +57,7 @@ static std::string	getText(std::string& buffer, size_t *pos, std::map<int, Clien
 	return (str);
 }
 
-static bool	isValidArgs(const std::string &buffer, size_t pos, bool &op)
+bool	Server::isValidArgs(const std::string &buffer, size_t pos, bool &op)
 {
 	int		cnt = 0;
 	size_t	len = buffer.size();
