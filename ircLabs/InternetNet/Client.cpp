@@ -26,6 +26,21 @@ Client::~Client(void)
 	std::cout << LIGHT_BLUE "Destructor called for Client *" RESET << std::endl;
 }
 
+int	Client::getChannelOfTime(void) const
+{
+	return (channelOfTime);
+}
+
+void	Client::setChannelOfTime(int channel)
+{
+	this->channelOfTime = channel;
+}
+
+std::set<int>&	Client::getChannelsSet(void)
+{
+	return (channels);
+}
+
 void	Client::setNickName(std::string nickname)
 {
 	this->nickname = nickname;
@@ -116,14 +131,6 @@ std::string	Client::getHost(void) const
     return (host);
 }
 
-const std::set<std::string>&	Client::getChannels(void) const
-{
-    return channels;
-}
-void	Client::removeChannel(std::string channel)
-{
-	channels.erase(channel);
-}
 std::ostream& operator<<(std::ostream &out, const Client &other)
 {
     out << YELLOW "Client("

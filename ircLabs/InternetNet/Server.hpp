@@ -69,7 +69,7 @@ class	Server
 		void	startPollFds(void);
 		void	manageBuffers(int index);
 		void	broadcast(int index);
-		void	privmsg(int index, std::string message);
+		void	privmsg(int index, int sender, std::string message);
 		void	chargePrivileges(int target);
 		void	PollServerRoom(void);
 		void	PollInputClientMonitoring(void);

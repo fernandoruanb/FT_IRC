@@ -92,6 +92,9 @@ void	Server::addNewClient(int clientFD)
 		return ;
 	}
 	(*this->clients)[clientFD] = new Client(clientFD);
+	Client* theClient = (*this->clients)[clientFD];
+	theClient->getChannelsSet().insert(0);
+	theClient->setChannelOfTime(0);
 	if (it != channels->end())
 	{
 		std::cout << LIGHT_BLUE "Adding new client " << YELLOW << clientFD << LIGHT_BLUE " To generic channel =D" << std::endl;
@@ -419,8 +422,17 @@ void	Server::startIRCService(void)
 
 void    Server::broadcast(int sender)
 {
-    struct pollfd (&fds)[1024] = *getMyFds();
-    int    index;
+	struct pollfd (&fds)[1024] = *getMyFds();
+	std::map<int, Client*>* clients = getClientsMap();
+	std::map<int, Client*>::iterator it = clients->find(sender);
+	if (it == clients->end())
+	{
+		std::cerr << RED "Error: The owner is a ghost!!!" RESET << std::endl;
+		return ;
+	}
+	int	channelTarget = it->second->getChannelOfTime();
+	int	channel;
+	int    index;
 
     index = 1;
     if (!this->sendBuffer[sender].empty())
@@ -433,8 +445,16 @@ void    Server::broadcast(int sender)
                 continue ;
             }
            std::map<int, Client*>::iterator it = clients->find(fds[index].fd);
+	   if (it == clients->end())
+	   {
+		index++;
+		continue ;
+	   }
+	   channel = it->second->getChannelOfTime();
            Client* client = it->second;
-           if (client->getAuthenticated())
+	   std::cout << LIGHT_BLUE "Owner channel: " << YELLOW << channelTarget << RESET << std::endl;
+	   std::cout << LIGHT_BLUE "Target channel: " << YELLOW << channel << RESET << std::endl;
+           if (client->getAuthenticated() && channelTarget == channel)
             {
                 this->sendBuffer[index] += this->sendBuffer[sender];
                 fds[index].events |= POLLOUT;
@@ -445,15 +465,25 @@ void    Server::broadcast(int sender)
     }
 }
 
-void    Server::privmsg(int index, std::string message)
+void    Server::privmsg(int index, int sender, std::string message)
 {
-    struct pollfd (&fds)[1024] = *getMyFds();
-	if (index < 1)
+	struct pollfd (&fds)[1024] = *getMyFds();
+	std::map<int, Client*>* clients = getClientsMap();
+	std::map<int, Client*>::iterator itv = clients->find(index);
+	int	ownerChannel;
+	int	channel;
+
+	if (index < 1 || itv == clients->end())
 		return ;
+	channel = itv->second->getChannelOfTime();
+	itv = clients->find(sender);
+	if (itv == clients->end())
+		return ;
+	ownerChannel = itv->second->getChannelOfTime();
     std::map<int, Client*>::iterator it = clients->find(fds[index].fd);
     Client* client = it->second;
 
-    if (message.empty() || index < 0 || fds[index].fd == -1 || !client->getAuthenticated())
+    if (message.empty() || index < 0 || fds[index].fd == -1 || !client->getAuthenticated() || ownerChannel != channel)
         return ;
     this->sendBuffer[index] += message;
     fds[index].events |= POLLOUT;
