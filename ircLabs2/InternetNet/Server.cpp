@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fruan-ba <fruan-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/11 20:10:55 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/13 11:05:26 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ void	Server::createNewChannel(std::string Name, int clientFD)
 	this->numChannels++;
 	client->setIsOperator(true);
 	client->getOperatorChannels().insert(Name);
+	client->getChannelsSet().insert(Name);
 	std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " is now the operator of " << YELLOW << Name << LIGHT_BLUE " Channel" RESET << std::endl;
 }
 
@@ -134,20 +135,19 @@ void	Server::addNewClient(int clientFD)
 	}
 	(*this->clients)[clientFD] = new Client(clientFD);
 	Client* theClient = (*this->clients)[clientFD];
-	theClient->getChannelsSet().insert(0);
+	theClient->getChannelsSet().insert("Generic");
 	theClient->setChannelOfTime(0);
 	if (it != channels->end())
 	{
 		std::cout << LIGHT_BLUE "Adding new client " << YELLOW << clientFD << LIGHT_BLUE " To generic channel =D" << std::endl;
 		Channel* generic = it->second;
 		generic->addNewMember(clientFD);
-		/*if (clientFD == 4)
+		if (clientFD == 4)
 			this->createNewChannel("Channel One", clientFD);
-		else if (clientFD == 5)
-			this->createNewChannel("Channel Two", clientFD);
-		//this->changeChannel("Channel One", clientFD);
-		if (clientFD == 5)
-			this->deleteChannel("Channel One", clientFD);*/
+		this->changeChannel("Channel One", clientFD);
+		this->kickFromChannel("Channel One", 4, 5);
+		//if (clientFD == 5)
+		//	this->deleteChannel("Channel One", clientFD);
 	}
 	fds[index].fd = clientFD;
 	fds[index].events = POLLIN;
@@ -292,6 +292,64 @@ int	Server::atoiIRC(std::string port)
 	return (result);
 }
 
+void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
+{
+	std::map<int, Channel *>* channels = getChannelsMap();
+	std::map<int, Client*>* clients = getClientsMap();
+	std::map<int, Client*>::iterator itch = clients->find(owner);
+	std::map<int, Channel*>::iterator itm;
+	std::string	channelName;
+	int	channelOfTime;
+	bool	isOperator;
+
+	if (itch == clients->end())
+	{
+		std::cerr << RED "Error: There is a ghost trying to kick someone!!!" RESET << std::endl;
+		return ;
+	}
+	isOperator = itch->second->getIsOperator();
+	if (!isOperator)
+	{
+		std::cerr << RED "Error: The owner isn't a true operator of the channel " << YELLOW << channel << RED " to kick someone" RESET << std::endl;
+		return ;
+	}
+	channelOfTime = itch->second->getChannelOfTime();
+	itm = channels->find(channelOfTime);
+	if (itm == channels->end())
+	{
+		std::cerr << RED "Error: It's impossible to kick someone from a ghost channel" RESET << std::endl;
+		return ;
+	}
+	if (channel != itm->second->getName())
+	{
+		std::cerr << RED "Error: Your current channel isn't the target channel dear owner" RESET << std::endl;
+		return ;
+	}
+	if (itch->second->getOperatorChannels().find(channel) == itch->second->getOperatorChannels().end())
+	{
+		std::cerr << RED "Error: You are an operator but not from the target channel" RESET << std::endl;
+		return ;
+	}
+	itch = clients->find(clientFD);
+	if (itch == clients->end())
+	{
+		std::cerr << RED "Error: The target client to kick doesn't exist" RESET << std::endl;
+		return ;
+	}
+	if (itch->second->getChannelsSet().find(channel) == itch->second->getChannelsSet().end())
+	{
+		std::cerr << RED "Error: The client is not in the target channel " << YELLOW << channel << RESET << std::endl;
+		return ;
+	}
+	itch->second->getOperatorChannels().erase(channel);
+	if (itch->second->getOperatorChannels().size() == 0)
+		itch->second->setIsOperator(false);
+	itch->second->setChannelOfTime(0);
+	std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE " has been kicked by " << YELLOW << owner << LIGHT_BLUE " and lost all privileges coming back to " << YELLOW "Generic" << LIGHT_BLUE " Channel" RESET << std::endl;
+}
+
+//void	Server::removeOperatorPrivilegesFromEveryBody(std::string channel)
+
 void	Server::deleteChannel(std::string channel, int clientFD)
 {
 	std::map<int, Channel*>* channels = getChannelsMap();
@@ -330,7 +388,7 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 				itch->second->setChannelOfTime(0);
 			delete itc->second;
 			channels->erase(itc);
-			itch->second->getChannelsSet().erase(index);
+			itch->second->getChannelsSet().erase(channel);
 			std::cout << LIGHT_BLUE "Channel " << YELLOW << channelName << LIGHT_BLUE << " removed successfully" RESET << std::endl;
 			numChannels--;
 			itch->second->getOperatorChannels().erase(channel);
@@ -378,7 +436,7 @@ void	Server::changeChannel(std::string channel, int clientFD)
 			std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " changing to " << YELLOW << channelOfficial->getName() << RESET << std::endl;
 			client->setChannelOfTime(index);
 			itm->second->addNewMember(clientFD);
-			client->getChannelsSet().insert(index);
+			client->getChannelsSet().insert(channel);
 			return ;
 		}
 		index++;
