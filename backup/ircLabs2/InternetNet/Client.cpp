@@ -6,7 +6,7 @@
 /*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/11 19:41:33 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/13 10:40:05 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,11 +34,6 @@ int	Client::getChannelOfTime(void) const
 void	Client::setChannelOfTime(int channel)
 {
 	this->channelOfTime = channel;
-}
-
-std::set<int>&	Client::getChannels(void)
-{
-	return (channels);
 }
 
 void	Client::setNickName(std::string nickname)
@@ -76,7 +71,7 @@ void	Client::setIsOperator(bool isOperator)
     this->isOperator = isOperator;
 }
 
-std::set<int>&	Client::getChannelsSet(void)
+std::set<std::string>&	Client::getChannelsSet(void)
 {
 	return (channels);
 }

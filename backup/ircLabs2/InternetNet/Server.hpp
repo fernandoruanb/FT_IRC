@@ -6,7 +6,7 @@
 /*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/11 18:26:09 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/13 09:57:03 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ class	Server
 		void	changeChannel(std::string Name, int clientFD);
 		void	deleteChannel(std::string Name, int clientFD);
 		void    createNewChannel(std::string Name, int clientFD);
+		void    kickFromChannel(std::string channel, int owner, int clientFD);
 		void	startIRCService(void);
 		void	shutdownService(void);
 		void	addNewClient(int clientFD);
