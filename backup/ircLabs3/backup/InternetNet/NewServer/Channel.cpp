@@ -6,24 +6,11 @@
 /*   By: fruan-ba <fruan-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:36:43 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/13 12:05:28 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/09 16:36:43 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Channel.hpp"
-
-void	Channel::addNewMember(int clientFD)
-{
-	std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " added to " << YELLOW << this->name << LIGHT_BLUE " Channel" RESET << std::endl;
-	this->members.insert(clientFD);
-}
-
-Channel::Channel(std::string name): name(name)
-{
-	std::cout << LIGHT_BLUE "Channel " << YELLOW << name << LIGHT_BLUE << " created =D" << RESET << std::endl;
-}
-
-Channel::~Channel(void) {}
 
 void	Channel::setName(std::string name)
 {
@@ -40,19 +27,9 @@ void	Channel::setPassWord(std::string password)
 	this->password = password;
 }
 
-void	Channel::setChannelIndex(int index)
-{
-	this->index = index;
-}
-
-int	Channel::getChannelIndex(void) const
-{
-	return (index);
-}
-
 void	Channel::setUserLimit(int userlimit)
 {
-	this->userLimit = userlimit;
+	this->userlimit = userlimit;
 }
 
 void	Channel::setInviteFlag(bool inviteflag)
@@ -77,15 +54,15 @@ std::string	Channel::getTopic(void) const
 
 std::string	Channel::getPassWord(void) const
 {
-	return (password);
+	return (void);
 }
 
-bool	Channel::getInviteFlag(void) const
+std::string	Channel::getInviteFlag(void) const
 {
 	return (inviteFlag);
 }
 
-bool	Channel::getTopicFlag(void) const
+std::string	Channel::getTopicFlag(void) const
 {
 	return (topicFlag);
 }

@@ -6,7 +6,7 @@
 /*   By: fruan-ba <fruan-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:36:43 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/11 12:12:20 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/13 12:05:28 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,16 @@ void	Channel::setTopic(std::string topic)
 void	Channel::setPassWord(std::string password)
 {
 	this->password = password;
+}
+
+void	Channel::setChannelIndex(int index)
+{
+	this->index = index;
+}
+
+int	Channel::getChannelIndex(void) const
+{
+	return (index);
 }
 
 void	Channel::setUserLimit(int userlimit)
