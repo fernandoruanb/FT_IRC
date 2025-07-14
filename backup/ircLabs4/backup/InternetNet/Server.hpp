@@ -6,7 +6,7 @@
 /*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/14 16:14:24 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/13 09:57:03 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@
 # include <signal.h>
 # include <poll.h>
 # include <errno.h>
-# include <limits.h>
 # include <unistd.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
@@ -55,7 +54,6 @@ class	Server
 		void	setPassword(std::string password);
 		void	setPort(int Port);
 		void	setIsRunning(bool signal);
-		int	findGoodIndex(void);
 		void	setServerIRC(int serverFD);
 		int	getServerIRC(void) const;
 		std::string	getPassword(void) const;
@@ -65,7 +63,6 @@ class	Server
 		int	getNumberOfClients(void) const;
 		struct pollfd	(&getPollFds(void))[1024];
 		bool	checkName(std::string Name);
-		void    changeTopic(std::string channelName, int clientFD, std::string topic);
 		void	changeChannel(std::string Name, int clientFD);
 		void	deleteChannel(std::string Name, int clientFD);
 		void    createNewChannel(std::string Name, int clientFD);

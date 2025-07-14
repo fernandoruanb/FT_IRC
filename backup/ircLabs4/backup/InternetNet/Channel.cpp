@@ -6,7 +6,7 @@
 /*   By: fruan-ba <fruan-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:36:43 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/14 16:20:23 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/13 12:05:28 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ void	Channel::addNewMember(int clientFD)
 	this->members.insert(clientFD);
 }
 
-Channel::Channel(std::string name): name(name), topic("We love IRC"), topicFlag(false)
+Channel::Channel(std::string name): name(name)
 {
 	std::cout << LIGHT_BLUE "Channel " << YELLOW << name << LIGHT_BLUE << " created =D" << RESET << std::endl;
 }

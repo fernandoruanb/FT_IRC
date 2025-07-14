@@ -6,7 +6,7 @@
 /*   By: fruan-ba <fruan-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/14 16:30:13 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/13 11:05:26 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,52 +55,22 @@ bool	Server::checkName(std::string Name)
 	return (true);
 }
 
-int	Server::findGoodIndex(void)
-{
-	std::map<int, Channel *>* channels = getChannelsMap();
-	std::map<int, Channel *>::iterator it;
-	int	index;
-
-	index = 1;
-	it = channels->find(index);
-	while (index < INT_MAX && it != channels->end())
-	{
-		index++;
-		it = channels->find(index);
-	}
-	return (index);
-}
-
 void	Server::createNewChannel(std::string Name, int clientFD)
 {
 	Channel* channel = new Channel(Name);
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Client*>::iterator it = clients->find(clientFD);
-	int	index;
-
-	if (numChannels == INT_MAX)
-	{
-		std::cerr << RED "Error: There are too many channels!!!" RESET << std::endl;
-		delete channel;
-	}
 
 	if (it == clients->end())
 	{
 		std::cerr << RED "Error: A ghost can't become an admin of a channel" RESET << std::endl;
-		delete channel;
 		return ;
 	}
 	Client* client = it->second;
 	if (!this->checkName(Name))
-	{
 		std::cerr << RED "Error: The new channel name is in use" RESET << std::endl;
-		delete channel;
-		return ;
-	}
-	index = this->findGoodIndex();
-	(*channels)[index] = channel;
-	std::cout << LIGHT_BLUE "The index of the channel " << YELLOW << Name << LIGHT_BLUE " is " << YELLOW << index << RESET << std::endl;
+	(*channels)[numChannels] = channel;
 	this->numChannels++;
 	client->setIsOperator(true);
 	client->getOperatorChannels().insert(Name);
@@ -127,7 +97,7 @@ bool Server::handleClientAuthentication(std::map<int, Client*>* clients, int fd,
 					this->sendBuffer[pollIndex] += msg_notice("Authentication successful");
 					fds[pollIndex].events |= POLLOUT;
 					return true;
-				} else {	
+				} else {		
 					this->sendBuffer[pollIndex].clear();
 					this->sendBuffer[pollIndex] += msg_err_passwdmismatch();
 					fds[pollIndex].events |= POLLOUT;
@@ -142,53 +112,6 @@ bool Server::handleClientAuthentication(std::map<int, Client*>* clients, int fd,
 		}
 	}
 	return true;
-}
-
-void	Server::changeTopic(std::string channelName, int clientFD, std::string topic)
-{
-	std::map<int, Channel*>* channels = getChannelsMap();
-	std::map<int, Channel*>::iterator it = channels->begin();
-	std::map<int, Client*>* clients = getClientsMap();
-	std::map<int, Client*>::iterator itc = clients->find(clientFD);
-	int	isOperator;
-
-	while (it != channels->end())
-	{
-		it++;
-		if (it != channels->end())
-		{
-			if (it->second->getName() != channelName)
-				continue ;
-			else
-				break ;
-		}
-	}
-	if (it == channels->end())
-	{
-		std::cerr << RED "Error: The channel doesn't exist to change topic" RESET << std::endl;
-		return ;
-	}
-	if (itc == clients->end())
-	{
-		std::cerr << RED "Error: A ghost can't change the channel topic" RESET << std::endl;
-		return ;
-	}
-	isOperator = itc->second->getIsOperator();
-	if (it->second->getTopicFlag())
-	{
-		if (!isOperator)
-		{
-			std::cerr << RED "Error: The client isn't a true operator to do privileged action" RESET << std::endl;
-			return ;
-		}
-	}
-	if (it->first != itc->second->getChannelOfTime())
-	{
-		std::cerr << RED "Error: You can't change a topic in another channel" RESET << std::endl;
-		return ;
-	}
-	it->second->setTopic(topic);
-	std::cout << LIGHT_BLUE "The topic of the channel " << YELLOW << it->second->getName() << LIGHT_BLUE " changed to " << YELLOW << topic << RESET << std::endl;
 }
 
 void	Server::addNewClient(int clientFD)
@@ -221,27 +144,10 @@ void	Server::addNewClient(int clientFD)
 		generic->addNewMember(clientFD);
 		if (clientFD == 4)
 			this->createNewChannel("Channel One", clientFD);
-		if (clientFD == 5)
-		{
-			this->createNewChannel("Channel Two", clientFD);
-			this->createNewChannel("Channel Three", clientFD);
-			this->createNewChannel("Channel Four", clientFD);
-			this->createNewChannel("Channel Five", clientFD);
-			this->createNewChannel("Channel Six", clientFD);
-			this->createNewChannel("Channel Seven", clientFD);
-			this->createNewChannel("Channel Eight", clientFD);
-			this->createNewChannel("Channel Nine", clientFD);
-			this->deleteChannel("Channel Nine", clientFD);
-			this->deleteChannel("Channel Seven", clientFD);
-			this->deleteChannel("Channel Four", clientFD);
-			this->changeChannel("Channel Six", clientFD);
-			this->createNewChannel("Channel Two", clientFD);
-			this->changeChannel("Channel Two", clientFD);
-			this->createNewChannel("Channel Seven", clientFD);
-			this->deleteChannel("Channel Two", clientFD);
-			this->changeChannel("Channel Eight", clientFD);
-			this->changeTopic("Channel Eight", clientFD, "Masters of Universe");
-		}
+		this->changeChannel("Channel One", clientFD);
+		this->kickFromChannel("Channel One", 4, 5);
+		//if (clientFD == 5)
+		//	this->deleteChannel("Channel One", clientFD);
 	}
 	fds[index].fd = clientFD;
 	fds[index].events = POLLIN;
@@ -479,24 +385,20 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 		{
 			channelOfTime = itch->second->getChannelOfTime();
 			if (channelOfTime == index)
-			{
-				std::cout << LIGHT_BLUE "Changing to " << YELLOW << "Generic" << LIGHT_BLUE " Channel client " << YELLOW << clientFD << RESET << std::endl;
-				this->changeChannel("Generic", itch->second->getClientFD());
-			}
+				itch->second->setChannelOfTime(0);
 			delete itc->second;
 			channels->erase(itc);
-			itch->second->getChannelsSet().erase(channelName);
+			itch->second->getChannelsSet().erase(channel);
 			std::cout << LIGHT_BLUE "Channel " << YELLOW << channelName << LIGHT_BLUE << " removed successfully" RESET << std::endl;
 			numChannels--;
-			itch->second->getOperatorChannels().erase(channelName);
+			itch->second->getOperatorChannels().erase(channel);
 			if (itch->second->getOperatorChannels().size() == 0)
 			{
 				itch->second->setIsOperator(false);
-				std::cout << LIGHT_BLUE "The Client " << YELLOW << clientFD << LIGHT_BLUE " lost the operator privileges about channel " << YELLOW << channelName << RESET << std::endl;
+				std::cout << LIGHT_BLUE "The Client " << YELLOW << clientFD << LIGHT_BLUE " lost the operator privilege" << RESET << std::endl;
 			}
 			return ;
 		}
-		itc++;
 		index++;
 	}
 	std::cerr << RED "Error: The channel " << YELLOW << channel << RED " doesn't exist" RESET << std::endl;
@@ -514,6 +416,7 @@ void	Server::changeChannel(std::string channel, int clientFD)
 	Client* client = itc->second;
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Channel*>::iterator itm;
+	int	index;
 	std::string	channelName;
 
 	if (!client)
@@ -521,20 +424,22 @@ void	Server::changeChannel(std::string channel, int clientFD)
 		std::cerr << RED "Error: the client to change channel is a ghost" RESET << std::endl;
 		return ;
 	}
-	itm = channels->begin();
-	while (itm != channels->end())
+	index = 0;
+	itm = channels->find(index);
+	while (index < numChannels && itm != channels->end())
 	{
+		itm = channels->find(index);
 		channelName = itm->second->getName();
 		if (channelName == channel)
 		{
 			Channel* channelOfficial = itm->second;
 			std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " changing to " << YELLOW << channelOfficial->getName() << RESET << std::endl;
-			client->setChannelOfTime(itm->first);
+			client->setChannelOfTime(index);
 			itm->second->addNewMember(clientFD);
 			client->getChannelsSet().insert(channel);
 			return ;
 		}
-		itm++;
+		index++;
 	}
 	std::cerr << RED "Error: Impossible to change the channel because it's a ghost" RESET << std::endl;
 }
@@ -579,7 +484,7 @@ void	Server::handleSignal(int signal)
 	bool	*running = getRunning();
 
 	index = 0;
-	if (signal == SIGINT || signal == SIGTERM || signal == SIGQUIT)
+	if (signal == SIGINT || signal == SIGTERM)
 	{
 		std::cout << ORANGE "\nReceived signal to shutdown" RESET << std::endl;
 		*running = false;
@@ -594,18 +499,16 @@ void	Server::handleSignal(int signal)
 			fds[index].fd = -1;
 			index++;
 		}
-		clients->clear();
 		index = 0;
-		std::map<int, Channel*>::iterator it = channels->find(index);
-		while (it != channels->end())
+		while (index < 1024)
 		{
+			std::map<int, Channel*>::iterator it = channels->find(index);
 
 			if (it == channels->end())
 				break ;
 			delete it->second;
-			it++;
+			index++;
 		}
-		channels->clear();
 	}
 }
 
