@@ -6,7 +6,7 @@
 /*   By: fruan-ba <fruan-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/13 11:05:26 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/13 21:56:35 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,11 +65,15 @@ void	Server::createNewChannel(std::string Name, int clientFD)
 	if (it == clients->end())
 	{
 		std::cerr << RED "Error: A ghost can't become an admin of a channel" RESET << std::endl;
+		delete channel;
 		return ;
 	}
 	Client* client = it->second;
 	if (!this->checkName(Name))
+	{
 		std::cerr << RED "Error: The new channel name is in use" RESET << std::endl;
+		delete channel;
+	}
 	(*channels)[numChannels] = channel;
 	this->numChannels++;
 	client->setIsOperator(true);
@@ -144,10 +148,18 @@ void	Server::addNewClient(int clientFD)
 		generic->addNewMember(clientFD);
 		if (clientFD == 4)
 			this->createNewChannel("Channel One", clientFD);
-		this->changeChannel("Channel One", clientFD);
-		this->kickFromChannel("Channel One", 4, 5);
-		//if (clientFD == 5)
-		//	this->deleteChannel("Channel One", clientFD);
+		if (clientFD == 5)
+		{
+			this->createNewChannel("Channel Two", clientFD);
+			this->createNewChannel("Channel Three", clientFD);
+			this->createNewChannel("Channel Four", clientFD);
+			this->createNewChannel("Channel Five", clientFD);
+			this->createNewChannel("Channel Six", clientFD);
+			this->createNewChannel("Channel Seven", clientFD);
+			this->createNewChannel("Channel Eight", clientFD);
+			this->createNewChannel("Channel Nine", clientFD);
+			this->deleteChannel("Channel Two", clientFD);
+		}
 	}
 	fds[index].fd = clientFD;
 	fds[index].events = POLLIN;
@@ -387,6 +399,7 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 			if (channelOfTime == index)
 				itch->second->setChannelOfTime(0);
 			delete itc->second;
+			std::cout << ORANGE "deletei o cara" RESET << std::endl;
 			channels->erase(itc);
 			itch->second->getChannelsSet().erase(channel);
 			std::cout << LIGHT_BLUE "Channel " << YELLOW << channelName << LIGHT_BLUE << " removed successfully" RESET << std::endl;
@@ -399,6 +412,7 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 			}
 			return ;
 		}
+		itc++;
 		index++;
 	}
 	std::cerr << RED "Error: The channel " << YELLOW << channel << RED " doesn't exist" RESET << std::endl;
@@ -499,6 +513,7 @@ void	Server::handleSignal(int signal)
 			fds[index].fd = -1;
 			index++;
 		}
+		clients->clear();
 		index = 0;
 		while (index < 1024)
 		{
@@ -509,6 +524,7 @@ void	Server::handleSignal(int signal)
 			delete it->second;
 			index++;
 		}
+		channels->clear();
 	}
 }
 
