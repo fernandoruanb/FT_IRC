@@ -465,6 +465,8 @@ void	Server::removeOperatorPrivilegesFromEveryBody(std::string channel)
 	{
 		it->second->getOperatorChannels().erase(channel);
 		it->second->getChannelsSet().erase(channel);
+		if (it->second->getOperatorChannels().size() == 0)
+			it->second->setIsOperator(false);
 		channelOfTime = it->second->getChannelOfTime();
 		if (channelOfTime == itm->first)
 			changeChannel("Generic", it->second->getClientFD());
