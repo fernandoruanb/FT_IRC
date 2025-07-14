@@ -6,7 +6,7 @@
 /*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/13 10:40:05 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/14 13:08:43 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include "colours.hpp"
 
 Client::Client(int fd)
-	: clientFD(fd), authenticated(false), registered(false), isOperator(false)
+	: channelOfTime(0), clientFD(fd), authenticated(false), registered(false), isOperator(false)
 {
 	std::cout << LIGHT_BLUE << "Constructor Client* Called in fd: " MAGENTA << fd << RESET << std::endl;
 }

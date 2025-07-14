@@ -6,7 +6,7 @@
 /*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/13 09:57:03 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/14 12:46:44 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <signal.h>
 # include <poll.h>
 # include <errno.h>
+# include <limits.h>
 # include <unistd.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
@@ -54,6 +55,7 @@ class	Server
 		void	setPassword(std::string password);
 		void	setPort(int Port);
 		void	setIsRunning(bool signal);
+		int	findGoodIndex(void);
 		void	setServerIRC(int serverFD);
 		int	getServerIRC(void) const;
 		std::string	getPassword(void) const;
