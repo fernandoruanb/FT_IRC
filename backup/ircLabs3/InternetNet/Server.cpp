@@ -6,7 +6,7 @@
 /*   By: fruan-ba <fruan-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/14 13:26:39 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/14 14:55:33 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,11 +187,11 @@ void	Server::addNewClient(int clientFD)
 			this->deleteChannel("Channel Nine", clientFD);
 			this->deleteChannel("Channel Seven", clientFD);
 			this->deleteChannel("Channel Four", clientFD);
-			//this->changeChannel("Channel Six", clientFD);
-			//this->createNewChannel("Channel Two", clientFD);
-			//this->changeChannel("Channel Two", clientFD);
-			//this->createNewChannel("Channel Seven", clientFD);
-			//this->deleteChannel("Channel Two", clientFD);
+			this->changeChannel("Channel Six", clientFD);
+			this->createNewChannel("Channel Two", clientFD);
+			this->changeChannel("Channel Two", clientFD);
+			this->createNewChannel("Channel Seven", clientFD);
+			this->deleteChannel("Channel Two", clientFD);
 		}
 	}
 	fds[index].fd = clientFD;
@@ -435,7 +435,6 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 				this->changeChannel("Generic", itch->second->getClientFD());
 			}
 			delete itc->second;
-			std::cout << ORANGE "deletei o cara e ainda bati nele e fuzilei para garantir" RESET << std::endl;
 			channels->erase(itc);
 			itch->second->getChannelsSet().erase(channelName);
 			std::cout << LIGHT_BLUE "Channel " << YELLOW << channelName << LIGHT_BLUE << " removed successfully" RESET << std::endl;
@@ -466,7 +465,6 @@ void	Server::changeChannel(std::string channel, int clientFD)
 	Client* client = itc->second;
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Channel*>::iterator itm;
-	int	index;
 	std::string	channelName;
 
 	if (!client)
@@ -474,22 +472,20 @@ void	Server::changeChannel(std::string channel, int clientFD)
 		std::cerr << RED "Error: the client to change channel is a ghost" RESET << std::endl;
 		return ;
 	}
-	index = 0;
-	itm = channels->find(index);
-	while (index < numChannels && itm != channels->end())
+	itm = channels->begin();
+	while (itm != channels->end())
 	{
-		itm = channels->find(index);
 		channelName = itm->second->getName();
 		if (channelName == channel)
 		{
 			Channel* channelOfficial = itm->second;
 			std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " changing to " << YELLOW << channelOfficial->getName() << RESET << std::endl;
-			client->setChannelOfTime(index);
+			client->setChannelOfTime(itm->first);
 			itm->second->addNewMember(clientFD);
 			client->getChannelsSet().insert(channel);
 			return ;
 		}
-		index++;
+		itm++;
 	}
 	std::cerr << RED "Error: Impossible to change the channel because it's a ghost" RESET << std::endl;
 }
