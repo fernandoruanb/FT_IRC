@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
+/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/15 15:46:12 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/15 16:55:34 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,9 @@ class	Server
 		void	PollInputClientMonitoring(void);
 		void	PollOutMonitoring(void);
 		static void	handleSignal(int signal);
+		bool	isValidArgs(const std::string &buffer, size_t pos, bool &op);
+		std::string	getText(std::string& buffer, size_t *pos, std::map<int, Client*>* clients, bool check_name);
+		void	getClientInfo(std::map<int, Client*>*, std::string&, int, int);
 	public:
 		Server(std::string portCheck, std::string password);
 		~Server(void);
