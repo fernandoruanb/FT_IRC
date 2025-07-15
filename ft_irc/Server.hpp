@@ -6,7 +6,7 @@
 /*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/15 14:35:12 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/15 15:46:12 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,42 +49,42 @@ class	Server
 		bool	*running;
 		Server&	operator=(const Server &other);
 		Server(const Server &other);
+		void    inviteToChannel(std::string channelName, int operatorFD, int clientFD);
+		bool	checkName(std::string Name);
+		void	changeChannel(std::string Name, int clientFD);
+		void	deleteChannel(std::string Name, int clientFD);
+		void    removeOperatorPrivilegesFromEveryBody(std::string channel);
+		void    createNewChannel(std::string Name, int clientFD);
+		void    kickFromChannel(std::string channel, int owner, int clientFD);
+		void	addNewClient(int clientFD);
+		void    changeTopic(std::string channelName, int clientFD, std::string topic);
+		void	startIRCService(void);
+		void	manageBuffers(int index);
+		void	shutdownService(void);
+		void	broadcast(int index);
+		void	chargePrivileges(int target);
+		void	startPollFds(void);
+		bool	handleClientAuthentication(std::map<int, Client*>* clients, int fd, char* buffer, int pollIndex);
+		void	privmsg(int index, int sender, std::string message);
+		void	init(int port, std::string password);
+		int	findGoodIndex(void);
+		int	atoiIRC(std::string port);
+		void	PollServerRoom(void);
+		void	PollInputClientMonitoring(void);
+		void	PollOutMonitoring(void);
+		static void	handleSignal(int signal);
 	public:
 		Server(std::string portCheck, std::string password);
 		~Server(void);
 		void	setPassword(std::string password);
 		void	setPort(int Port);
 		void	setIsRunning(bool signal);
-		int	findGoodIndex(void);
 		void	setServerIRC(int serverFD);
 		int	getServerIRC(void) const;
 		std::string	getPassword(void) const;
 		int	getPort(void)	const;
-		int	atoiIRC(std::string port);
-		void	init(int port, std::string password);
 		int	getNumberOfClients(void) const;
 		struct pollfd	(&getPollFds(void))[1024];
-		bool	checkName(std::string Name);
-		void    changeTopic(std::string channelName, int clientFD, std::string topic);
-		void    removeOperatorPrivilegesFromEveryBody(std::string channel);
-		void    inviteToChannel(std::string channelName, int operatorFD, int clientFD);
-		void	changeChannel(std::string Name, int clientFD);
-		void	deleteChannel(std::string Name, int clientFD);
-		void    createNewChannel(std::string Name, int clientFD);
-		void    kickFromChannel(std::string channel, int owner, int clientFD);
-		void	startIRCService(void);
-		void	shutdownService(void);
-		void	addNewClient(int clientFD);
-		bool	handleClientAuthentication(std::map<int, Client*>* clients, int fd, char* buffer, int pollIndex);
-		void	startPollFds(void);
-		void	manageBuffers(int index);
-		void	broadcast(int index);
-		void	privmsg(int index, int sender, std::string message);
-		void	chargePrivileges(int target);
-		void	PollServerRoom(void);
-		void	PollInputClientMonitoring(void);
-		void	PollOutMonitoring(void);
-		static void	handleSignal(int signal);
 };
 std::ofstream operator<<(std::ostream &out, const Server &other);
 

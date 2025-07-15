@@ -6,7 +6,7 @@
 /*   By: fruan-ba <fruan-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:26:36 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/13 12:06:30 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/15 15:51:48 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,6 @@ class	Channel
 	public:
 		Channel(std::string name);
 		~Channel(void);
-		void	addNewMember(int clientFD);
 		void	setChannelIndex(int index);
 		int	getChannelIndex(void) const;
 		void	setName(std::string name);
@@ -54,6 +53,7 @@ class	Channel
 		int	getUserLimit(void) const;
 		bool	getInviteFlag(void) const;
 		bool	getTopicFlag(void) const;
+		void	addNewMember(int clientFD);
 };
 std::ofstream	operator<<(std::ostream &out, const Channel &other);
 #endif /* CHANNEL_HPP */

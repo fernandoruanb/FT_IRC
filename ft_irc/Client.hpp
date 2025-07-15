@@ -6,7 +6,7 @@
 /*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:22:05 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/15 14:09:44 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/15 15:50:52 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,8 @@ class	Client
 		std::set<std::string>	inviteChannels;
 		std::set<std::string>	channels;
 		Client(void);
+		void			addChannel(std::string channel);
+		void			removeChannel(std::string channel);
 	public:
 		Client(int clientFD);
 		~Client(void);
@@ -64,8 +66,6 @@ class	Client
 		bool			getRegistered(void) const;
 		std::string		getHost(void) const; // nickname!username@host
 		std::set<int>&	getChannels(void);
-		void			removeChannel(std::string channel);
-		void			addChannel(std::string channel);
 };
 std::ostream& operator<<(std::ostream &out, const Client &other);
 #endif /* CLIENT_HPP */
