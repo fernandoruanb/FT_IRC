@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/15 19:00:15 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/15 19:15:37 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -510,6 +510,14 @@ void	Server::PollOutMonitoring(void)
 	{
 		if (fds[index].revents & POLLOUT)
 		{
+			/*
+				This is a test-doesn't workd properly
+				what it does
+					shows
+					Me: <your input>
+			*/
+			// if (this->sendBuffer[index].find(":") == std::string::npos)
+			// 	this->sendBuffer[index] = std::string(GREEN) + "Me: " + RESET + this->sendBuffer[index];
 			bytes = send(fds[index].fd, this->sendBuffer[index].c_str(), sendBuffer[index].size(), 0);
 			if (bytes > 0)
 				this->sendBuffer[index].erase(0, bytes);
