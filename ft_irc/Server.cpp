@@ -6,7 +6,7 @@
 /*   By: fruan-ba <fruan-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/15 15:07:29 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/15 15:47:51 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -294,6 +294,8 @@ void	Server::addNewClient(int clientFD)
 			this->changeChannel("Channel Three", 4);
 			this->inviteToChannel("Channel Three", clientFD, 4);
 			this->changeChannel("Channel Three", 4);
+			this->changeChannel("Generic", 4);
+			this->changeChannel("Generic", 5);
 		}
 	}
 	fds[index].fd = clientFD;
