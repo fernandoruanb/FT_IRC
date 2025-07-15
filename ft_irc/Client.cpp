@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
+/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/15 14:42:25 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/15 16:53:16 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,4 +153,13 @@ std::ostream& operator<<(std::ostream &out, const Client &other)
         << ORANGE ", op: " CYAN << (other.getIsOperator() ? "true" : "false")
         << ")";
     return out;
+}
+
+void			Client::setServerName(const std::string& name)
+{
+	this->serverName = name;
+}
+const std::string&	Client::getServerName(void) const
+{
+	return (this->serverName);
 }

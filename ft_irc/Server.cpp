@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fruan-ba <fruan-ba@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/15 15:47:51 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/15 18:43:26 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,11 @@
 #include "Client.hpp"
 #include "messages.hpp"
 #include <cstring>
+
+static bool	isEmptyInput(const std::string &line)
+{
+	return (line.empty() || line == "\n" || line == "\r" || line == "\r\n");
+}
 
 static std::map<int, Channel*>* getChannelsMap(void)
 {
@@ -108,6 +113,108 @@ void	Server::createNewChannel(std::string Name, int clientFD)
 	std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " is now the operator of " << YELLOW << Name << LIGHT_BLUE " Channel" RESET << std::endl;
 }
 
+std::string	Server::getText(std::string& buffer, size_t *pos, std::map<int, Client*>* clients, bool check_name = false)
+{
+	size_t	j = *pos;
+	std::string	str;
+
+	//Get real name
+	if (*pos < buffer.size() && buffer[*pos] == ':')
+	{
+		(*pos)++;
+		str = buffer.substr(*pos);
+		*pos = buffer.size();
+		return (str);
+	}
+	
+	while (j < buffer.size() && (!std::isspace(buffer[j]) && buffer[j] != ':'))
+		j++;
+	str = buffer.substr(*pos, j - *pos);
+	if (check_name)
+	{
+		std::map<int, Client*>::iterator	it;
+		for (it = clients->begin(); it != clients->end(); it++)
+			if (it->second->getUserName() == str)
+				return ("");
+	}
+	*pos = ++j;
+	return (str);
+}
+
+bool	Server::isValidArgs(const std::string &buffer, size_t pos, bool &op)
+{
+	int		cnt = 0;
+	size_t	len = buffer.size();
+
+	while (pos < len)
+	{
+		while (std::isspace(buffer[pos]) || buffer[pos] == ':')
+			pos++;
+		if (pos == len)
+			break;
+
+		cnt++;
+
+		while (pos < len && (!std::isspace(buffer[pos]) && buffer[pos] != ':'))
+			pos++;
+	}
+	if (cnt > 3)
+		op = true;
+	return (cnt >= 3);
+}
+
+void	Server::getClientInfo(std::map<int, Client*>* clients, std::string& buffer, int fd, int i)
+{
+	bool	optional = false;
+
+	//	Find the client to register
+	std::map<int, Client*>::iterator	it = clients->find(fd);
+	struct	pollfd						(&fds)[1024] = *getMyFds();
+
+	// (*clients)[fd];
+
+	if (it == clients->end())
+		return;
+
+	//	Start to register
+	Client*	myClient = it->second;
+	
+	if (myClient->getRegistered())
+		return;
+
+	size_t	pos = buffer.find("USER");
+	if (pos != std::string::npos)
+	{
+		pos += 5;
+		if (!isValidArgs(buffer, pos, optional))
+		{
+			this->sendBuffer[i] += msg_notice("USER <username> <hostname> <servername> :<realname>");
+			fds[i].events |= POLLOUT;
+			return;
+		}
+		
+		myClient->setUserName(getText(buffer, &pos, clients, true));
+		// std::string	tempName = getText(buffer, &pos, clients, true);
+		if (myClient->getUserName().empty())
+		{
+			this->sendBuffer[i] += std::string(BRIGHT_RED) + "Error: " + RESET + "User name already in use.\n";
+			fds[i].events |= POLLOUT;
+			return;
+		}
+		
+		//Seting the client info
+		// myClient->setUserName(tempName);
+		myClient->setHost(getText(buffer, &pos, clients));
+		myClient->setServerName(getText(buffer, &pos, clients));
+		if (optional)
+			myClient->setRealName(getText(buffer, &pos, clients));
+		this->sendBuffer[i].clear();
+		// this->sendBuffer[i] += msg_notice("Welcome " + myClient->getUserName() + "!");
+		myClient->setRegistered(true);
+	}
+	fds[i].events |= POLLOUT;
+}
+
 bool Server::handleClientAuthentication(std::map<int, Client*>* clients, int fd, char* buffer, int pollIndex) {
 	std::map<int, Client*>::iterator it = clients->find(fd);
 	if (it != clients->end()) {
@@ -125,6 +232,7 @@ bool Server::handleClientAuthentication(std::map<int, Client*>* clients, int fd,
 					client->setAuthenticated(true);
 					this->sendBuffer[pollIndex].clear();
 					this->sendBuffer[pollIndex] += msg_notice("Authentication successful");
+					this->sendBuffer[pollIndex] += msg_notice("USER <username> <hostname> <servername> :<realname>");
 					fds[pollIndex].events |= POLLOUT;
 					return true;
 				} else {	
@@ -349,21 +457,26 @@ void	Server::PollInputClientMonitoring(void)
 			   {
 				   std::string line = this->recvBuffer[index].substr(0, pos + 1);
 				   this->recvBuffer[index].erase(0, pos + 1);
-				   std::cout << BRIGHT_GREEN "Client: " << YELLOW << fds[index].fd << LIGHT_BLUE << " " << line << RESET << std::endl;
+
+				   std::string	name = (*clients)[fds[index].fd]->getUserName();
+				   std::cout << BRIGHT_GREEN << (name.empty() ? "Client": name) << ": " << YELLOW << fds[index].fd << LIGHT_BLUE << " " << line << RESET << std::endl;
+					// this->sendBuffer[index] = name + ": " + this->sendBuffer[index];
 
 				   if (!handleClientAuthentication(clients, fds[index].fd, (char*)line.c_str(), index)) {
 					   continue;
 				   }
+
+				   getClientInfo(clients, line, fds[index].fd, index);
+
 				   Client* client = (*clients)[fds[index].fd];
-				   if (!client->getAuthenticated())
-				   {
+				   if (!client->getAuthenticated() || !client->getRegistered())
 					   continue;
-				   }
-				   if (line.rfind("PASS ", 0) == 0) {
+				   if (line.rfind("PASS ", 0) == 0 || line.rfind("USER ", 0) == 0) {
 					   continue;
 				   }
 				   this->sendBuffer[index].clear();
-				   this->sendBuffer[index] += line;
+				   if (!isEmptyInput(line))
+				   	this->sendBuffer[index] += "\n" + std::string(YELLOW) + (*clients)[fds[index].fd]->getUserName() + RESET + ": " + line;
 				   this->broadcast(index);
 				   //this->privmsg(index - 1, "You are very special =D\n");
 				   fds[index].events |= POLLOUT;
@@ -405,7 +518,6 @@ void	Server::PollOutMonitoring(void)
 		}
 		index++;
 	}
-
 }
 static bool	*getRunning(void)
 {
@@ -841,7 +953,7 @@ void    Server::broadcast(int sender)
 	   }
 	   channel = it->second->getChannelOfTime();
            Client* client = it->second;
-           if (client->getAuthenticated() && channelTarget == channel)
+           if (client->getAuthenticated() && client->getRegistered() && channelTarget == channel)
             {
                 this->sendBuffer[index] += this->sendBuffer[sender];
                 fds[index].events |= POLLOUT;
@@ -870,7 +982,7 @@ void    Server::privmsg(int index, int sender, std::string message)
     std::map<int, Client*>::iterator it = clients->find(fds[index].fd);
     Client* client = it->second;
 
-    if (message.empty() || index < 0 || fds[index].fd == -1 || !client->getAuthenticated() || ownerChannel != channel)
+    if (message.empty() || index < 0 || fds[index].fd == -1 || !client->getRegistered() || !client->getAuthenticated() || ownerChannel != channel)
         return ;
     this->sendBuffer[index] += message;
     fds[index].events |= POLLOUT;
