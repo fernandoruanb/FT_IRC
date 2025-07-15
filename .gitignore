@@ -1,3 +1,4 @@
 ircserver
 bin
 *.o
+.vscode
