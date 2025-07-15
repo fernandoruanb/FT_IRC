@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/15 19:15:37 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/15 19:16:37 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -515,6 +515,7 @@ void	Server::PollOutMonitoring(void)
 				what it does
 					shows
 					Me: <your input>
+				uncomment if u want to see
 			*/
 			// if (this->sendBuffer[index].find(":") == std::string::npos)
 			// 	this->sendBuffer[index] = std::string(GREEN) + "Me: " + RESET + this->sendBuffer[index];
