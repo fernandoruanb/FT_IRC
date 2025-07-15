@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/15 18:43:26 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/15 19:00:15 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,7 +209,7 @@ void	Server::getClientInfo(std::map<int, Client*>* clients, std::string& buffer,
 		if (optional)
 			myClient->setRealName(getText(buffer, &pos, clients));
 		this->sendBuffer[i].clear();
-		// this->sendBuffer[i] += msg_notice("Welcome " + myClient->getUserName() + "!");
+		this->sendBuffer[i] += msg_notice("Welcome " + myClient->getUserName() + "!");
 		myClient->setRegistered(true);
 	}
 	fds[i].events |= POLLOUT;
