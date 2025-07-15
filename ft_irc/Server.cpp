@@ -6,7 +6,7 @@
 /*   By: fruan-ba <fruan-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/14 17:03:52 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/15 15:07:29 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,6 +144,50 @@ bool Server::handleClientAuthentication(std::map<int, Client*>* clients, int fd,
 	return true;
 }
 
+void	Server::inviteToChannel(std::string channelName, int operatorFD, int clientFD)
+{
+	std::map<int, Channel*>* channels = getChannelsMap();
+	std::map<int, Client*>* clients = getClientsMap();
+	std::map<int, Channel*>::iterator itch = channels->begin();
+	std::map<int, Client*>::iterator itc = clients->find(operatorFD);
+
+	if (itc == clients->end())
+	{
+		std::cerr << RED "Error: The operator doesn't exist. It's a ghost!" RESET << std::endl;
+		return ;
+	}
+	if (!itc->second->getIsOperator())
+	{
+		std::cerr << RED "Error: There is someone trying to invite other people without enough permissions" RESET << std::endl;
+		return ;
+	}
+	if (itc->second->getOperatorChannels().find(channelName) == itc->second->getOperatorChannels().end())
+	{
+		std::cerr << RED "Error: The operator is a valid operator but not from that channel" RESET << std::endl;
+		return ;
+	}
+	itc = clients->find(clientFD);
+	if (itc == clients->end())
+	{
+		std::cerr << RED "Error: The clientFD doesn't exist. It's a ghost!" RESET << std::endl;
+		return ;
+	}
+	while (itch != channels->end())
+	{
+		if (itch->second->getName() == channelName)
+			break ;
+		++itch;
+	}
+	if (itch == channels->end())
+	{
+		std::cerr << RED "Error: The channel doesn't exist. It's a ghost!!!" RESET << std::endl;
+		return ;
+	}
+	itch->second->setInviteFlag(true);
+	itc->second->getInviteChannels().insert(channelName);
+	std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE " received an invite to " << YELLOW << channelName << LIGHT_BLUE " channel by " << YELLOW << operatorFD << std::endl;
+}
+
 void	Server::changeTopic(std::string channelName, int clientFD, std::string topic)
 {
 	std::map<int, Channel*>* channels = getChannelsMap();
@@ -196,7 +240,6 @@ void	Server::addNewClient(int clientFD)
 	int	index;
 	struct pollfd (&fds)[1024] = getPollFds();
 	std::map<int, Channel*>* channels = getChannelsMap();
-
 	std::map<int, Channel*>::iterator it = channels->find(0);
 	index = 1;
 	while (index < 1024)
@@ -241,6 +284,16 @@ void	Server::addNewClient(int clientFD)
 			this->deleteChannel("Channel Two", clientFD);
 			this->changeChannel("Channel Eight", clientFD);
 			this->changeTopic("Channel Eight", clientFD, "Masters of Universe");
+			this->inviteToChannel("Channel Three", clientFD, 4);
+			this->inviteToChannel("Channel Two", clientFD, 4);
+			this->inviteToChannel("Channel One", 4, clientFD);
+			this->deleteChannel("Channel Three", clientFD);
+			this->createNewChannel("Channel Three", clientFD);
+			it = channels->find(2);
+			it->second->setInviteFlag(true);
+			this->changeChannel("Channel Three", 4);
+			this->inviteToChannel("Channel Three", clientFD, 4);
+			this->changeChannel("Channel Three", 4);
 		}
 	}
 	fds[index].fd = clientFD;
@@ -465,6 +518,7 @@ void	Server::removeOperatorPrivilegesFromEveryBody(std::string channel)
 	{
 		it->second->getOperatorChannels().erase(channel);
 		it->second->getChannelsSet().erase(channel);
+		it->second->getInviteChannels().erase(channel);
 		if (it->second->getOperatorChannels().size() == 0)
 			it->second->setIsOperator(false);
 		channelOfTime = it->second->getChannelOfTime();
@@ -560,6 +614,15 @@ void	Server::changeChannel(std::string channel, int clientFD)
 		if (channelName == channel)
 		{
 			Channel* channelOfficial = itm->second;
+			if (itm->second->getInviteFlag())
+			{
+				std::cout << BRIGHT_GREEN << "The channel " << YELLOW << channelName << BRIGHT_GREEN " needs invite flags to change to it." << RESET << std::endl;
+				if (itc->second->getInviteChannels().find(channelName) == itc->second->getInviteChannels().end())
+				{
+					std::cerr << RED "Error: The client doesn't have the invite necessary to change to this channel " << YELLOW << channelName <<  RESET << std::endl;
+					return ;
+				}
+			}
 			std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " changing to " << YELLOW << channelOfficial->getName() << RESET << std::endl;
 			client->setChannelOfTime(itm->first);
 			itm->second->addNewMember(clientFD);

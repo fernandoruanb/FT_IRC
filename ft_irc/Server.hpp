@@ -6,7 +6,7 @@
 /*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/14 16:58:46 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/15 14:35:12 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,7 @@ class	Server
 		bool	checkName(std::string Name);
 		void    changeTopic(std::string channelName, int clientFD, std::string topic);
 		void    removeOperatorPrivilegesFromEveryBody(std::string channel);
+		void    inviteToChannel(std::string channelName, int operatorFD, int clientFD);
 		void	changeChannel(std::string Name, int clientFD);
 		void	deleteChannel(std::string Name, int clientFD);
 		void    createNewChannel(std::string Name, int clientFD);

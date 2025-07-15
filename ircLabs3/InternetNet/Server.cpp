@@ -6,7 +6,7 @@
 /*   By: fruan-ba <fruan-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/14 17:03:52 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/14 18:56:34 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -456,6 +456,7 @@ void	Server::removeOperatorPrivilegesFromEveryBody(std::string channel)
 			break ;
 		itm++;
 	}
+
 	if (itm == channels->end())
 	{
 		std::cerr << RED "The channel to remove extra things doesn't exist" RESET << std::endl;
@@ -464,6 +465,8 @@ void	Server::removeOperatorPrivilegesFromEveryBody(std::string channel)
 	while (it != clients->end())
 	{
 		it->second->getOperatorChannels().erase(channel);
+		if (it->second->getOperatorChannels().size() == 0)
+			it->second->setIsOperator(false);
 		it->second->getChannelsSet().erase(channel);
 		channelOfTime = it->second->getChannelOfTime();
 		if (channelOfTime == itm->first)

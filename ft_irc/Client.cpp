@@ -6,7 +6,7 @@
 /*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/14 13:08:43 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/15 14:42:25 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,11 @@ Client::Client(int fd)
 Client::~Client(void)
 {
 	std::cout << LIGHT_BLUE "Destructor called for Client *" RESET << std::endl;
+}
+
+std::set<std::string>&  Client::getInviteChannels(void)
+{
+	return (inviteChannels);
 }
 
 int	Client::getChannelOfTime(void) const

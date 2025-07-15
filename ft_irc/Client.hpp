@@ -6,7 +6,7 @@
 /*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:22:05 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/13 10:39:47 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/15 14:09:44 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ class	Client
 		Client(const Client &other);
 		Client& operator=(const Client &other);
 		std::set<std::string>	operatorChannels;
+		std::set<std::string>	inviteChannels;
 		std::set<std::string>	channels;
 		Client(void);
 	public:
@@ -58,6 +59,7 @@ class	Client
 		std::string&	getBufferIn(void);
 		std::string&	getBufferOut(void);
 		std::set<std::string>&	getOperatorChannels(void);
+		std::set<std::string>&	getInviteChannels(void);
 		bool			getIsOperator(void) const;
 		bool			getRegistered(void) const;
 		std::string		getHost(void) const; // nickname!username@host
