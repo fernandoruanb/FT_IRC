@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/15 17:04:27 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/15 18:43:26 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,11 @@
 #include "Client.hpp"
 #include "messages.hpp"
 #include <cstring>
+
+static bool	isEmptyInput(const std::string &line)
+{
+	return (line.empty() || line == "\n" || line == "\r" || line == "\r\n");
+}
 
 static std::map<int, Channel*>* getChannelsMap(void)
 {
@@ -173,35 +178,38 @@ void	Server::getClientInfo(std::map<int, Client*>* clients, std::string& buffer,
 
 	//	Start to register
 	Client*	myClient = it->second;
-	std::string	ask = "USER <username> <hostname> <servername> :<realname>";
 	
 	if (myClient->getRegistered())
 		return;
-	
+
 	size_t	pos = buffer.find("USER");
 	if (pos != std::string::npos)
 	{
 		pos += 5;
 		if (!isValidArgs(buffer, pos, optional))
 		{
-			this->sendBuffer[i] += msg_notice(ask);
+			this->sendBuffer[i] += msg_notice("USER <username> <hostname> <servername> :<realname>");
 			fds[i].events |= POLLOUT;
 			return;
 		}
-		std::string	tempName = getText(buffer, &pos, clients, true);
-		if (tempName.empty())
+		
+		myClient->setUserName(getText(buffer, &pos, clients, true));
+		// std::string	tempName = getText(buffer, &pos, clients, true);
+		if (myClient->getUserName().empty())
 		{
 			this->sendBuffer[i] += std::string(BRIGHT_RED) + "Error: " + RESET + "User name already in use.\n";
 			fds[i].events |= POLLOUT;
 			return;
 		}
 		
-		myClient->setUserName(tempName);
+		//Seting the client info
+		// myClient->setUserName(tempName);
 		myClient->setHost(getText(buffer, &pos, clients));
 		myClient->setServerName(getText(buffer, &pos, clients));
 		if (optional)
 			myClient->setRealName(getText(buffer, &pos, clients));
-		this->sendBuffer[i] += msg_notice("Welcome " + myClient->getUserName() + "!");
+		this->sendBuffer[i].clear();
+		// this->sendBuffer[i] += msg_notice("Welcome " + myClient->getUserName() + "!");
 		myClient->setRegistered(true);
 	}
 	fds[i].events |= POLLOUT;
@@ -224,6 +232,7 @@ bool Server::handleClientAuthentication(std::map<int, Client*>* clients, int fd,
 					client->setAuthenticated(true);
 					this->sendBuffer[pollIndex].clear();
 					this->sendBuffer[pollIndex] += msg_notice("Authentication successful");
+					this->sendBuffer[pollIndex] += msg_notice("USER <username> <hostname> <servername> :<realname>");
 					fds[pollIndex].events |= POLLOUT;
 					return true;
 				} else {	
@@ -451,27 +460,23 @@ void	Server::PollInputClientMonitoring(void)
 
 				   std::string	name = (*clients)[fds[index].fd]->getUserName();
 				   std::cout << BRIGHT_GREEN << (name.empty() ? "Client": name) << ": " << YELLOW << fds[index].fd << LIGHT_BLUE << " " << line << RESET << std::endl;
+					// this->sendBuffer[index] = name + ": " + this->sendBuffer[index];
 
 				   if (!handleClientAuthentication(clients, fds[index].fd, (char*)line.c_str(), index)) {
 					   continue;
 				   }
 
 				   getClientInfo(clients, line, fds[index].fd, index);
-				   if (!(*clients)[fds[index].fd]->getRegistered())
-				   {
-						// this->sendBuffer[index] = msg_notice("USER <username> <hostname> <servername> :<realname>");
-						continue;
-				   }
+
 				   Client* client = (*clients)[fds[index].fd];
-				   if (!client->getAuthenticated())
-				   {
+				   if (!client->getAuthenticated() || !client->getRegistered())
 					   continue;
-				   }
-				   if (line.rfind("PASS ", 0) == 0) {
+				   if (line.rfind("PASS ", 0) == 0 || line.rfind("USER ", 0) == 0) {
 					   continue;
 				   }
 				   this->sendBuffer[index].clear();
-				   this->sendBuffer[index] += line;
+				   if (!isEmptyInput(line))
+				   	this->sendBuffer[index] += "\n" + std::string(YELLOW) + (*clients)[fds[index].fd]->getUserName() + RESET + ": " + line;
 				   this->broadcast(index);
 				   //this->privmsg(index - 1, "You are very special =D\n");
 				   fds[index].events |= POLLOUT;
@@ -513,7 +518,6 @@ void	Server::PollOutMonitoring(void)
 		}
 		index++;
 	}
-
 }
 static bool	*getRunning(void)
 {
