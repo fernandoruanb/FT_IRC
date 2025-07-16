@@ -47,6 +47,5 @@ std::string msg_err_erroneusnickname(const std::string& nick) {
 }
 
 std::string msg_notice(const std::string& text) {
-    return (":" SERVER_NAME " NOTICE * : " YELLOW  + text + "\r\n");
+    return (CYAN ":" SERVER_NAME " NOTICE * : " YELLOW  + text + "\r\n" RESET);
 }
-
