@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/15 19:16:37 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/16 15:56:38 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,6 +109,7 @@ void	Server::createNewChannel(std::string Name, int clientFD)
 	this->numChannels++;
 	client->setIsOperator(true);
 	client->getOperatorChannels().insert(Name);
+	client->getInviteChannels().insert(Name);
 	client->getChannelsSet().insert(Name);
 	std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " is now the operator of " << YELLOW << Name << LIGHT_BLUE " Channel" RESET << std::endl;
 }
@@ -252,12 +253,48 @@ bool Server::handleClientAuthentication(std::map<int, Client*>* clients, int fd,
 	return true;
 }
 
+void	Server::promotionChannelOperator(std::string channel, int owner, int clientFD)
+{
+	std::map<int, Client*>* clients = getClientsMap();
+	std::map<int, Client*>::iterator itch;
+	int	index;
+	int	second;
+
+	index = getChannelsIndex(channel);
+	if (index == -1)
+	{
+		std::cerr << RED "The channel " << YELLOW << channel << RED " doesn't exist" << RESET << std::endl;
+		return ;
+	}
+	index = getClientsIndex(owner);
+	second = getClientsIndex(clientFD);
+	if (index == -1 || second == -1)
+	{
+		std::cerr << RED "The owner or client doesn't exist to be promote to an operator" RESET << std::endl;
+		return ;
+	}
+	itch = clients->find(clientFD);
+	if (itch->second->getOperatorChannels().find(channel) != itch->second->getOperatorChannels().end())
+	{
+		(*clients)[clientFD]->getOperatorChannels().insert(channel);
+		(*clients)[clientFD]->getChannelsSet().insert(channel);
+		(*clients)[clientFD]->setIsOperator(true);
+		std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE "is now an operator of the channel " << YELLOW << channel << RESET << std::endl;
+		return ;
+	}
+	std::cerr << RED "The client " << YELLOW << clientFD << RED " can't be promote to an operator of channel " << YELLOW << channel << RESET << std::endl;
+}
+
 void	Server::inviteToChannel(std::string channelName, int operatorFD, int clientFD)
 {
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Client*>* clients = getClientsMap();
+	struct pollfd (&fds)[1024] = *getMyFds();
 	std::map<int, Channel*>::iterator itch = channels->begin();
 	std::map<int, Client*>::iterator itc = clients->find(operatorFD);
+	std::map<int, Client*>::iterator operatorOwner = clients->find(operatorFD);
+	std::string	user;
+	int	index = 0;
 
 	if (itc == clients->end())
 	{
@@ -293,6 +330,10 @@ void	Server::inviteToChannel(std::string channelName, int operatorFD, int client
 	}
 	itch->second->setInviteFlag(true);
 	itc->second->getInviteChannels().insert(channelName);
+	index = getClientsIndex(itc->first);
+	user = operatorOwner->second->getUserName();
+	sendBuffer[index] += std::string(BRIGHT_GREEN) + "You were invited to the channel " + YELLOW + channelName + BRIGHT_GREEN + " by " + MAGENTA + user + "\n" + RESET;
+	fds[index].events |= POLLOUT;
 	std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE " received an invite to " << YELLOW << channelName << LIGHT_BLUE " channel by " << YELLOW << operatorFD << std::endl;
 }
 
@@ -302,7 +343,10 @@ void	Server::changeTopic(std::string channelName, int clientFD, std::string topi
 	std::map<int, Channel*>::iterator it = channels->begin();
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Client*>::iterator itc = clients->find(clientFD);
+	struct pollfd (&fds)[1024] = *getMyFds();
 	int	isOperator;
+	int	messageTarget;
+	std::string	username;
 
 	while (it != channels->end())
 	{
@@ -340,7 +384,11 @@ void	Server::changeTopic(std::string channelName, int clientFD, std::string topi
 		return ;
 	}
 	it->second->setTopic(topic);
+	username = itc->second->getUserName();
 	std::cout << LIGHT_BLUE "The topic of the channel " << YELLOW << it->second->getName() << LIGHT_BLUE " changed to " << YELLOW << topic << RESET << std::endl;
+	messageTarget = getClientsIndex(clientFD);
+	sendBuffer[messageTarget] += std::string(BRIGHT_WHITE) + " The topic of channel " + YELLOW + channelName + BRIGHT_WHITE + " changed to " + YELLOW + topic + BRIGHT_WHITE + " by " + MAGENTA + username + RESET;
+	fds[messageTarget].events |= POLLOUT;
 }
 
 void	Server::addNewClient(int clientFD)
@@ -365,6 +413,10 @@ void	Server::addNewClient(int clientFD)
 	Client* theClient = (*this->clients)[clientFD];
 	theClient->getChannelsSet().insert("Generic");
 	theClient->setChannelOfTime(0);
+	fds[index].fd = clientFD;
+	fds[index].events = POLLIN;
+	fcntl(clientFD, F_SETFL, O_NONBLOCK);
+	this->numClients++;
 	if (it != channels->end())
 	{
 		std::cout << LIGHT_BLUE "Adding new client " << YELLOW << clientFD << LIGHT_BLUE " To generic channel =D" << std::endl;
@@ -397,19 +449,23 @@ void	Server::addNewClient(int clientFD)
 			this->inviteToChannel("Channel One", 4, clientFD);
 			this->deleteChannel("Channel Three", clientFD);
 			this->createNewChannel("Channel Three", clientFD);
-			it = channels->find(2);
-			it->second->setInviteFlag(true);
+			this->changeChannelInviteFlag("Channel Three", true);
 			this->changeChannel("Channel Three", 4);
 			this->inviteToChannel("Channel Three", clientFD, 4);
 			this->changeChannel("Channel Three", 4);
 			this->changeChannel("Generic", 4);
 			this->changeChannel("Generic", 5);
+			this->changeChannel("Channel Seven", clientFD);
+			this->changeChannel("Channel Seven", 4);
+			this->inviteToChannel("Channel Seven", clientFD, 4);
+			this->changeChannelInviteFlag("Channel Seven", true);
+			this->kickFromChannel("Channel Seven", clientFD, 4);
+			this->changeChannel("Channel Seven", 4);
+			this->inviteToChannel("Channel Seven", clientFD, 4);
+			this->changeChannel("Channel Seven", 4);
+			this->changeTopic("Channel Seven", clientFD, "Masters of Universe");
 		}
 	}
-	fds[index].fd = clientFD;
-	fds[index].events = POLLIN;
-	fcntl(clientFD, F_SETFL, O_NONBLOCK);
-	this->numClients++;
 	// NOTICE message to the new client. Asking for authentication.
 	this->sendBuffer[index] = msg_notice("Connected. Please authenticate with \"PASS <password>\"");
 	fds[index].events |= POLLOUT;
@@ -525,7 +581,7 @@ void	Server::PollOutMonitoring(void)
 			if (this->sendBuffer[index].empty())
 				fds[index].events &= ~POLLOUT;
 		}
-		index++;
+		++index;
 	}
 }
 static bool	*getRunning(void)
@@ -562,15 +618,63 @@ int	Server::atoiIRC(std::string port)
 	return (result);
 }
 
+void	Server::changeChannelInviteFlag(std::string channel, bool flag)
+{
+	std::map<int, Channel*>* channels = getChannelsMap();
+	int	index;
+
+	index = getChannelsIndex(channel);
+	if (index == -1)
+	{
+		std::cerr << RED "Error: impossible to set the invite flag from a ghost channel" RESET << std::endl;
+		return ;
+	}
+	(*channels)[index]->setInviteFlag(flag);
+	std::cout << BRIGHT_GREEN "The channel " << YELLOW << channel << BRIGHT_GREEN " only accepts new clients if they have an invite right now" << RESET << std::endl;
+}
+
+int	Server::getChannelsIndex(std::string channel)
+{
+	std::map<int, Channel*>* channels = getChannelsMap();
+	std::map<int, Channel*>::iterator itch = channels->begin();
+
+	while (itch != channels->end())
+	{
+		if (itch->second->getName() == channel)
+			return (itch->first);
+		++itch;
+	}
+	return (-1);
+}
+
+int	Server::getClientsIndex(int clientFD)
+{
+	struct pollfd (&fds)[1024] = *getMyFds();
+	int	index;
+
+	index = 1;
+	while (index < 1024 && fds[index].fd != -1)
+	{
+		if (fds[index].fd == clientFD)
+			return (index);
+		++index;
+	}
+	return (-1);
+}
+
 void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
 {
 	std::map<int, Channel *>* channels = getChannelsMap();
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Client*>::iterator itch = clients->find(owner);
+	std::map<int, Client*>::iterator own = clients->find(owner);
 	std::map<int, Channel*>::iterator itm;
 	std::string	channelName;
 	int	channelOfTime;
+	struct pollfd (&fds)[1024] = *getMyFds();
 	bool	isOperator;
+	std::string	user;
+	int	messageTarget = 0;
 
 	if (itch == clients->end())
 	{
@@ -611,11 +715,17 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
 		std::cerr << RED "Error: The client is not in the target channel " << YELLOW << channel << RESET << std::endl;
 		return ;
 	}
+	user = own->second->getUserName();
 	itch->second->getOperatorChannels().erase(channel);
+	itch->second->getChannelsSet().erase(channel);
+	itch->second->getInviteChannels().erase(channel);
 	if (itch->second->getOperatorChannels().size() == 0)
 		itch->second->setIsOperator(false);
-	itch->second->setChannelOfTime(0);
+	this->changeChannel("Generic", itch->first);
 	std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE " has been kicked by " << YELLOW << owner << LIGHT_BLUE " and lost all privileges coming back to " << YELLOW "Generic" << LIGHT_BLUE " Channel" RESET << std::endl;
+	messageTarget = getClientsIndex(clientFD);
+	sendBuffer[messageTarget] += std::string(RED) + "You were kicked from channel " + YELLOW + channel + RED + " by " + MAGENTA + user + RESET + "\n";
+	fds[messageTarget].events |= POLLOUT;
 }
 
 void	Server::removeOperatorPrivilegesFromEveryBody(std::string channel)
@@ -715,6 +825,8 @@ void	Server::changeChannel(std::string channel, int clientFD)
 {
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Client*>::iterator itc = clients->find(clientFD);
+	struct pollfd (&fds)[1024] = *getMyFds();
+	int	messageTarget = 0;
 	if (itc == clients->end())
 	{
 		std::cerr << RED "Error: The client is a ghost trying to changing a channel" RESET << std::endl;
@@ -742,7 +854,7 @@ void	Server::changeChannel(std::string channel, int clientFD)
 				std::cout << BRIGHT_GREEN << "The channel " << YELLOW << channelName << BRIGHT_GREEN " needs invite flags to change to it." << RESET << std::endl;
 				if (itc->second->getInviteChannels().find(channelName) == itc->second->getInviteChannels().end())
 				{
-					std::cerr << RED "Error: The client doesn't have the invite necessary to change to this channel " << YELLOW << channelName <<  RESET << std::endl;
+					std::cerr << RED "Error: The client " << YELLOW << itc->first << RED " doesn't have the invite necessary to change to this channel " << YELLOW << channelName <<  RESET << std::endl;
 					return ;
 				}
 			}
@@ -750,6 +862,9 @@ void	Server::changeChannel(std::string channel, int clientFD)
 			client->setChannelOfTime(itm->first);
 			itm->second->addNewMember(clientFD);
 			client->getChannelsSet().insert(channel);
+			messageTarget = getClientsIndex(itc->first);
+			sendBuffer[messageTarget] += std::string(ORANGE) + "You changed to channel " + YELLOW + channelName + RESET + "\n";
+			fds[messageTarget].events |= POLLOUT;
 			return ;
 		}
 		itm++;
@@ -780,6 +895,7 @@ Server::Server(std::string portCheck, std::string password): numChannels(0)
 
 	} catch (std::exception &e) 
 	{
+		delete (*channels)[0];
 		if (portCheck.empty())
 			portCheck = "(null)";
 		if (password.empty())
@@ -831,6 +947,7 @@ void	Server::init(int port, std::string password)
 {
 	this->setPassword(password);
 	this->setPort(port);
+	std::map<int, Channel*>* channels = getChannelsMap();
 
 	int	opt = 1;
 	
@@ -843,6 +960,7 @@ void	Server::init(int port, std::string password)
 
 		signal(SIGINT, handleSignal);
 		signal(SIGTERM, handleSignal);
+		signal(SIGQUIT, handleSignal);
 
 		this->setServerIRC(serverIRC);
 		fcntl(this->serverIRC, F_SETFL, O_NONBLOCK);
@@ -859,7 +977,7 @@ void	Server::init(int port, std::string password)
 			std::cout << BRIGHT_GREEN "Bind successfully on " << YELLOW "127.0.0.1:" << port << RESET << std::endl;
 			if (listen(serverIRC, 1024) == 0)
 			{
-				std::cout << LIGHT_BLUE "Listen Mode Started =D" << std::endl;
+				std::cout << LIGHT_BLUE "Listen Mode Started =D" << RESET << std::endl;
 				this->startIRCService();
 			}
 			else
@@ -870,6 +988,7 @@ void	Server::init(int port, std::string password)
 		}
 		else
 		{
+			delete (*channels)[0];
 			close(serverIRC);
 			std::cerr << RED "Error: Bind failed" RESET << std::endl;
 			throw std::exception();

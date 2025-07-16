@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/15 16:55:34 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/16 14:48:58 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,10 @@ class	Server
 		Server(const Server &other);
 		void    inviteToChannel(std::string channelName, int operatorFD, int clientFD);
 		bool	checkName(std::string Name);
+		void	changeChannelInviteFlag(std::string channel, bool flag);
+		int	getChannelsIndex(std::string channel);
+		int	getClientsIndex(int clientFD);
+		void    promotionChannelOperator(std::string channel, int owner, int clientFD);
 		void	changeChannel(std::string Name, int clientFD);
 		void	deleteChannel(std::string Name, int clientFD);
 		void    removeOperatorPrivilegesFromEveryBody(std::string channel);
