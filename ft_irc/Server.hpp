@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/16 14:48:58 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/16 18:44:16 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ class	Server
 		void	chargePrivileges(int target);
 		void	startPollFds(void);
 		bool	handleClientAuthentication(std::map<int, Client*>* clients, int fd, char* buffer, int pollIndex);
+		void	handlePing(std::map<int, Client*>* clients, int fd, std::string buffer, int pollIndex);
 		void	privmsg(int index, int sender, std::string message);
 		void	init(int port, std::string password);
 		int	findGoodIndex(void);

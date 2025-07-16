@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/16 15:56:38 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/16 19:17:29 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,10 +210,31 @@ void	Server::getClientInfo(std::map<int, Client*>* clients, std::string& buffer,
 		if (optional)
 			myClient->setRealName(getText(buffer, &pos, clients));
 		this->sendBuffer[i].clear();
-		this->sendBuffer[i] += msg_notice("Welcome " + myClient->getUserName() + "!");
+		// this->sendBuffer[i] += msg_notice("Welcome " + myClient->getUserName() + "!");
+		this->sendBuffer[i] += msg_welcome(myClient->getUserName());
 		myClient->setRegistered(true);
 	}
 	fds[i].events |= POLLOUT;
+}
+
+// void	handleNick(std::map<int, Client*>* clients, int fd, std::string buffer, int pollIndex) {
+	
+// }
+
+void Server::handlePing(std::map<int, Client*>* clients, int fd, std::string buffer, int pollIndex) {
+    struct pollfd (&fds)[1024] = *getMyFds();
+    std::map<int, Client*>::iterator it = clients->find(fd);
+    if (it != clients->end()) {
+        if (buffer.substr(0, 4) == "PING") {
+            std::string response = "PONG";
+            if (buffer.length() > 4) {
+                response += buffer.substr(4); // inclui o espaço e o argumento, se houver
+            }
+            this->sendBuffer[pollIndex].clear();
+            this->sendBuffer[pollIndex] += response + "\r\n";
+            fds[pollIndex].events |= POLLOUT;
+        }
+    }
 }
 
 bool Server::handleClientAuthentication(std::map<int, Client*>* clients, int fd, char* buffer, int pollIndex) {
@@ -530,6 +551,18 @@ void	Server::PollInputClientMonitoring(void)
 				   if (line.rfind("PASS ", 0) == 0 || line.rfind("USER ", 0) == 0) {
 					   continue;
 				   }
+				//    if (line.rfind("NICK ", 0) == 0) {
+				// 	   handleNick(clients, fds[index].fd, line, index);
+				// 	   continue;
+				//    }
+					std::string cmd = line;
+					cmd.erase(cmd.find_last_not_of("\r\n") + 1); // Remove \r\n do final
+
+					if (cmd.compare(0, 4, "PING") == 0) {
+						// Agora aceita "PING", "PING ", "PING:..." etc.
+						handlePing(clients, fds[index].fd, cmd, index);
+						continue;
+					}
 				   this->sendBuffer[index].clear();
 				   if (!isEmptyInput(line))
 				   	this->sendBuffer[index] += "\n" + std::string(YELLOW) + (*clients)[fds[index].fd]->getUserName() + RESET + ": " + line;
