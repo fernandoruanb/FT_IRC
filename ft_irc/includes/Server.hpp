@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/15 16:55:34 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/17 15:53:32 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,10 @@ class	Server
 		Server(const Server &other);
 		void    inviteToChannel(std::string channelName, int operatorFD, int clientFD);
 		bool	checkName(std::string Name);
+		void	changeChannelInviteFlag(std::string channel, bool flag);
+		int	getChannelsIndex(std::string channel);
+		int	getClientsIndex(int clientFD);
+		void    promotionChannelOperator(std::string channel, int owner, int clientFD);
 		void	changeChannel(std::string Name, int clientFD);
 		void	deleteChannel(std::string Name, int clientFD);
 		void    removeOperatorPrivilegesFromEveryBody(std::string channel);
@@ -65,6 +69,7 @@ class	Server
 		void	chargePrivileges(int target);
 		void	startPollFds(void);
 		bool	handleClientAuthentication(std::map<int, Client*>* clients, int fd, char* buffer, int pollIndex);
+		void	handlePing(std::map<int, Client*>* clients, int fd, std::string buffer, int pollIndex);
 		void	privmsg(int index, int sender, std::string message);
 		void	init(int port, std::string password);
 		int	findGoodIndex(void);
@@ -75,7 +80,7 @@ class	Server
 		static void	handleSignal(int signal);
 		bool	isValidArgs(const std::string &buffer, size_t pos, bool &op);
 		std::string	getText(std::string& buffer, size_t *pos, std::map<int, Client*>* clients, bool check_name);
-		void	getClientInfo(std::map<int, Client*>*, std::string&, int, int);
+		void	user(std::map<int, Client*>*, std::string&, int, int);
 	public:
 		Server(std::string portCheck, std::string password);
 		~Server(void);
@@ -90,5 +95,11 @@ class	Server
 		struct pollfd	(&getPollFds(void))[1024];
 };
 std::ofstream operator<<(std::ostream &out, const Server &other);
+
+bool	isEmptyInput(const std::string &line);
+std::map<int, Channel*>* getChannelsMap(void);
+std::map<int, Client*>* getClientsMap(void);
+struct pollfd(*getMyFds(void))[1024];
+bool	*getRunning(void);
 
 #endif /* SERVER_HPP */
