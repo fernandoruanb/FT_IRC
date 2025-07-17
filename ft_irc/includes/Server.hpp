@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/17 15:53:32 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/17 17:24:38 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,17 @@
 #define SERVER_NAME "irc.maroto.com"
 
 class Channel;
+
+struct	s_commands
+{
+	std::string				&line;
+	std::map<int, Client*>* &clients;
+	int						fd;
+	int						index;
+
+	s_commands(std::string &l, std::map<int, Client*>* &c, int f, int i)
+        : line(l), clients(c), fd(f), index(i) {}
+};
 
 class	Server
 {
@@ -69,7 +80,7 @@ class	Server
 		void	chargePrivileges(int target);
 		void	startPollFds(void);
 		bool	handleClientAuthentication(std::map<int, Client*>* clients, int fd, char* buffer, int pollIndex);
-		void	handlePing(std::map<int, Client*>* clients, int fd, std::string buffer, int pollIndex);
+		void	handlePing(s_commands &commands);
 		void	privmsg(int index, int sender, std::string message);
 		void	init(int port, std::string password);
 		int	findGoodIndex(void);
@@ -80,7 +91,8 @@ class	Server
 		static void	handleSignal(int signal);
 		bool	isValidArgs(const std::string &buffer, size_t pos, bool &op);
 		std::string	getText(std::string& buffer, size_t *pos, std::map<int, Client*>* clients, bool check_name);
-		void	user(std::map<int, Client*>*, std::string&, int, int);
+		void	user(s_commands	&commands);
+		bool	handleCommands(std::map<int, Client*>* &clients, std::string& buffer, int fd, int i);
 	public:
 		Server(std::string portCheck, std::string password);
 		~Server(void);

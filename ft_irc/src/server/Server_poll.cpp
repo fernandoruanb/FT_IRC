@@ -65,26 +65,27 @@ void	Server::PollInputClientMonitoring(void)
 					   continue;
 				   }
 
-				   user(clients, line, fds[index].fd, index);
+				//    user(clients, line, fds[index].fd, index);
+				 if (handleCommands(clients, line, fds[index].fd, index)) {
+					   continue;
+				   }
 
 				   Client* client = (*clients)[fds[index].fd];
 				   if (!client->getAuthenticated() || !client->getRegistered())
 					   continue;
-				   if (line.rfind("PASS ", 0) == 0 || line.rfind("USER ", 0) == 0) {
-					   continue;
-				   }
 				//    if (line.rfind("NICK ", 0) == 0) {
 				// 	   handleNick(clients, fds[index].fd, line, index);
 				// 	   continue;
 				//    }
-					std::string cmd = line;
-					cmd.erase(cmd.find_last_not_of("\r\n") + 1); // Remove \r\n do final
+					// std::string cmd = line;
+					// cmd.erase(cmd.find_last_not_of("\r\n") + 1); // Remove \r\n do final
 
-					if (cmd.compare(0, 4, "PING") == 0) {
-						// Agora aceita "PING", "PING ", "PING:..." etc.
-						handlePing(clients, fds[index].fd, cmd, index);
-						continue;
-					}
+					// if (cmd.compare(0, 4, "PING") == 0) {
+					// 	s_commands	com(line, clients, fds[index].fd, index);
+					// 	// Agora aceita "PING", "PING ", "PING:..." etc.
+					// 	handlePing(com);
+					// 	continue;
+					// }
 				   this->sendBuffer[index].clear();
 				   if (!isEmptyInput(line))
 				   	this->sendBuffer[index] += "\n" + std::string(YELLOW) + (*clients)[fds[index].fd]->getUserName() + RESET + ": " + line;
