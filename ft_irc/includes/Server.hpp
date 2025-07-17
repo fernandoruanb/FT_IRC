@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/16 18:44:16 by fcaldas-         ###   ########.fr       */
+/*   Updated: 2025/07/17 15:53:32 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ class	Server
 		static void	handleSignal(int signal);
 		bool	isValidArgs(const std::string &buffer, size_t pos, bool &op);
 		std::string	getText(std::string& buffer, size_t *pos, std::map<int, Client*>* clients, bool check_name);
-		void	getClientInfo(std::map<int, Client*>*, std::string&, int, int);
+		void	user(std::map<int, Client*>*, std::string&, int, int);
 	public:
 		Server(std::string portCheck, std::string password);
 		~Server(void);
@@ -95,5 +95,11 @@ class	Server
 		struct pollfd	(&getPollFds(void))[1024];
 };
 std::ofstream operator<<(std::ostream &out, const Server &other);
+
+bool	isEmptyInput(const std::string &line);
+std::map<int, Channel*>* getChannelsMap(void);
+std::map<int, Client*>* getClientsMap(void);
+struct pollfd(*getMyFds(void))[1024];
+bool	*getRunning(void);
 
 #endif /* SERVER_HPP */

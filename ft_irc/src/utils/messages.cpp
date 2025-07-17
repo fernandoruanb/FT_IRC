@@ -1,6 +1,6 @@
 #include <string>
-#include "Server.hpp"
-#include "colours.hpp"
+#include "../includes/Server.hpp"
+#include "../includes/colours.hpp"
 
 std::string msg_welcome(const std::string& nick) {
     return ( ":" SERVER_NAME " 001 " + nick + " :Welcome to the IRC Network, " + nick + "!\r\n" );
