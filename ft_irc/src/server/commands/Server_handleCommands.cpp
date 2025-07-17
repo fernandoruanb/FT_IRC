@@ -10,7 +10,12 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 {
 	s_commands	com(buffer, clients, fd ,i);
 	std::map<std::string, void (Server::*)(s_commands&)>	myMap;
-	//Add your command here ;)
+	/*
+		Add your commands here
+		
+		NOTE: you dont need to check if the buffer has the command in your function
+			this function already do it
+	*/
 	myMap["USER"] = &Server::user;
 	myMap["PING"] = &Server::handlePing;
 	myMap["MODE"] = &Server::mode;
@@ -22,7 +27,7 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	
 	std::string	command = com.line.substr(0, j);
 
-	std::cout << "Comando [" << command << "]" << std::endl;
+	//std::cout << "Comando [" << command << "]" << std::endl;
 
 	if (myMap.find(command) == myMap.end())
 		return (false);
