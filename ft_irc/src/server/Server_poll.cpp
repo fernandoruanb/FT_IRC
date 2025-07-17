@@ -134,8 +134,4 @@ void	Server::PollOutMonitoring(void)
 		}
 		++index;
 	}
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> jonas

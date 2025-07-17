@@ -51,10 +51,7 @@ void	Server::createNewChannel(std::string Name, int clientFD)
 	{
 		std::cerr << RED "Error: There are too many channels!!!" RESET << std::endl;
 		delete channel;
-<<<<<<< HEAD
-=======
 		return ;
->>>>>>> jonas
 	}
 
 	if (it == clients->end())

@@ -1,5 +1,4 @@
 #include "../includes/Server.hpp"
-<<<<<<< HEAD
 #include "../includes/Client.hpp"
 #include "../includes/messages.hpp"
 #include <cstring>
