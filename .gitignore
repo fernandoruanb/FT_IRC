@@ -1,4 +1,8 @@
 ircserver
 bin
 *.o
+<<<<<<< HEAD
 .vscode
+=======
+.vscode
+>>>>>>> jonas

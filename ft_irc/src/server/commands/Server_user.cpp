@@ -52,17 +52,16 @@ bool	Server::isValidArgs(const std::string &buffer, size_t pos, bool &op)
 	return (cnt >= 3);
 }
 
-void	Server::user(std::map<int, Client*>* clients, std::string& buffer, int fd, int i)
+void	Server::user(s_commands	&commands)
 {
 	bool	optional = false;
 
 	//	Find the client to register
-	std::map<int, Client*>::iterator	it = clients->find(fd);
+	std::map<int, Client*>::iterator	it = commands.clients->find(commands.fd);
 	struct	pollfd						(&fds)[1024] = *getMyFds();
 
 	// (*clients)[fd];
-
-	if (it == clients->end())
+	if (it == commands.clients->end())
 		return;
 
 	//	Start to register
@@ -71,36 +70,34 @@ void	Server::user(std::map<int, Client*>* clients, std::string& buffer, int fd, 
 	// if (myClient->getRegistered())
 	// 	return;
 
-	size_t	pos = buffer.find("USER");
+	size_t	pos = commands.line.find("USER ");
 	if (pos != std::string::npos)
 	{
 		pos += 5;
-		if (!isValidArgs(buffer, pos, optional))
+		if (!isValidArgs(commands.line, pos, optional))
 		{
-			this->sendBuffer[i] += msg_notice("USER <username> <hostname> <servername> :<realname>");
-			fds[i].events |= POLLOUT;
+			this->sendBuffer[commands.index] += msg_notice("USER <username> <hostname> <servername> :<realname>");
+			fds[commands.index].events |= POLLOUT;
 			return;
 		}
-		
-		myClient->setUserName(getText(buffer, &pos, clients, true));
-		// std::string	tempName = getText(buffer, &pos, clients, true);
-		if (myClient->getUserName().empty())
+		std::string	temp = getText(commands.line, &pos, clients, true);
+		if (temp.empty())
 		{
-			this->sendBuffer[i] += std::string(BRIGHT_RED) + "Error: " + RESET + "User name already in use.\n";
-			fds[i].events |= POLLOUT;
+			this->sendBuffer[commands.index] += std::string(BRIGHT_RED) + "Error: " + RESET + "User name already in use.\n";
+			fds[commands.index].events |= POLLOUT;
 			return;
 		}
 		
 		//Seting the client info
-		// myClient->setUserName(tempName);
-		myClient->setHost(getText(buffer, &pos, clients));
-		myClient->setServerName(getText(buffer, &pos, clients));
+		myClient->setUserName(temp);
+		myClient->setHost(getText(commands.line, &pos, clients));
+		myClient->setServerName(getText(commands.line, &pos, clients));
 		if (optional)
-			myClient->setRealName(getText(buffer, &pos, clients));
-		this->sendBuffer[i].clear();
+			myClient->setRealName(getText(commands.line, &pos, clients));
+		this->sendBuffer[commands.index].clear();
 		// this->sendBuffer[i] += msg_notice("Welcome " + myClient->getUserName() + "!");
-		this->sendBuffer[i] += msg_welcome(myClient->getUserName());
+		this->sendBuffer[commands.index] += msg_welcome(myClient->getUserName());
 		myClient->setRegistered(true);
 	}
-	fds[i].events |= POLLOUT;
+	fds[commands.index].events |= POLLOUT;
 }

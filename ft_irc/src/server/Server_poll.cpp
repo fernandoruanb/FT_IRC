@@ -47,64 +47,60 @@ void	Server::PollInputClientMonitoring(void)
 	   if (fds[index].revents & POLLIN)
 	   {
 		   bytes = recv(fds[index].fd, buffer, 512, 0);
-		   if (bytes > 0) {
-			   buffer[bytes] = '\0';
-			   this->recvBuffer[index] += buffer; // Acumula o que chegou
+			if (bytes > 0) {
+				buffer[bytes] = '\0';
+				this->recvBuffer[index] += buffer; // Acumula o que chegou
 
-			   size_t pos;
-			   while ((pos = this->recvBuffer[index].find('\n')) != std::string::npos)
-			   {
-				   std::string line = this->recvBuffer[index].substr(0, pos + 1);
-				   this->recvBuffer[index].erase(0, pos + 1);
+				size_t pos;
+				while ((pos = this->recvBuffer[index].find('\n')) != std::string::npos)
+				{
+					std::string line = this->recvBuffer[index].substr(0, pos + 1);
+					this->recvBuffer[index].erase(0, pos + 1);
 
-				   std::string	name = (*clients)[fds[index].fd]->getUserName();
-				   std::cout << BRIGHT_GREEN << (name.empty() ? "Client": name) << ": " << YELLOW << fds[index].fd << LIGHT_BLUE << " " << line << RESET << std::endl;
+					std::string	name = (*clients)[fds[index].fd]->getUserName();
+					std::cout << BRIGHT_GREEN << (name.empty() ? "Client": name) << ": " << YELLOW << fds[index].fd << LIGHT_BLUE << " " << line << RESET << std::endl;
 					// this->sendBuffer[index] = name + ": " + this->sendBuffer[index];
 
-				   if (!handleClientAuthentication(clients, fds[index].fd, (char*)line.c_str(), index)) {
-					   continue;
-				   }
-
-				   user(clients, line, fds[index].fd, index);
-
-				   Client* client = (*clients)[fds[index].fd];
-				   if (!client->getAuthenticated() || !client->getRegistered())
-					   continue;
-				   if (line.rfind("PASS ", 0) == 0 || line.rfind("USER ", 0) == 0) {
-					   continue;
-				   }
-				//    if (line.rfind("NICK ", 0) == 0) {
-				// 	   handleNick(clients, fds[index].fd, line, index);
-				// 	   continue;
-				//    }
-					std::string cmd = line;
-					cmd.erase(cmd.find_last_not_of("\r\n") + 1); // Remove \r\n do final
-
-					if (cmd.compare(0, 4, "PING") == 0) {
-						// Agora aceita "PING", "PING ", "PING:..." etc.
-						handlePing(clients, fds[index].fd, cmd, index);
+					if (!handleClientAuthentication(clients, fds[index].fd, (char*)line.c_str(), index)
+						|| handleCommands(clients, line, fds[index].fd, index))
 						continue;
-					}
-				   this->sendBuffer[index].clear();
-				   if (!isEmptyInput(line))
-				   	this->sendBuffer[index] += "\n" + std::string(YELLOW) + (*clients)[fds[index].fd]->getUserName() + RESET + ": " + line;
-				   this->broadcast(index);
-				   //this->privmsg(index - 1, "You are very special =D\n");
-				   fds[index].events |= POLLOUT;
-			   }
-		   }
-		   if (bytes == 0)
-		   {
-			   std::cout << LIGHT_BLUE "Client " << YELLOW << fds[index].fd << LIGHT_BLUE " disconnected" << RESET << std::endl;
-			   std::map<int, Client*>::iterator it = clients->find(fds[index].fd);
-			   delete it->second;
-			   close(fds[index].fd);
-			   fds[index].fd = fds[numClients - 1].fd;
-			   fds[numClients - 1].fd = -1;
-			   fds[numClients - 1].events = 0;
-			   this->manageBuffers(index);
-			   this->numClients--;
-		   }
+
+					Client* client = (*clients)[fds[index].fd];
+					if (!client->getAuthenticated() || !client->getRegistered())
+						continue;
+					//    if (line.rfind("NICK ", 0) == 0) {
+					// 	   handleNick(clients, fds[index].fd, line, index);
+					// 	   continue;
+					//    }
+					// std::string cmd = line;
+					// cmd.erase(cmd.find_last_not_of("\r\n") + 1); // Remove \r\n do final
+
+					// if (cmd.compare(0, 4, "PING") == 0) {
+					// 	s_commands	com(line, clients, fds[index].fd, index);
+					// 	// Agora aceita "PING", "PING ", "PING:..." etc.
+					// 	handlePing(com);
+					// 	continue;
+					// }
+					this->sendBuffer[index].clear();
+					if (!isEmptyInput(line))
+					this->sendBuffer[index] += "\n" + std::string(YELLOW) + (*clients)[fds[index].fd]->getUserName() + RESET + ": " + line;
+					this->broadcast(index);
+					//this->privmsg(index - 1, "You are very special =D\n");
+					fds[index].events |= POLLOUT;
+				}
+			}
+			if (bytes == 0)
+			{
+				std::cout << LIGHT_BLUE "Client " << YELLOW << fds[index].fd << LIGHT_BLUE " disconnected" << RESET << std::endl;
+				std::map<int, Client*>::iterator it = clients->find(fds[index].fd);
+				delete it->second;
+				close(fds[index].fd);
+				fds[index].fd = fds[numClients - 1].fd;
+				fds[numClients - 1].fd = -1;
+				fds[numClients - 1].events = 0;
+				this->manageBuffers(index);
+				this->numClients--;
+			}
 	   }
 	   index++;
    }
@@ -138,4 +134,8 @@ void	Server::PollOutMonitoring(void)
 		}
 		++index;
 	}
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> jonas
