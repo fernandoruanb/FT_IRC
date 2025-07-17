@@ -6,13 +6,15 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/16 14:48:58 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/17 17:02:56 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
+# include <sstream>
+# include <ctime>
 # include <map>
 # include "Channel.hpp"
 # include "Client.hpp"

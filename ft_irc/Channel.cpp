@@ -6,11 +6,31 @@
 /*   By: fruan-ba <fruan-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:36:43 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/15 14:43:44 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/17 18:40:28 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Channel.hpp"
+
+time_t	Channel::getTimeStamp(void) const
+{
+	return (timestamp);
+}
+
+std::string	Channel::getOwnerTopic(void) const
+{
+	return (ownerTopic);
+}
+
+void	Channel::setTimeStamp(time_t time)
+{
+	this->timestamp = time;
+}
+
+void	Channel::setOwnerTopic(std::string nick)
+{
+	this->ownerTopic = nick;
+}
 
 void	Channel::addNewMember(int clientFD)
 {

@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/16 15:56:38 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/17 19:17:34 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,19 @@ int	Server::findGoodIndex(void)
 	return (index);
 }
 
+static bool	checkChannelName(std::string name)
+{
+	const char	*temp = name.c_str();
+
+	while (*temp)
+	{
+		if (*temp == ',' || *temp == ' ' || *temp == '\a')
+			return (false);
+		++temp;
+	}
+	return (true);
+}
+
 void	Server::createNewChannel(std::string Name, int clientFD)
 {
 	Channel* channel = new Channel(Name);
@@ -88,8 +101,15 @@ void	Server::createNewChannel(std::string Name, int clientFD)
 	{
 		std::cerr << RED "Error: There are too many channels!!!" RESET << std::endl;
 		delete channel;
+		return ;
 	}
 
+	if (!checkChannelName(Name))
+	{
+		std::cerr << RED "Error: The channel name cannot have comma, space and bell caracter" RESET << std::endl;
+		delete channel;
+		return ;
+	}
 	if (it == clients->end())
 	{
 		std::cerr << RED "Error: A ghost can't become an admin of a channel" RESET << std::endl;
@@ -111,6 +131,7 @@ void	Server::createNewChannel(std::string Name, int clientFD)
 	client->getOperatorChannels().insert(Name);
 	client->getInviteChannels().insert(Name);
 	client->getChannelsSet().insert(Name);
+	(*channels)[index]->addNewMember(clientFD);
 	std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " is now the operator of " << YELLOW << Name << LIGHT_BLUE " Channel" RESET << std::endl;
 }
 
@@ -293,7 +314,10 @@ void	Server::inviteToChannel(std::string channelName, int operatorFD, int client
 	std::map<int, Channel*>::iterator itch = channels->begin();
 	std::map<int, Client*>::iterator itc = clients->find(operatorFD);
 	std::map<int, Client*>::iterator operatorOwner = clients->find(operatorFD);
+	std::string	nick;
 	std::string	user;
+	std::string	host;
+	std::string	target;
 	int	index = 0;
 
 	if (itc == clients->end())
@@ -331,8 +355,11 @@ void	Server::inviteToChannel(std::string channelName, int operatorFD, int client
 	itch->second->setInviteFlag(true);
 	itc->second->getInviteChannels().insert(channelName);
 	index = getClientsIndex(itc->first);
+	nick = operatorOwner->second->getNickName();
 	user = operatorOwner->second->getUserName();
-	sendBuffer[index] += std::string(BRIGHT_GREEN) + "You were invited to the channel " + YELLOW + channelName + BRIGHT_GREEN + " by " + MAGENTA + user + "\n" + RESET;
+	host = operatorOwner->second->getHost();
+	target = itc->second->getNickName();
+	sendBuffer[index] += my_invite_message(nick, user, host, target, channelName);
 	fds[index].events |= POLLOUT;
 	std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE " received an invite to " << YELLOW << channelName << LIGHT_BLUE " channel by " << YELLOW << operatorFD << std::endl;
 }
@@ -346,7 +373,10 @@ void	Server::changeTopic(std::string channelName, int clientFD, std::string topi
 	struct pollfd (&fds)[1024] = *getMyFds();
 	int	isOperator;
 	int	messageTarget;
-	std::string	username;
+	std::string	nick;
+	std::string	user;
+	std::string	host;
+	time_t	timestamp;
 
 	while (it != channels->end())
 	{
@@ -384,10 +414,15 @@ void	Server::changeTopic(std::string channelName, int clientFD, std::string topi
 		return ;
 	}
 	it->second->setTopic(topic);
-	username = itc->second->getUserName();
+	timestamp = time(NULL);
+	it->second->setTimeStamp(timestamp);
+	nick = itc->second->getNickName();
+	user = itc->second->getUserName();
+	host = itc->second->getHost();
+	it->second->setOwnerTopic(nick);
 	std::cout << LIGHT_BLUE "The topic of the channel " << YELLOW << it->second->getName() << LIGHT_BLUE " changed to " << YELLOW << topic << RESET << std::endl;
 	messageTarget = getClientsIndex(clientFD);
-	sendBuffer[messageTarget] += std::string(BRIGHT_WHITE) + " The topic of channel " + YELLOW + channelName + BRIGHT_WHITE + " changed to " + YELLOW + topic + BRIGHT_WHITE + " by " + MAGENTA + username + RESET;
+	sendBuffer[messageTarget] += my_topic_message(nick, user, host, channelName, topic);
 	fds[messageTarget].events |= POLLOUT;
 }
 
@@ -423,47 +458,47 @@ void	Server::addNewClient(int clientFD)
 		Channel* generic = it->second;
 		generic->addNewMember(clientFD);
 		if (clientFD == 4)
-			this->createNewChannel("Channel One", clientFD);
+			this->createNewChannel("One", clientFD);
 		if (clientFD == 5)
 		{
-			this->createNewChannel("Channel Two", clientFD);
-			this->createNewChannel("Channel Three", clientFD);
-			this->createNewChannel("Channel Four", clientFD);
-			this->createNewChannel("Channel Five", clientFD);
-			this->createNewChannel("Channel Six", clientFD);
-			this->createNewChannel("Channel Seven", clientFD);
-			this->createNewChannel("Channel Eight", clientFD);
-			this->createNewChannel("Channel Nine", clientFD);
-			this->deleteChannel("Channel Nine", clientFD);
-			this->deleteChannel("Channel Seven", clientFD);
-			this->deleteChannel("Channel Four", clientFD);
-			this->changeChannel("Channel Six", clientFD);
-			this->createNewChannel("Channel Two", clientFD);
-			this->changeChannel("Channel Two", clientFD);
-			this->createNewChannel("Channel Seven", clientFD);
-			this->deleteChannel("Channel Two", clientFD);
-			this->changeChannel("Channel Eight", clientFD);
-			this->changeTopic("Channel Eight", clientFD, "Masters of Universe");
-			this->inviteToChannel("Channel Three", clientFD, 4);
-			this->inviteToChannel("Channel Two", clientFD, 4);
-			this->inviteToChannel("Channel One", 4, clientFD);
-			this->deleteChannel("Channel Three", clientFD);
-			this->createNewChannel("Channel Three", clientFD);
-			this->changeChannelInviteFlag("Channel Three", true);
-			this->changeChannel("Channel Three", 4);
-			this->inviteToChannel("Channel Three", clientFD, 4);
-			this->changeChannel("Channel Three", 4);
+			this->createNewChannel("Two", clientFD);
+			this->createNewChannel("Three", clientFD);
+			this->createNewChannel("Four", clientFD);
+			this->createNewChannel("Five", clientFD);
+			this->createNewChannel("Six", clientFD);
+			this->createNewChannel("Seven", clientFD);
+			this->createNewChannel("Eight", clientFD);
+			this->createNewChannel("Nine", clientFD);
+			this->deleteChannel("Nine", clientFD);
+			this->deleteChannel("Seven", clientFD);
+			this->deleteChannel("Four", clientFD);
+			this->changeChannel("Six", clientFD);
+			this->createNewChannel("Two", clientFD);
+			this->changeChannel("Two", clientFD);
+			this->createNewChannel("Seven", clientFD);
+			this->deleteChannel("Two", clientFD);
+			this->changeChannel("Eight", clientFD);
+			this->changeTopic("Eight", clientFD, "Masters of Universe");
+			this->inviteToChannel("Three", clientFD, 4);
+			this->inviteToChannel("Two", clientFD, 4);
+			this->inviteToChannel("One", 4, clientFD);
+			this->deleteChannel("Three", clientFD);
+			this->createNewChannel("Three", clientFD);
+			this->changeChannelInviteFlag("Three", true);
+			this->changeChannel("Three", 4);
+			this->inviteToChannel("Three", clientFD, 4);
+			this->changeChannel("Three", 4);
 			this->changeChannel("Generic", 4);
 			this->changeChannel("Generic", 5);
-			this->changeChannel("Channel Seven", clientFD);
-			this->changeChannel("Channel Seven", 4);
-			this->inviteToChannel("Channel Seven", clientFD, 4);
-			this->changeChannelInviteFlag("Channel Seven", true);
-			this->kickFromChannel("Channel Seven", clientFD, 4);
-			this->changeChannel("Channel Seven", 4);
-			this->inviteToChannel("Channel Seven", clientFD, 4);
-			this->changeChannel("Channel Seven", 4);
-			this->changeTopic("Channel Seven", clientFD, "Masters of Universe");
+			this->changeChannel("Seven", clientFD);
+			this->changeChannel("Seven", 4);
+			this->inviteToChannel("Seven", clientFD, 4);
+			this->changeChannelInviteFlag("Seven", true);
+			this->kickFromChannel("Seven", clientFD, 4);
+			this->changeChannel("Seven", 4);
+			this->inviteToChannel("Seven", clientFD, 4);
+			this->changeChannel("Seven", 4);
+			this->changeTopic("Seven", clientFD, "Masters of Universe");
 		}
 	}
 	// NOTICE message to the new client. Asking for authentication.
@@ -673,7 +708,10 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
 	int	channelOfTime;
 	struct pollfd (&fds)[1024] = *getMyFds();
 	bool	isOperator;
+	std::string	nick;
 	std::string	user;
+	std::string	host;
+	std::string	target;
 	int	messageTarget = 0;
 
 	if (itch == clients->end())
@@ -715,7 +753,10 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
 		std::cerr << RED "Error: The client is not in the target channel " << YELLOW << channel << RESET << std::endl;
 		return ;
 	}
+	nick = own->second->getNickName();
 	user = own->second->getUserName();
+	host = own->second->getHost();
+	target = itch->second->getNickName();
 	itch->second->getOperatorChannels().erase(channel);
 	itch->second->getChannelsSet().erase(channel);
 	itch->second->getInviteChannels().erase(channel);
@@ -724,7 +765,7 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
 	this->changeChannel("Generic", itch->first);
 	std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE " has been kicked by " << YELLOW << owner << LIGHT_BLUE " and lost all privileges coming back to " << YELLOW "Generic" << LIGHT_BLUE " Channel" RESET << std::endl;
 	messageTarget = getClientsIndex(clientFD);
-	sendBuffer[messageTarget] += std::string(RED) + "You were kicked from channel " + YELLOW + channel + RED + " by " + MAGENTA + user + RESET + "\n";
+	sendBuffer[messageTarget] += my_kick_message(nick, user, host, "You were kicked because you are not nice", target, channel);
 	fds[messageTarget].events |= POLLOUT;
 }
 
@@ -826,6 +867,13 @@ void	Server::changeChannel(std::string channel, int clientFD)
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Client*>::iterator itc = clients->find(clientFD);
 	struct pollfd (&fds)[1024] = *getMyFds();
+	std::string	nick;
+	std::string	user;
+	std::string	host;
+	std::string	ownerTopic;
+	std::ostringstream oss;
+	std::string	buffer;
+	std::string	topic;
 	int	messageTarget = 0;
 	if (itc == clients->end())
 	{
@@ -863,7 +911,16 @@ void	Server::changeChannel(std::string channel, int clientFD)
 			itm->second->addNewMember(clientFD);
 			client->getChannelsSet().insert(channel);
 			messageTarget = getClientsIndex(itc->first);
-			sendBuffer[messageTarget] += std::string(ORANGE) + "You changed to channel " + YELLOW + channelName + RESET + "\n";
+			nick = client->getNickName();
+			user = client->getUserName();
+			host = client->getHost();
+			ownerTopic = itm->second->getOwnerTopic();
+			oss << itm->second->getTimeStamp();
+			buffer = oss.str();
+			topic = itm->second->getTopic();
+			sendBuffer[messageTarget] += my_join_message(nick, user, host, channel);
+			sendBuffer[messageTarget] += my_join_rpl_topic(nick, channel, topic);
+			sendBuffer[messageTarget] += my_join_rpl_topic_whotime(nick, ownerTopic, user, host, channel, buffer); 
 			fds[messageTarget].events |= POLLOUT;
 			return ;
 		}
