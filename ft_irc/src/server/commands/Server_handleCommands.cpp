@@ -13,6 +13,7 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	//Add your command here ;)
 	myMap["USER"] = &Server::user;
 	myMap["PING"] = &Server::handlePing;
+	myMap["MODE"] = &Server::mode;
 
 	size_t	j;
 	for (j = 0; j < com.line.size(); j++)
@@ -20,11 +21,15 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 			break;
 	
 	std::string	command = com.line.substr(0, j);
-	//Debug message
-	std::cout << "Comando: [" << command << "]" << std::endl;
+
+	std::cout << "Comando [" << command << "]" << std::endl;
+
 	if (myMap.find(command) == myMap.end())
 		return (false);
 	
+	struct	pollfd	(&fds)[1024] = *getMyFds();
+
 	(this->*(myMap[command]))(com);
+	fds[com.index].events |= POLLOUT;
 	return (true);
 }

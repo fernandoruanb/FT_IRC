@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/17 17:24:38 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/17 18:00:49 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,7 @@ class	Server
 		std::string	getText(std::string& buffer, size_t *pos, std::map<int, Client*>* clients, bool check_name);
 		void	user(s_commands	&commands);
 		bool	handleCommands(std::map<int, Client*>* &clients, std::string& buffer, int fd, int i);
+		void	mode(s_commands &com);
 	public:
 		Server(std::string portCheck, std::string password);
 		~Server(void);
