@@ -83,7 +83,7 @@ void	Server::user(s_commands	&commands)
 		std::string	temp = getText(commands.line, &pos, clients, !myClient->getRegistered());
 		if (temp.empty())
 		{
-			this->sendBuffer[commands.index] += msg_error("ERR_NICKNAMEINUSE", 433);
+			this->sendBuffer[commands.index] += msg_error("Nickname is already in use", 433);
 			fds[commands.index].events |= POLLOUT;
 			return;
 		}

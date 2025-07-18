@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:22:05 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/15 16:53:39 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/18 18:02:42 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ class	Client
 		std::string		bufferOut;
 		std::string		host;
 		std::string		serverName;
+		std::string		mode;
 		Client(const Client &other);
 		Client& operator=(const Client &other);
 		std::set<std::string>	operatorChannels;
@@ -53,6 +54,8 @@ class	Client
 		void			setIsOperator(bool isOperator);
 		void			setHost(std::string host);
 		void			setServerName(const std::string&);
+		void			setMode(char);
+		const std::string&		getMode(void) const;
 		const std::string	&getServerName(void) const;
 		std::set<std::string>&		getChannelsSet(void);
 		std::string		getNickName(void) const;

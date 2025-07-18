@@ -15,7 +15,7 @@ void	Server::nick(s_commands& com)
 	if (!com.args.size())
 	{
 		this->sendBuffer[com.index].clear();
-		this->sendBuffer[com.index] = msg_error("ERR_NONICKNAMEGIVEN", 431);
+		this->sendBuffer[com.index] = msg_error("No nickname given", 431);
 		return;
 	}
 	if (com.args.size() == 1)
@@ -25,7 +25,7 @@ void	Server::nick(s_commands& com)
 		else
 		{
 			this->sendBuffer[com.index].clear();
-			this->sendBuffer[com.index] = msg_error("ERR_NICKNAMEINUSE", 433);
+			this->sendBuffer[com.index] = msg_error("Nickname is already in use", 433);
 		}
 		return;
 	}

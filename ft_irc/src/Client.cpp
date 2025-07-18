@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/17 15:15:54 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/18 18:02:46 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,4 +162,13 @@ void			Client::setServerName(const std::string& name)
 const std::string&	Client::getServerName(void) const
 {
 	return (this->serverName);
+}
+
+void			Client::setMode(char c)
+{
+	mode = c;
+}
+const std::string&		Client::getMode(void) const
+{
+	return (mode);
 }
