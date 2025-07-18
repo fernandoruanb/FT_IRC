@@ -9,33 +9,21 @@ CFLAGS = -Wall -Werror -Wextra -std=c++98 -g3
 
 #Directories
 
-SRC_DIR = src/
-INC_DIR = includes
+SRC_DIR = ./
+INC_DIR = ./
 BIN_DIR = ./bin/
 
 # SRCS
 
-SRCS =	utils/messages.cpp \
-		server/Server.cpp \
-		server/Server_poll.cpp \
-		server/Server_utils.cpp \
-		server/commands/Server_user.cpp \
-		server/commands/Server_mode.cpp \
-		server/commands/Server_nick.cpp \
-		server/commands/Server_handleCommands.cpp \
-		server/commands/Server_ping.cpp \
-		server/Server_broadcast.cpp \
-		server/Server_channel.cpp \
-		server/Server_getters.cpp \
-		server/Server_setters.cpp \
-		Client.cpp \
-		Channel.cpp \
-		main.cpp
+SRCS =  Server.cpp \
+	Client.cpp \
+	Channel.cpp \
+	messages.cpp \
+	main.cpp
 
 # OBJS
 
 OBJS = $(addprefix $(BIN_DIR), $(SRCS:.cpp=.o))
-# OBJS = $(SRCS:.cpp=.o)
 
 # Colors
 BLUE = "\033[34;1m"
@@ -48,7 +36,6 @@ END = "\033[0m"
 # Main
 
 all: $(BIN_DIR) $(NAME)
-# all: $(NAME)
 
 # All the magic happens here
 
@@ -64,7 +51,6 @@ $(BIN_DIR):
 	@mkdir -p $(BIN_DIR)
 
 $(BIN_DIR)%.o: $(SRC_DIR)%.cpp | $(BIN_DIR)
-	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) -I $(INC_DIR) -c $< -o $@
 	@echo $(CYAN)"Compiling $< to $@"$(END)
 
