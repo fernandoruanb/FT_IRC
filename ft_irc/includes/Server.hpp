@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/18 15:59:07 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/18 16:08:13 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,12 @@ struct	s_commands
 	s_commands(std::string &l, std::map<int, Client*>* &c, int f, int i, std::string &a)
         : line(l), clients(c), fd(f), index(i)
 	{
+		if (a.empty())
+		{
+			argc = 0;
+			args = NULL;
+			return;
+		}
 		size_t	j = 0;
 
 		for (size_t i = 0; i < a.size(); i++)
@@ -70,11 +76,14 @@ struct	s_commands
 				args[tokenI++] = a.substr(start, i - start);
 				start = i + 1;
 			}
+		
+		args[tokenI] = a.substr(start, a.size() - start);
 	}
 
 	~s_commands(void)
 	{
-		delete[] args;
+		if (argc)
+			delete[] args;
 	}
 };
 
