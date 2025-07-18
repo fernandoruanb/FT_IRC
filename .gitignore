@@ -1,0 +1,4 @@
+ircserver
+bin
+*.o
+.vscode

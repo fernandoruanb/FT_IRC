@@ -3,27 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fruan-ba <fruan-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:36:43 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/17 15:16:06 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/09 16:36:43 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/Channel.hpp"
-
-void	Channel::addNewMember(int clientFD)
-{
-	std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " added to " << YELLOW << this->name << LIGHT_BLUE " Channel" RESET << std::endl;
-	this->members.insert(clientFD);
-}
-
-Channel::Channel(std::string name): name(name), topic("We love IRC"), inviteFlag(false), topicFlag(false)
-{
-	std::cout << LIGHT_BLUE "Channel " << YELLOW << name << LIGHT_BLUE << " created =D" << RESET << std::endl;
-}
-
-Channel::~Channel(void) {}
+#include "Channel.hpp"
 
 void	Channel::setName(std::string name)
 {
@@ -38,16 +25,6 @@ void	Channel::setTopic(std::string topic)
 void	Channel::setPassWord(std::string password)
 {
 	this->password = password;
-}
-
-void	Channel::setChannelIndex(int index)
-{
-	this->index = index;
-}
-
-int	Channel::getChannelIndex(void) const
-{
-	return (index);
 }
 
 void	Channel::setUserLimit(int userlimit)
