@@ -21,6 +21,7 @@ SRCS =	utils/messages.cpp \
 		server/Server_utils.cpp \
 		server/commands/Server_user.cpp \
 		server/commands/Server_mode.cpp \
+		server/commands/Server_nick.cpp \
 		server/commands/Server_handleCommands.cpp \
 		server/commands/Server_ping.cpp \
 		server/Server_broadcast.cpp \

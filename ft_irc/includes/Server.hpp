@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/17 18:00:49 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/18 15:59:07 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,15 +32,50 @@
 
 class Channel;
 
+/*
+	line	- the full input buffer
+		ex-USER Miku irc ft_irc
+	args	- a substr of line containing only the arguments
+		ex-Miku irc ft_irc
+	index	- the poll index
+	fd 		- Client fd
+	argc	- args[] size
+*/
 struct	s_commands
 {
 	std::string				&line;
 	std::map<int, Client*>* &clients;
 	int						fd;
 	int						index;
+	std::string				*args;
+	size_t					argc;
 
-	s_commands(std::string &l, std::map<int, Client*>* &c, int f, int i)
-        : line(l), clients(c), fd(f), index(i) {}
+	s_commands(std::string &l, std::map<int, Client*>* &c, int f, int i, std::string &a)
+        : line(l), clients(c), fd(f), index(i)
+	{
+		size_t	j = 0;
+
+		for (size_t i = 0; i < a.size(); i++)
+			if (a[i] == ' ')
+				j++;
+		
+		args = new std::string[j + 1];
+		argc = j + 1;
+
+		size_t	tokenI = 0;
+		size_t	start = 0;
+		for (size_t i = 0; i < a.size(); i++)
+			if (a[i] == ' ')
+			{
+				args[tokenI++] = a.substr(start, i - start);
+				start = i + 1;
+			}
+	}
+
+	~s_commands(void)
+	{
+		delete[] args;
+	}
 };
 
 class	Server
@@ -94,6 +129,7 @@ class	Server
 		void	user(s_commands	&commands);
 		bool	handleCommands(std::map<int, Client*>* &clients, std::string& buffer, int fd, int i);
 		void	mode(s_commands &com);
+		void	nick(s_commands&);
 	public:
 		Server(std::string portCheck, std::string password);
 		~Server(void);
