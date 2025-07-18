@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/17 19:17:34 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/18 11:23:45 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -376,7 +376,9 @@ void	Server::changeTopic(std::string channelName, int clientFD, std::string topi
 	std::string	nick;
 	std::string	user;
 	std::string	host;
-	time_t	timestamp;
+	std::string	time;
+	time_t	timestamp = std::time(0);
+	std::ostringstream	oss;
 
 	while (it != channels->end())
 	{
@@ -413,9 +415,10 @@ void	Server::changeTopic(std::string channelName, int clientFD, std::string topi
 		std::cerr << RED "Error: You can't change a topic in another channel" RESET << std::endl;
 		return ;
 	}
+	oss << timestamp;
 	it->second->setTopic(topic);
-	timestamp = time(NULL);
-	it->second->setTimeStamp(timestamp);
+	time = oss.str();
+	it->second->setTimeStamp(time);
 	nick = itc->second->getNickName();
 	user = itc->second->getUserName();
 	host = itc->second->getHost();
@@ -461,44 +464,44 @@ void	Server::addNewClient(int clientFD)
 			this->createNewChannel("One", clientFD);
 		if (clientFD == 5)
 		{
-			this->createNewChannel("Two", clientFD);
-			this->createNewChannel("Three", clientFD);
-			this->createNewChannel("Four", clientFD);
-			this->createNewChannel("Five", clientFD);
-			this->createNewChannel("Six", clientFD);
-			this->createNewChannel("Seven", clientFD);
-			this->createNewChannel("Eight", clientFD);
-			this->createNewChannel("Nine", clientFD);
-			this->deleteChannel("Nine", clientFD);
-			this->deleteChannel("Seven", clientFD);
-			this->deleteChannel("Four", clientFD);
-			this->changeChannel("Six", clientFD);
-			this->createNewChannel("Two", clientFD);
-			this->changeChannel("Two", clientFD);
-			this->createNewChannel("Seven", clientFD);
-			this->deleteChannel("Two", clientFD);
-			this->changeChannel("Eight", clientFD);
-			this->changeTopic("Eight", clientFD, "Masters of Universe");
-			this->inviteToChannel("Three", clientFD, 4);
-			this->inviteToChannel("Two", clientFD, 4);
-			this->inviteToChannel("One", 4, clientFD);
-			this->deleteChannel("Three", clientFD);
-			this->createNewChannel("Three", clientFD);
-			this->changeChannelInviteFlag("Three", true);
-			this->changeChannel("Three", 4);
-			this->inviteToChannel("Three", clientFD, 4);
-			this->changeChannel("Three", 4);
-			this->changeChannel("Generic", 4);
-			this->changeChannel("Generic", 5);
-			this->changeChannel("Seven", clientFD);
-			this->changeChannel("Seven", 4);
-			this->inviteToChannel("Seven", clientFD, 4);
-			this->changeChannelInviteFlag("Seven", true);
-			this->kickFromChannel("Seven", clientFD, 4);
-			this->changeChannel("Seven", 4);
-			this->inviteToChannel("Seven", clientFD, 4);
-			this->changeChannel("Seven", 4);
-			this->changeTopic("Seven", clientFD, "Masters of Universe");
+		        this->createNewChannel("Two", clientFD);
+		        this->createNewChannel("Three", clientFD);
+		        this->createNewChannel("Four", clientFD);
+		        this->createNewChannel("Five", clientFD);
+		        this->createNewChannel("Six", clientFD);
+		        this->createNewChannel("Seven", clientFD);
+		        this->createNewChannel("Eight", clientFD);
+		        this->createNewChannel("Nine", clientFD);
+		        this->deleteChannel("Nine", clientFD);
+		        this->deleteChannel("Seven", clientFD);
+		        this->deleteChannel("Four", clientFD);
+		        this->changeChannel("Six", clientFD);
+		        this->createNewChannel("Two", clientFD);
+		        this->changeChannel("Two", clientFD);
+		        this->createNewChannel("Seven", clientFD);
+		        this->deleteChannel("Two", clientFD);
+		        this->changeChannel("Eight", clientFD);
+		        this->changeTopic("Eight", clientFD, "Masters of Universe");
+		        this->inviteToChannel("Three", clientFD, 4);
+		        this->inviteToChannel("Two", clientFD, 4);
+		        this->inviteToChannel("One", 4, clientFD);
+		        this->deleteChannel("Three", clientFD);
+		        this->createNewChannel("Three", clientFD);
+		        this->changeChannelInviteFlag("Three", true);
+		        this->changeChannel("Three", 4);
+		        this->inviteToChannel("Three", clientFD, 4);
+		        this->changeChannel("Three", 4);
+		        this->changeChannel("Generic", 4);
+		        this->changeChannel("Generic", 5);
+		        this->changeChannel("Seven", clientFD);
+		        this->changeChannel("Seven", 4);
+		        this->inviteToChannel("Seven", clientFD, 4);
+		        this->changeChannelInviteFlag("Seven", true);
+		        this->kickFromChannel("Seven", clientFD, 4);
+		        this->changeChannel("Seven", 4);
+		        this->inviteToChannel("Seven", clientFD, 4);
+		        this->changeChannel("Seven", 4);
+		        this->changeTopic("Seven", clientFD, "Masters of Universe");
 		}
 	}
 	// NOTICE message to the new client. Asking for authentication.
@@ -871,8 +874,7 @@ void	Server::changeChannel(std::string channel, int clientFD)
 	std::string	user;
 	std::string	host;
 	std::string	ownerTopic;
-	std::ostringstream oss;
-	std::string	buffer;
+	std::string	time;
 	std::string	topic;
 	int	messageTarget = 0;
 	if (itc == clients->end())
@@ -915,12 +917,12 @@ void	Server::changeChannel(std::string channel, int clientFD)
 			user = client->getUserName();
 			host = client->getHost();
 			ownerTopic = itm->second->getOwnerTopic();
-			oss << itm->second->getTimeStamp();
-			buffer = oss.str();
+			time = itm->second->getTimeStamp();
 			topic = itm->second->getTopic();
 			sendBuffer[messageTarget] += my_join_message(nick, user, host, channel);
 			sendBuffer[messageTarget] += my_join_rpl_topic(nick, channel, topic);
-			sendBuffer[messageTarget] += my_join_rpl_topic_whotime(nick, ownerTopic, user, host, channel, buffer); 
+			if (!time.empty())
+				sendBuffer[messageTarget] += my_join_rpl_topic_whotime(nick, ownerTopic, user, host, channel, time);
 			fds[messageTarget].events |= POLLOUT;
 			return ;
 		}
