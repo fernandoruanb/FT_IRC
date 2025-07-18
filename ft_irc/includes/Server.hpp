@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/18 16:49:48 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/18 17:27:35 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ struct	s_commands
 {
 	std::string					&line;
 	std::map<int, Client*>* 	&clients;
+	Client*						client;
 	int							fd;
 	int							index;
 	std::vector<std::string>	args;
@@ -52,6 +53,11 @@ struct	s_commands
 	s_commands(std::string &l, std::map<int, Client*>* &c, int f, int i, std::string &a)
         : line(l), clients(c), fd(f), index(i)
 	{
+		client = NULL;
+		std::map<int, Client*>::iterator it = clients->find(fd);
+		if (it != clients->end())
+			client = it->second;
+		
 		if (a.empty() || a[0] == '\n' || a[0] == '\r')
 			return;
 		size_t	start = 0;
@@ -63,7 +69,12 @@ struct	s_commands
 				start = j + 1;
 			}
 		if (start < a.size())
-			args.push_back(a.substr(start));
+		{
+			size_t	k = 0;
+			while (a[k] && a[k] != '\n' && a[k] != '\r')
+				k++;
+			args.push_back(a.substr(start, k));
+		}
 	}
 };
 

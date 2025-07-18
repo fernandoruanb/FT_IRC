@@ -81,7 +81,7 @@ void	Server::user(s_commands	&commands)
 			fds[commands.index].events |= POLLOUT;
 			return;
 		}
-		std::string	temp = getText(commands.line, &pos, clients, true);
+		std::string	temp = getText(commands.line, &pos, clients, !myClient->getRegistered());
 		if (temp.empty())
 		{
 			this->sendBuffer[commands.index] += std::string(BRIGHT_RED) + "Error: " + RESET + "User name already in use.\n";
@@ -91,6 +91,8 @@ void	Server::user(s_commands	&commands)
 		
 		//Seting the client info
 		myClient->setUserName(temp);
+		if (myClient->getNickName().empty())
+			myClient->setNickName(temp);
 		myClient->setHost(getText(commands.line, &pos, clients));
 		myClient->setServerName(getText(commands.line, &pos, clients));
 		if (optional)

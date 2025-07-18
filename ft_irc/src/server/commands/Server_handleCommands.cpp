@@ -22,6 +22,7 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	
 	std::string	command = buffer.substr(0, j);
 
+	//log for debug
 	std::cout << "Comando [" << command << "]" << std::endl;
 	
 	if (myMap.find(command) == myMap.end())
@@ -33,8 +34,10 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	std::string	arguments = buffer.substr(j);
 	s_commands	com(buffer, clients, fd ,i, arguments);
 
+	//log for debug
 	std::cout << "argc: " << com.args.size() << std::endl;
 	std::cout << "arguments: " << arguments << std::endl;
+
 	for (size_t i = 0;  i < com.args.size(); i++)
 		std::cout << "My args array[" << i << "]: " << com.args[i] << std::endl;
 
