@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/18 16:08:13 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/18 16:49:48 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 # include <poll.h>
 # include <errno.h>
 # include <limits.h>
+# include <vector>
 # include <unistd.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
@@ -35,55 +36,34 @@ class Channel;
 /*
 	line	- the full input buffer
 		ex-USER Miku irc ft_irc
-	args	- a substr of line containing only the arguments
+	args	- a vector of commands arguments
 		ex-Miku irc ft_irc
 	index	- the poll index
 	fd 		- Client fd
-	argc	- args[] size
 */
 struct	s_commands
 {
-	std::string				&line;
-	std::map<int, Client*>* &clients;
-	int						fd;
-	int						index;
-	std::string				*args;
-	size_t					argc;
+	std::string					&line;
+	std::map<int, Client*>* 	&clients;
+	int							fd;
+	int							index;
+	std::vector<std::string>	args;
 
 	s_commands(std::string &l, std::map<int, Client*>* &c, int f, int i, std::string &a)
         : line(l), clients(c), fd(f), index(i)
 	{
-		if (a.empty())
-		{
-			argc = 0;
-			args = NULL;
+		if (a.empty() || a[0] == '\n' || a[0] == '\r')
 			return;
-		}
-		size_t	j = 0;
-
-		for (size_t i = 0; i < a.size(); i++)
-			if (a[i] == ' ')
-				j++;
-		
-		args = new std::string[j + 1];
-		argc = j + 1;
-
-		size_t	tokenI = 0;
 		size_t	start = 0;
-		for (size_t i = 0; i < a.size(); i++)
-			if (a[i] == ' ')
+		size_t	j = 0;
+		for (j = 0; j < a.size(); j++)
+			if (a[j] == ' ')
 			{
-				args[tokenI++] = a.substr(start, i - start);
-				start = i + 1;
+				args.push_back(a.substr(start, j - start));
+				start = j + 1;
 			}
-		
-		args[tokenI] = a.substr(start, a.size() - start);
-	}
-
-	~s_commands(void)
-	{
-		if (argc)
-			delete[] args;
+		if (start < a.size())
+			args.push_back(a.substr(start));
 	}
 };
 
