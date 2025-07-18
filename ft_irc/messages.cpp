@@ -94,3 +94,13 @@ std::string	my_join_rpl_topic_whotime(const std::string& nick, const std::string
 {
 	return (":" SERVER_NAME " 333 " + nick + " #" + channel + " " + nick2 + "!" + user + "@" + host + " " + timestamp + "\r\n");
 }
+
+std::string	my_join_rpl_namreply(const std::string &nick, const std::string& channel)
+{
+	return (":" SERVER_NAME " 353 " + nick + " #" + channel + " " + ":");
+}
+
+std::string	my_join_rpl_endofnames(const std::string &nick, const std::string& channel)
+{
+	return (":" SERVER_NAME " 366 " + nick + " #" + channel + " :End of /NAMES list" + "\r\n");
+}

@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/18 11:23:45 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/18 18:24:46 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,21 +20,21 @@ static bool	isEmptyInput(const std::string &line)
 	return (line.empty() || line == "\n" || line == "\r" || line == "\r\n");
 }
 
-static std::map<int, Channel*>* getChannelsMap(void)
+std::map<int, Channel*>* getChannelsMap(void)
 {
 	static std::map<int, Channel*> channelsMap;
 
 	return (&channelsMap);
 }
 
-static std::map<int, Client*>* getClientsMap(void)
+std::map<int, Client*>* getClientsMap(void)
 {
 	static std::map<int, Client*> clientsMap;
 
 	return (&clientsMap);
 }
 
-static struct pollfd(*getMyFds(void))[1024]
+struct pollfd(*getMyFds(void))[1024]
 {
 	static struct pollfd	fds[1024];
 
@@ -132,6 +132,8 @@ void	Server::createNewChannel(std::string Name, int clientFD)
 	client->getInviteChannels().insert(Name);
 	client->getChannelsSet().insert(Name);
 	(*channels)[index]->addNewMember(clientFD);
+	(*channels)[index]->getOperatorsSet().insert(clientFD);
+	(*channels)[index]->getMembersSet().erase(clientFD);
 	std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " is now the operator of " << YELLOW << Name << LIGHT_BLUE " Channel" RESET << std::endl;
 }
 
@@ -278,9 +280,18 @@ void	Server::promotionChannelOperator(std::string channel, int owner, int client
 {
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Client*>::iterator itch;
+	std::map<int, Channel*>* channels = getChannelsMap();
+	std::map<int, Channel*>::iterator itm;
+	int	channelIndex;
 	int	index;
 	int	second;
 
+	channelIndex = getChannelsIndex(channel);
+	if (channelIndex == -1)
+	{
+		std::cerr << RED "Error: The channel doesn't exist" RESET << std::endl;
+		return ;
+	}
 	index = getChannelsIndex(channel);
 	if (index == -1)
 	{
@@ -300,6 +311,9 @@ void	Server::promotionChannelOperator(std::string channel, int owner, int client
 		(*clients)[clientFD]->getOperatorChannels().insert(channel);
 		(*clients)[clientFD]->getChannelsSet().insert(channel);
 		(*clients)[clientFD]->setIsOperator(true);
+		itm = channels->find(channelIndex);
+		itm->second->getOperatorsSet().insert(clientFD);
+		itm->second->getMembersSet().erase(clientFD);
 		std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE "is now an operator of the channel " << YELLOW << channel << RESET << std::endl;
 		return ;
 	}
@@ -448,6 +462,7 @@ void	Server::addNewClient(int clientFD)
 		return ;
 	}
 	(*this->clients)[clientFD] = new Client(clientFD);
+	(*channels)[0]->addNewMember(clientFD);
 	Client* theClient = (*this->clients)[clientFD];
 	theClient->getChannelsSet().insert("Generic");
 	theClient->setChannelOfTime(0);
@@ -461,9 +476,13 @@ void	Server::addNewClient(int clientFD)
 		Channel* generic = it->second;
 		generic->addNewMember(clientFD);
 		if (clientFD == 4)
+		{
+			(*this->clients)[clientFD]->setNickName("Jonas");
 			this->createNewChannel("One", clientFD);
+		}
 		if (clientFD == 5)
 		{
+			(*this->clients)[clientFD]->setNickName("Fernando");
 		        this->createNewChannel("Two", clientFD);
 		        this->createNewChannel("Three", clientFD);
 		        this->createNewChannel("Four", clientFD);
@@ -763,6 +782,7 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
 	itch->second->getOperatorChannels().erase(channel);
 	itch->second->getChannelsSet().erase(channel);
 	itch->second->getInviteChannels().erase(channel);
+	itm->second->removeMember(itch->first);
 	if (itch->second->getOperatorChannels().size() == 0)
 		itch->second->setIsOperator(false);
 	this->changeChannel("Generic", itch->first);
@@ -796,6 +816,7 @@ void	Server::removeOperatorPrivilegesFromEveryBody(std::string channel)
 		it->second->getOperatorChannels().erase(channel);
 		it->second->getChannelsSet().erase(channel);
 		it->second->getInviteChannels().erase(channel);
+		itm->second->removeMember(it->first);
 		if (it->second->getOperatorChannels().size() == 0)
 			it->second->setIsOperator(false);
 		channelOfTime = it->second->getChannelOfTime();
@@ -908,9 +929,15 @@ void	Server::changeChannel(std::string channel, int clientFD)
 					return ;
 				}
 			}
+			if (itm->second->getMembersNum() >= itm->second->getUserLimit())
+			{
+				std::cerr << RED "Error: The channel userlimit is full!!!" RESET << std::endl;
+				return ;
+			}
 			std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " changing to " << YELLOW << channelOfficial->getName() << RESET << std::endl;
 			client->setChannelOfTime(itm->first);
 			itm->second->addNewMember(clientFD);
+			itm->second->getMembersSet().insert(clientFD);
 			client->getChannelsSet().insert(channel);
 			messageTarget = getClientsIndex(itc->first);
 			nick = client->getNickName();
@@ -923,6 +950,10 @@ void	Server::changeChannel(std::string channel, int clientFD)
 			sendBuffer[messageTarget] += my_join_rpl_topic(nick, channel, topic);
 			if (!time.empty())
 				sendBuffer[messageTarget] += my_join_rpl_topic_whotime(nick, ownerTopic, user, host, channel, time);
+			sendBuffer[messageTarget] += my_join_rpl_namreply(nick, channel);
+			sendBuffer[messageTarget] += itm->second->getOperatorsNames();
+			sendBuffer[messageTarget] += itm->second->getClientsNames() + "\r\n";
+			sendBuffer[messageTarget] += my_join_rpl_endofnames(nick, channel);
 			fds[messageTarget].events |= POLLOUT;
 			return ;
 		}
@@ -943,7 +974,6 @@ Server::Server(std::string portCheck, std::string password): numChannels(0)
 		this->channels = getChannelsMap();
 		(*channels)[0] = new Channel("Generic");
 		numChannels++;
-		//this->createNewChannel("Channel One");
 		port = atoiIRC(portCheck);
 		if (port == -1)
 			throw std::exception();

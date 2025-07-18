@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/17 17:02:56 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/18 14:53:01 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,5 +96,8 @@ class	Server
 		struct pollfd	(&getPollFds(void))[1024];
 };
 std::ofstream operator<<(std::ostream &out, const Server &other);
+std::map<int, Channel*>* getChannelsMap(void);
+std::map<int, Client*>* getClientsMap(void);
+struct pollfd(*getMyFds(void))[1024];
 
 #endif /* SERVER_HPP */

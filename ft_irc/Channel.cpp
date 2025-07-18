@@ -6,11 +6,78 @@
 /*   By: fruan-ba <fruan-ba@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:36:43 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/18 11:55:25 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/18 18:16:33 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Channel.hpp"
+
+std::string	Channel::getOperatorsNames(void)
+{
+	std::map<int, Client*>* clients = getClientsMap();
+	std::map<int, Client*>::iterator itc;
+	std::set<int> operators = this->getOperatorsSet();
+	std::set<int>::iterator it = operators.begin();
+
+	this->operatorsNames.clear();
+
+	while (it != operators.end())
+	{
+		itc = clients->find(*it);
+		if (itc == clients->end())
+		{
+			++it;
+			continue ;
+		}
+		this->operatorsNames += std::string("@") + itc->second->getNickName() + " ";
+		this->getMembersSet().erase(itc->first);
+		++it;
+	}
+	return (this->operatorsNames);
+}
+
+std::string	Channel::getClientsNames(void)
+{
+	std::map<int, Client*>* clients = getClientsMap();
+	std::map<int, Client*>::iterator itc;
+	std::set<int> clientsName = this->getMembersSet();
+	std::set<int>::iterator it = clientsName.begin();
+
+	this->clientsNames.clear();
+
+	while (it != clientsName.end())
+	{
+		itc = clients->find(*it);
+		if (itc == clients->end())
+		{
+			++it;
+			continue ;
+		}
+		this->clientsNames += std::string(itc->second->getNickName()) + " ";
+		++it;
+	}
+	return (this->clientsNames);
+}
+
+std::set<int>&	Channel::getMembersSet(void)
+{
+	return (members);
+}
+
+std::set<int>&	Channel::getOperatorsSet(void)
+{
+	return (operators);
+}
+
+int		Channel::getUserLimit(void) const
+{
+	return (userLimit);
+}
+
+int		Channel::getMembersNum(void) const
+{
+	return (membersNum);
+}
 
 std::string	Channel::getTimeStamp(void) const
 {
@@ -36,9 +103,17 @@ void	Channel::addNewMember(int clientFD)
 {
 	std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " added to " << YELLOW << this->name << LIGHT_BLUE " Channel" RESET << std::endl;
 	this->members.insert(clientFD);
+	++membersNum;
 }
 
-Channel::Channel(std::string name): name(name), members(0), userlimit(1024), topic("We love IRC"), inviteFlag(false), topicFlag(false)
+void	Channel::removeMember(int clientFD)
+{
+	std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " removed from " << YELLOW << this->name << LIGHT_BLUE " Channel" RESET << std::endl;
+	this->members.erase(clientFD);
+	--membersNum;
+}
+
+Channel::Channel(std::string name): name(name), topic("We love IRC"), userLimit(1024), membersNum(0), inviteFlag(false), topicFlag(false)
 {
 	time_t	time = std::time(0);
 	std::ostringstream	oss;
