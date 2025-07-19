@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/17 15:58:38 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/19 17:36:10 by nasser           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,42 +20,42 @@
 	
 // }
 
-bool Server::handleClientAuthentication(std::map<int, Client*>* clients, int fd, char* buffer, int pollIndex) {
-	std::map<int, Client*>::iterator it = clients->find(fd);
-	if (it != clients->end()) {
-		Client* client = it->second;
-		if (!client->getAuthenticated()) {
-			struct pollfd (&fds)[1024] = *getMyFds();
-			std::string input(buffer);
-			if (input.empty() || input == "\r" || input == "\n" || input == "\r\n") {
-				return true; // Ignore empty inputs
-			}
-			if (input.rfind("PASS ", 0) == 0) {
-				std::string pass = input.substr(5);
-				pass.erase(pass.find_last_not_of("\r\n") + 1);
-				if (pass == this->getPassword()) {
-					client->setAuthenticated(true);
-					this->sendBuffer[pollIndex].clear();
-					this->sendBuffer[pollIndex] += msg_notice("Authentication successful");
-					this->sendBuffer[pollIndex] += msg_notice("USER <username> <hostname> <servername> :<realname>");
-					fds[pollIndex].events |= POLLOUT;
-					return true;
-				} else {	
-					this->sendBuffer[pollIndex].clear();
-					this->sendBuffer[pollIndex] += msg_err_passwdmismatch();
-					fds[pollIndex].events |= POLLOUT;
-					return false;
-				}
-			   } else {
-				   this->sendBuffer[pollIndex].clear();
-				   this->sendBuffer[pollIndex] += msg_err_needmoreparams("PASS");
-				   fds[pollIndex].events |= POLLOUT;
-				   return false;
-			}
-		}
-	}
-	return true;
-}
+// bool Server::handleClientAuthentication(std::map<int, Client*>* clients, int fd, char* buffer, int pollIndex) {
+// 	std::map<int, Client*>::iterator it = clients->find(fd);
+// 	if (it != clients->end()) {
+// 		Client* client = it->second;
+// 		if (!client->getAuthenticated()) {
+// 			struct pollfd (&fds)[1024] = *getMyFds();
+// 			std::string input(buffer);
+// 			if (input.empty() || input == "\r" || input == "\n" || input == "\r\n") {
+// 				return true; // Ignore empty inputs
+// 			}
+// 			if (input.rfind("PASS ", 0) == 0) {
+// 				std::string pass = input.substr(5);
+// 				pass.erase(pass.find_last_not_of("\r\n") + 1);
+// 				if (pass == this->getPassword()) {
+// 					client->setAuthenticated(true);
+// 					this->sendBuffer[pollIndex].clear();
+// 					this->sendBuffer[pollIndex] += msg_notice("Authentication successful");
+// 					this->sendBuffer[pollIndex] += msg_notice("USER <username> <hostname> <servername> :<realname>");
+// 					fds[pollIndex].events |= POLLOUT;
+// 					return true;
+// 				} else {	
+// 					this->sendBuffer[pollIndex].clear();
+// 					this->sendBuffer[pollIndex] += msg_err_passwdmismatch();
+// 					fds[pollIndex].events |= POLLOUT;
+// 					return false;
+// 				}
+// 			   } else {
+// 				   this->sendBuffer[pollIndex].clear();
+// 				   this->sendBuffer[pollIndex] += msg_err_needmoreparams("PASS");
+// 				   fds[pollIndex].events |= POLLOUT;
+// 				   return false;
+// 			}
+// 		}
+// 	}
+// 	return true;
+// }
 
 void	Server::addNewClient(int clientFD)
 {

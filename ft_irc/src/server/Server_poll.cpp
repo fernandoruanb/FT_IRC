@@ -61,13 +61,27 @@ void	Server::PollInputClientMonitoring(void)
 					std::cout << BRIGHT_GREEN << (name.empty() ? "Client": name) << ": " << YELLOW << fds[index].fd << LIGHT_BLUE << " " << line << RESET << std::endl;
 					// this->sendBuffer[index] = name + ": " + this->sendBuffer[index];
 
-					if (!handleClientAuthentication(clients, fds[index].fd, (char*)line.c_str(), index)
-						|| handleCommands(clients, line, fds[index].fd, index))
-						continue;
+					// if (!handleClientAuthentication(clients, fds[index].fd, (char*)line.c_str(), index)
+					// 	|| handleCommands(clients, line, fds[index].fd, index))
+					// 	continue;
+
+					handleCommands(clients, line, fds[index].fd, index);
 
 					Client* client = (*clients)[fds[index].fd];
-					if (!client->getAuthenticated() || !client->getRegistered())
+					if (!client->getAuthenticated()) {
+						this->sendBuffer[index].clear();
+						this->sendBuffer[index] += msg_err_needmoreparams("PASS");
+						fds[index].events |= POLLOUT;
+						std::cout << RED "Client not authenticated, sending error message." RESET << std::endl;
 						continue;
+					}
+					if (!client->getRegistered()) {
+						this->sendBuffer[index].clear();
+						this->sendBuffer[index] += msg_err_needmoreparams("USER");
+						fds[index].events |= POLLOUT;
+						std::cout << RED "Client not registered, sending error message." RESET << std::endl;
+						continue;
+					}
 					//    if (line.rfind("NICK ", 0) == 0) {
 					// 	   handleNick(clients, fds[index].fd, line, index);
 					// 	   continue;
