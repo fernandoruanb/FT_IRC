@@ -19,11 +19,11 @@ SRCS =	utils/messages.cpp \
 		server/Server.cpp \
 		server/Server_poll.cpp \
 		server/Server_utils.cpp \
-		server/commands/Server_user.cpp \
-		server/commands/Server_mode.cpp \
-		server/commands/Server_nick.cpp \
-		server/commands/Server_handleCommands.cpp \
-		server/commands/Server_ping.cpp \
+		server/commands/user.cpp \
+		server/commands/mode.cpp \
+		server/commands/nick.cpp \
+		server/commands/handleCommands.cpp \
+		server/commands/ping.cpp \
 		server/Server_broadcast.cpp \
 		server/Server_channel.cpp \
 		server/Server_getters.cpp \
