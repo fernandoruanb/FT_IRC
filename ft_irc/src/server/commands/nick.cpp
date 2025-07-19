@@ -10,6 +10,11 @@ static bool	validNick(s_commands& com)
 	return (true);
 }
 
+/*
+	ainda falta
+		-mensagem para tds os canais q esse user esta
+		:antigoNick!user@host NICK :novoNick
+*/
 void	Server::nick(s_commands& com)
 {
 	if (!com.args.size())
