@@ -149,5 +149,6 @@ void	Server::mode(s_commands &com)
 			return;
 		addUserMode(target, com, this->sendBuffer[com.index]);
 	}
+	//Tratar os canais qnd fernando subir o update
 
 }
