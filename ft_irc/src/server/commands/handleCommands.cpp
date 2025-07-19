@@ -54,6 +54,7 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	std::string	arguments = buffer.substr(j);
 	s_commands	com(buffer, clients, fd ,i, arguments, command);
 
+	
 	//log for debug
 	std::cout << "argc: " << com.args.size() << std::endl;
 	std::cout << "arguments: " << arguments << std::endl;
