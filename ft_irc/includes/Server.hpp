@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/18 17:38:35 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/19 11:33:04 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@
 # include <netinet/in.h>
 # include <arpa/inet.h>
 # include "colours.hpp"
+# include "messages.hpp"
 
 #define SERVER_NAME "irc.maroto.com"
 
@@ -115,7 +116,6 @@ class	Server
 		void	chargePrivileges(int target);
 		void	startPollFds(void);
 		bool	handleClientAuthentication(std::map<int, Client*>* clients, int fd, char* buffer, int pollIndex);
-		void	handlePing(s_commands &commands);
 		void	privmsg(int index, int sender, std::string message);
 		void	init(int port, std::string password);
 		int	findGoodIndex(void);
@@ -126,10 +126,27 @@ class	Server
 		static void	handleSignal(int signal);
 		bool	isValidArgs(const std::string &buffer, size_t pos, bool &op);
 		std::string	getText(std::string& buffer, size_t *pos, std::map<int, Client*>* clients, bool check_name);
+		
+		//Commands
 		void	user(s_commands	&commands);
 		bool	handleCommands(std::map<int, Client*>* &clients, std::string& buffer, int fd, int i);
 		void	mode(s_commands &com);
 		void	nick(s_commands&);
+		void	handlePing(s_commands &commands);
+		void	invite(s_commands&);
+		void	join(s_commands&);
+		void	kick(s_commands&);
+		void	kill(s_commands&);
+		void	list(s_commands&);
+		void	motd(s_commands&);
+		void	names(s_commands&);
+		void	notice(s_commands&);
+		void	oper(s_commands&);
+		void	part(s_commands&);
+		void	pass(s_commands&);
+		void	privmsg(s_commands&);
+		void	quit(s_commands&);
+		void	topic(s_commands&);
 	public:
 		Server(std::string portCheck, std::string password);
 		~Server(void);
