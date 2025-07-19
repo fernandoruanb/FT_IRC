@@ -54,6 +54,22 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	std::string	arguments = buffer.substr(j);
 	s_commands	com(buffer, clients, fd ,i, arguments, command);
 
+	//User can only use PASS, USER, NICK and QUIT if not registred
+	if (!com.client->getAuthenticated() || !com.client->getRegistered())
+	{
+		const std::string	allowed[4] = {"PASS", "USER", "NICK", "QUIT"};
+		bool	isValid = false;
+
+		for (size_t i = 0; i < allowed->size(); i++)
+			if (command == allowed[i])
+			{
+				isValid = true;
+				break;
+			}
+		
+		if (!isValid)
+			return (false);
+	}
 	
 	//log for debug
 	std::cout << "argc: " << com.args.size() << std::endl;

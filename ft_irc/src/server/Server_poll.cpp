@@ -65,7 +65,8 @@ void	Server::PollInputClientMonitoring(void)
 					// 	|| handleCommands(clients, line, fds[index].fd, index))
 					// 	continue;
 
-					handleCommands(clients, line, fds[index].fd, index);
+					if (handleCommands(clients, line, fds[index].fd, index))
+						continue;
 
 					Client* client = (*clients)[fds[index].fd];
 					if (!client->getAuthenticated()) {
