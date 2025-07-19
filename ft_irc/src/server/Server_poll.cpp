@@ -71,14 +71,14 @@ void	Server::PollInputClientMonitoring(void)
 					Client* client = (*clients)[fds[index].fd];
 					if (!client->getAuthenticated()) {
 						this->sendBuffer[index].clear();
-						this->sendBuffer[index] += msg_err_needmoreparams("PASS");
+						this->sendBuffer[index] += msg_err_notregistered();
 						fds[index].events |= POLLOUT;
 						std::cout << RED "Client not authenticated, sending error message." RESET << std::endl;
 						continue;
 					}
 					if (!client->getRegistered()) {
 						this->sendBuffer[index].clear();
-						this->sendBuffer[index] += msg_err_needmoreparams("USER");
+						this->sendBuffer[index] += msg_err_notregistered();
 						fds[index].events |= POLLOUT;
 						std::cout << RED "Client not registered, sending error message." RESET << std::endl;
 						continue;
