@@ -52,6 +52,12 @@ bool	Server::isValidArgs(const std::string &buffer, size_t pos, bool &op)
 	return (cnt >= 3);
 }
 
+/*
+	Retore in future
+		-Add messages in the pattern
+		-Args count
+		-Better use for s_commands
+*/
 void	Server::user(s_commands	&commands)
 {
 	bool	optional = false;

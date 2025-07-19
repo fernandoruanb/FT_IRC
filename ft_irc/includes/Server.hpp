@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/19 13:19:45 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/19 16:38:28 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,5 +169,6 @@ std::map<int, Channel*>* getChannelsMap(void);
 std::map<int, Client*>* getClientsMap(void);
 struct pollfd(*getMyFds(void))[1024];
 bool	*getRunning(void);
+bool	findMode(const std::string& myModes, const char mode);
 
 #endif /* SERVER_HPP */

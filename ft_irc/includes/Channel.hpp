@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:26:36 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/15 16:53:34 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/19 13:58:19 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ class	Channel
 		int	userLimit;
 		bool	inviteFlag;
 		bool	topicFlag;
+		std::string		mode;
 		std::set<int>	members;
 		std::set<int>	operators;
 		std::set<int>	invited;
@@ -47,6 +48,8 @@ class	Channel
 		void	setUserLimit(int userlimit);
 		void	setInviteFlag(bool inviteflag);
 		void	setTopicFlag(bool topicflag);
+		void	setMode(const std::string&);
+		const std::string&	getMode(void) const;
 		std::string	getName(void) const;
 		std::string	getTopic(void) const;
 		std::string	getPassWord(void) const;

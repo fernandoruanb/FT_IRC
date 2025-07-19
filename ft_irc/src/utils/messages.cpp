@@ -68,5 +68,10 @@ std::string	msg_error(const std::string &message, int error_code, s_commands& co
 	std::stringstream	ss;
 
 	ss << " " << error_code << " " << com.client->getNickName() << " " << com.command << " :";
-	return (CYAN ":" SERVER_NAME + ss.str() + YELLOW + message + "\r\n" RESET);
+	return (":" SERVER_NAME + ss.str() + message + "\r\n");
+}
+void	callCmdMsg(const std::string &message, int error, s_commands& com, std::string &buffer)
+{
+	buffer.clear();
+	buffer = msg_error(message, error, com);
 }

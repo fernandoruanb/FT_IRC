@@ -5,7 +5,7 @@ static bool	isSigned(const char c)
 	return (c == '+' || c == '-');
 }
 
-static	Client	*getTarget(s_commands &com, std::string &sendBuffer)
+static	Client	*getTargetClient(s_commands &com, std::string &sendBuffer)
 {
 	std::map<int, Client*>::iterator	it;
 
@@ -13,17 +13,60 @@ static	Client	*getTarget(s_commands &com, std::string &sendBuffer)
 		if (it->second->getNickName() == com.args[0])
 			return (it->second);
 	
-	sendBuffer.clear();
-	sendBuffer = msg_error("No such nick/channel", 401, com);
+	callCmdMsg("No such nick/channel", 401, com, sendBuffer);
 	return (NULL);
 }
 
-static void	showModes(Client*	&target, s_commands& com, std::string &sendBuffer)
+static Channel*	getTargetChannel(s_commands &com, std::map<int, Channel*>* &channels, std::string &sendBuffer)
+{
+	std::map<int, Channel*>::iterator	it;
+	//	Removing # from #Generic
+	std::string	name = com.args[0].substr(1);
+
+	for (it = channels->begin(); it != channels->end(); it++)
+		if (it->second->getName() == name)
+			return (it->second);
+	
+	callCmdMsg("No such nick/channel", 401, com, sendBuffer);
+	return (NULL);
+}
+
+static void	showModes(s_commands& com, std::string &sendBuffer, std::map<int, Channel*>* &channels, bool isUser)
 {
 	if (com.args.size() != 1)
 		return;
-	sendBuffer.clear();
-	sendBuffer = msg_error(target->getMode(), 221, com);
+
+	if (isUser)
+	{
+		Client*	target = getTargetClient(com, sendBuffer);
+		if (target)
+			callCmdMsg(target->getMode(), 221, com, sendBuffer);
+		return;
+	}
+
+	Channel*	target = getTargetChannel(com, channels, sendBuffer);
+	if (target)
+		callCmdMsg(target->getMode(), 221, com, sendBuffer);
+
+}
+
+/*
+	Check if (char)mode is in myModes
+
+	how to use
+
+		findMode(getMode(), 'o');
+*/
+bool	findMode(const std::string& myModes, const char mode)
+{
+	if (myModes.empty() || myModes.size() < 2)
+		return (false);
+
+	for (size_t i = 1; i < myModes.size(); i++)
+		if (myModes[i] == mode)
+			return (true);
+	
+	return (false);
 }
 
 static void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffer)
@@ -61,49 +104,50 @@ static void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffe
 	}
 
 	target->setMode(currentMode);
+	target->setIsOperator(findMode(target->getMode(), 'o'));
 	sendBuffer.clear();
 	sendBuffer = msg_notice("MODE " + target->getNickName() + " " + com.args[1]);
+	// std::cout << target->getNickName() << " Is operator: " << target->getIsOperator() << std::endl;
 }
 
+/*
+	Handle user modes
+
+	221 - default code for mode
+	mode var default value = "+"
+
+	//	Show channel/user modes
+	MODE <nick/#channel> || MODE <target> i(no sign flag)
+	output:
+		- No modes
+			:irc.example.com 221 Miku +
+		-With modes
+			:irc.example.com 221 Miku +i
+
+	MODE <nick/#channel> +/- io
+	channel must have the # before name
+
+	flags
+	i - invisible to WHO and NAMES						-	MODE <nick> +/-i
+	o - OPERATOR privilege to one user of the channel	-	MODE #channel +/-o <nick> || MODE <nick> +/-o
+	t - only operators can change the topic				-	MODE #channel +/-t
+	k - asks for password to enter the channel			-	MODE #channel +/-k <passwd>
+	l - limit the users amount in the channel			-	MODE #channel +/-l <amount>
+*/
 void	Server::mode(s_commands &com)
 {
-	Client	*target;
-
-	/*
-		Handle user modes
-
-		221 - default code for mode
-		mode var default value = "+"
-
-		//	Show channel/user modes
-		MODE <nick/#channel> || MODE <target> i(no sign flag)
-		output:
-			- No modes
-				:irc.example.com 221 Miku +
-			-With modes
-				:irc.example.com 221 Miku +i
-
-		MODE <nick/#channel> +/- io
-		channel must have the # before name
-
-		flags
-		i - invisible to WHO and NAMES						-	MODE <nick> +/-i
-		o - OPERATOR privilege to one user of the channel	-	MODE #channel +/-o <nick> || MODE <nick> +/-o
-		t - only operators can change the topic				-	MODE #channel +/-t
-		k - asks for password to enter the channel			-	MODE #channel +/-k <passwd>
-		l - limit the users amount in the channel			-	MODE #channel +/-l <amount>
-	*/
 	if (!com.args.size())
-	{
-		this->sendBuffer[com.index].clear();
-		this->sendBuffer[com.index] = msg_error("Not enough parameters", 461, com);
-		return;
-	}
+		return (callCmdMsg("Not enough parameters", 461, com, this->sendBuffer[com.index]));
 
-	target = getTarget(com, this->sendBuffer[com.index]);
-	if (!target)
-		return;
-	showModes(target, com, this->sendBuffer[com.index]);
-	addUserMode(target, com, this->sendBuffer[com.index]);
+	bool	isUser = com.args[0][0] != '#';
+
+	showModes(com, this->sendBuffer[com.index], this->channels, isUser);
+	if (isUser)
+	{
+		Client*	target = getTargetClient(com, this->sendBuffer[com.index]);
+		if (!target)
+			return;
+		addUserMode(target, com, this->sendBuffer[com.index]);
+	}
 
 }
