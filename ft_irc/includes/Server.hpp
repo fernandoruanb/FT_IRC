@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/19 11:33:04 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/19 12:32:44 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,19 +62,19 @@ struct	s_commands
 		if (a.empty() || a[0] == '\n' || a[0] == '\r')
 			return;
 		size_t	start = 0;
-		size_t	j = 0;
+		size_t	j;
 		for (j = 0; j < a.size(); j++)
-			if (a[j] == ' ')
+			if (a[j] == ' ' || a[j] == '\n' || a[j] == '\r')
 			{
-				args.push_back(a.substr(start, j - start));
+				if (j > start)
+					args.push_back(a.substr(start, j - start));
 				start = j + 1;
 			}
 		if (start < a.size())
 		{
-			size_t	k = 0;
-			while (a[k] && a[k] != '\n' && a[k] != '\r')
-				k++;
-			args.push_back(a.substr(start, k));
+			while (a[j] && a[j] != '\n' && a[j] != '\r')
+				j++;
+			args.push_back(a.substr(start, j));
 		}
 	}
 };

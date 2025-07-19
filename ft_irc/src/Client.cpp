@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/18 18:02:46 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/19 12:23:14 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 Client::Client(int fd)
 	: channelOfTime(0), clientFD(fd), authenticated(false), registered(false), isOperator(false), username("default")
 {
+	mode = "+";
 	std::cout << LIGHT_BLUE << "Constructor Client* Called in fd: " MAGENTA << fd << RESET << std::endl;
 }
 
@@ -164,7 +165,7 @@ const std::string&	Client::getServerName(void) const
 	return (this->serverName);
 }
 
-void			Client::setMode(char c)
+void			Client::setMode(const std::string& c)
 {
 	mode = c;
 }
