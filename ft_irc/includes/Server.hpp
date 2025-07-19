@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/19 12:32:44 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/19 13:19:45 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,10 +50,12 @@ struct	s_commands
 	int							fd;
 	int							index;
 	std::vector<std::string>	args;
+	std::string					command;
 
-	s_commands(std::string &l, std::map<int, Client*>* &c, int f, int i, std::string &a)
+	s_commands(std::string &l, std::map<int, Client*>* &c, int f, int i, std::string &a, std::string& com)
         : line(l), clients(c), fd(f), index(i)
 	{
+		command = com;
 		client = NULL;
 		std::map<int, Client*>::iterator it = clients->find(fd);
 		if (it != clients->end())

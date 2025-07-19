@@ -5,7 +5,7 @@ static bool	isSigned(const char c)
 	return (c == '+' || c == '-');
 }
 
-static	Client	*getTarget(s_commands &com)
+static	Client	*getTarget(s_commands &com, std::string &sendBuffer)
 {
 	std::map<int, Client*>::iterator	it;
 
@@ -13,6 +13,8 @@ static	Client	*getTarget(s_commands &com)
 		if (it->second->getNickName() == com.args[0])
 			return (it->second);
 	
+	sendBuffer.clear();
+	sendBuffer = msg_error("No such nick/channel", 401, com);
 	return (NULL);
 }
 
@@ -21,19 +23,42 @@ static void	showModes(Client*	&target, s_commands& com, std::string &sendBuffer)
 	if (com.args.size() != 1)
 		return;
 	sendBuffer.clear();
-	sendBuffer = msg_error(target->getMode(), 221);
+	sendBuffer = msg_error(target->getMode(), 221, com);
 }
 
 static void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffer)
 {
-	std::string	currentMode;
-
-	if (com.args.size() > 2 || com.args.size() < 2 || !isSigned(com.args[1][0]))
+	if (com.args.size() != 2 || !isSigned(com.args[1][0]))
 		return;
 	
-	currentMode = target->getMode();
-	if (com.args[1][0] == '+')
-		currentMode += &com.args[1][1];
+	std::string	currentMode = target->getMode();
+	std::string	args = com.args[1].substr(1);
+	char		sign = com.args[1][0];
+
+	if (currentMode.empty() || currentMode[0] != '+')
+		currentMode.insert(0, 1, '+');
+
+	//	Check the target modes
+	for (size_t i = 0; i < args.size(); i++)
+	{
+		bool	isActive = false;
+		char	mode = args[i];
+
+		for (size_t j = 0; j < currentMode.size(); j++)
+			if (currentMode[j] == mode)
+			{
+				isActive = true;
+				break;
+			}
+		
+		if (sign == '+' && !isActive)
+			currentMode += mode;
+		if (sign == '-' && isActive)
+		{
+			size_t	pos = currentMode.find(mode);
+			currentMode.erase(pos, 1);
+		}
+	}
 
 	target->setMode(currentMode);
 	sendBuffer.clear();
@@ -71,11 +96,13 @@ void	Server::mode(s_commands &com)
 	if (!com.args.size())
 	{
 		this->sendBuffer[com.index].clear();
-		this->sendBuffer[com.index] = msg_error("Not enough parameters", 461);
+		this->sendBuffer[com.index] = msg_error("Not enough parameters", 461, com);
 		return;
 	}
 
-	target = getTarget(com);
+	target = getTarget(com, this->sendBuffer[com.index]);
+	if (!target)
+		return;
 	showModes(target, com, this->sendBuffer[com.index]);
 	addUserMode(target, com, this->sendBuffer[com.index]);
 

@@ -63,10 +63,10 @@ std::string msg_notice(const std::string& text) {
     return (CYAN ":" SERVER_NAME " NOTICE * : " YELLOW  + text + "\r\n" RESET);
 }
 
-std::string	msg_error(const std::string &message, int error_code)
+std::string	msg_error(const std::string &message, int error_code, s_commands& com)
 {
 	std::stringstream	ss;
 
-	ss << " " << error_code << "  * : ";
-	return (CYAN ": " SERVER_NAME + ss.str() + YELLOW + message + "\r\n" RESET);
+	ss << " " << error_code << " " << com.client->getNickName() << " " << com.command << " :";
+	return (CYAN ":" SERVER_NAME + ss.str() + YELLOW + message + "\r\n" RESET);
 }

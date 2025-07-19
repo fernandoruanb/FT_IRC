@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 
+struct	s_commands;
+
 std::string msg_welcome(const std::string& nick);
 std::string msg_yourhost(const std::string& nick);
 std::string msg_created();
@@ -16,4 +18,4 @@ std::string msg_err_channelisfull(const std::string& channel);
 std::string msg_err_chanoprivsneeded(const std::string& channel);
 std::string msg_err_erroneusnickname(const std::string& nick);
 std::string msg_notice(const std::string& text);
-std::string	msg_error(const std::string &message, int error_code);
+std::string	msg_error(const std::string &message, int error_code, s_commands& com);

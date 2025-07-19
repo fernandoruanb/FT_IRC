@@ -52,7 +52,7 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	while (buffer[j] == ' ')
 		j++;
 	std::string	arguments = buffer.substr(j);
-	s_commands	com(buffer, clients, fd ,i, arguments);
+	s_commands	com(buffer, clients, fd ,i, arguments, command);
 
 	//log for debug
 	std::cout << "argc: " << com.args.size() << std::endl;
