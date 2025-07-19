@@ -29,7 +29,7 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	myMap["NOTICE"] = &Server::notice;
 	myMap["OPER"] = &Server::oper;
 	myMap["PART"] = &Server::part;
-	// myMap["PASS"] = &Server::pass;
+	myMap["PASS"] = &Server::pass;
 	myMap["PRIVMSG"] = &Server::privmsg;
 	myMap["QUIT"] = &Server::quit;
 	myMap["TOPIC"] = &Server::topic;
@@ -63,5 +63,7 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 
 	(this->*(myMap[command]))(com);
 	fds[com.index].events |= POLLOUT;
+	// Limpa o buffer do cliente após processar comando válido
+	this->recvBuffer[com.index].clear();
 	return (true);
 }
