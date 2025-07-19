@@ -1,5 +1,4 @@
 #include "../includes/Server.hpp"
-#include "../includes/messages.hpp"
 
 void	Server::mode(s_commands &com)
 {

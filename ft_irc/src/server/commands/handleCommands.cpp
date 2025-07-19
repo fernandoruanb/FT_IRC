@@ -19,6 +19,21 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	myMap["PING"] = &Server::handlePing;
 	myMap["MODE"] = &Server::mode;
 	myMap["NICK"] = &Server::nick;
+	myMap["INVITE"] = &Server::invite;
+	myMap["JOIN"] = &Server::join;
+	myMap["KICK"] = &Server::kick;
+	myMap["KILL"] = &Server::kill;
+	myMap["LIST"] = &Server::list;
+	myMap["MOTD"] = &Server::motd;
+	myMap["NAMES"] = &Server::names;
+	myMap["NOTICE"] = &Server::notice;
+	myMap["OPER"] = &Server::oper;
+	myMap["PART"] = &Server::part;
+	// myMap["PASS"] = &Server::pass;
+	myMap["PRIVMSG"] = &Server::privmsg;
+	myMap["QUIT"] = &Server::quit;
+	myMap["TOPIC"] = &Server::topic;
+
 
 	size_t	j;
 	for (j = 0; j < buffer.size(); j++)
