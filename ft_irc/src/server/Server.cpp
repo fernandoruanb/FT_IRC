@@ -6,7 +6,7 @@
 /*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/19 23:00:24 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/20 18:39:13 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,43 +93,13 @@ void	Server::addNewClient(int clientFD)
 		if (clientFD == 5)
 		{
 			this->createNewChannel("Two", clientFD);
-			this->createNewChannel("Three", clientFD);
-			this->createNewChannel("Four", clientFD);
-			this->createNewChannel("Five", clientFD);
-			this->createNewChannel("Six", clientFD);
-			this->createNewChannel("Seven", clientFD);
-			this->createNewChannel("Eight", clientFD);
-			this->createNewChannel("Nine", clientFD);
-			this->deleteChannel("Nine", clientFD);
-			this->deleteChannel("Seven", clientFD);
-			this->deleteChannel("Four", clientFD);
-			this->changeChannel("Six", clientFD);
-			this->createNewChannel("Two", clientFD);
-			this->changeChannel("Two", clientFD);
-			this->createNewChannel("Seven", clientFD);
-			this->deleteChannel("Two", clientFD);
-			this->changeChannel("Eight", clientFD);
-			this->changeTopic("Eight", clientFD, "Masters of Universe");
-			this->inviteToChannel("Three", clientFD, 4);
-			this->inviteToChannel("Two", clientFD, 4);
-			this->inviteToChannel("One", 4, clientFD);
-			this->deleteChannel("Three", clientFD);
-			this->createNewChannel("Three", clientFD);
-			this->changeChannelInviteFlag("Three", true);
-			this->changeChannel("Three", 4);
-			this->inviteToChannel("Three", clientFD, 4);
-			this->changeChannel("Three", 4);
+			//this->deleteChannel("Nine", clientFD);
+			//this->changeChannel("Six", clientFD);
+			//this->changeTopic("Eight", clientFD, "Masters of Universe");
+			//this->inviteToChannel("Three", clientFD, 4);
+			//this->kickFromChannel("Seven", clientFD, 4);
 			this->changeChannel("Generic", 4);
-			this->changeChannel("Generic", 5);
-			this->changeChannel("Seven", clientFD);
-			this->changeChannel("Seven", 4);
-			this->inviteToChannel("Seven", clientFD, 4);
-			this->changeChannelInviteFlag("Seven", true);
-			this->kickFromChannel("Seven", clientFD, 4);
-			this->changeChannel("Seven", 4);
-			this->inviteToChannel("Seven", clientFD, 4);
-			this->changeChannel("Seven", 4);
-			this->changeTopic("Seven", clientFD, "Masters of Universe");
+			this->changeChannel("Generic", clientFD);
 		}
 	}
 	// NOTICE message to the new client. Asking for authentication.

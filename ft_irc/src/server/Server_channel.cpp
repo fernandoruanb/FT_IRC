@@ -99,6 +99,7 @@ void	Server::createNewChannel(std::string Name, int clientFD)
         (*channels)[index]->getOperatorsSet().insert(clientFD);
         (*channels)[index]->getMembersSet().erase(clientFD);
 	std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " is now the operator of " << YELLOW << Name << LIGHT_BLUE " Channel" RESET << std::endl;
+	changeChannel(Name, clientFD);
 }
 
 
