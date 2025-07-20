@@ -139,7 +139,10 @@ void	Server::inviteToChannel(std::string channelName, int operatorFD, int client
 	std::map<int, Channel*>::iterator itch = channels->begin();
 	std::map<int, Client*>::iterator itc = clients->find(operatorFD);
 	std::map<int, Client*>::iterator operatorOwner = clients->find(operatorFD);
+	std::string	nick;
 	std::string	user;
+	std::string	host;
+	std::string	target;
 	int	index = 0;
 
 	if (itc == clients->end())
@@ -177,8 +180,11 @@ void	Server::inviteToChannel(std::string channelName, int operatorFD, int client
 	itch->second->setInviteFlag(true);
 	itc->second->getInviteChannels().insert(channelName);
 	index = getClientsIndex(itc->first);
+	nick = operatorOwner->second->getNickName();
 	user = operatorOwner->second->getUserName();
-	sendBuffer[index] += std::string(BRIGHT_GREEN) + "You were invited to the channel " + YELLOW + channelName + BRIGHT_GREEN + " by " + MAGENTA + user + "\n" + RESET;
+	host = operatorOwner->second->getHost();
+	target = itc->second->getNickName();
+	sendBuffer[index] += my_invite_message(nick, user, host, target, channelName);
 	fds[index].events |= POLLOUT;
 	std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE " received an invite to " << YELLOW << channelName << LIGHT_BLUE " channel by " << YELLOW << operatorFD << std::endl;
 }
