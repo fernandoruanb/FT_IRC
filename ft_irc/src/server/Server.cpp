@@ -6,7 +6,7 @@
 /*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/20 18:39:13 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/20 19:11:30 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,10 @@ void	Server::addNewClient(int clientFD)
 		Channel* generic = it->second;
 		generic->addNewMember(clientFD);
 		if (clientFD == 4)
+		{
 			this->createNewChannel("One", clientFD);
+			this->changeChannel("Generic", clientFD);
+		}
 		if (clientFD == 5)
 		{
 			this->createNewChannel("Two", clientFD);
@@ -98,7 +101,6 @@ void	Server::addNewClient(int clientFD)
 			//this->changeTopic("Eight", clientFD, "Masters of Universe");
 			//this->inviteToChannel("Three", clientFD, 4);
 			//this->kickFromChannel("Seven", clientFD, 4);
-			this->changeChannel("Generic", 4);
 			this->changeChannel("Generic", clientFD);
 		}
 	}
