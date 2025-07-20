@@ -75,3 +75,58 @@ void	callCmdMsg(const std::string &message, int error, s_commands& com, std::str
 	buffer.clear();
 	buffer = msg_error(message, error, com);
 }
+
+std::string	my_notice_info(const std::string& nickname, const std::string& message)
+{
+	return (":" SERVER_NAME " NOTICE " + nickname + " :[INFO] " + message + "\r\n");
+}
+
+std::string	my_notice_error(const std::string& nickname, const std::string& message)
+{
+	return (":" SERVER_NAME " NOTICE " + nickname + " :[ERROR] " + message + "\r\n");
+}
+
+std::string	my_kick_message(const std::string& nickname, const std::string& username, const std::string& hostname, const std::string& message, const std::string& target, const std::string& channel)
+{
+	return (":" + nickname + "!" + username + "@" + hostname + " KICK " + "#" + channel + " " + target + " : " + message + "\r\n");
+}
+
+std::string	my_invite_message(const std::string& nickname, const std::string& username, const std::string& hostname, const std::string& target, const std::string& channel)
+{
+	return (":" + nickname + "!" + username + "@" + hostname + " INVITE " + target + " :#" + channel + "\r\n");
+}
+
+std::string	my_topic_message(const std::string& nickname, const std::string& username, const std::string& hostname,  const std::string& channel, const std::string& topic)
+{
+	return (":" + nickname + "!" + username + "@" + hostname + " TOPIC " + "#" + channel + ":new " + topic + "\r\n");
+}
+
+std::string	my_privmsg_message(const std::string& nickname, const std::string& username, const std::string& hostname, const std::string& target, const std::string& message)
+{
+	return (":" + nickname + "!" + username + "@" + hostname + " PRIVMSG " + target + ":" + message + "\r\n");
+}
+
+std::string	my_join_message(const std::string& nickname, const std::string& username, const std::string& hostname, const std::string& channel)
+{
+	return (":" + nickname + "!" + username + "@" + hostname + " JOIN " + " #" + channel + "\r\n");
+}
+
+std::string	my_join_rpl_topic(const std::string& nickname, const std::string& channel, const std::string& topic)
+{
+	return (":" SERVER_NAME " 332 " + nickname + " #" + channel + " :" + topic + "\r\n");
+}
+
+std::string	my_join_rpl_topic_whotime(const std::string& nick, const std::string& nick2, const std::string& user, const std::string& host, const std::string& channel, std::string& timestamp)
+{
+	return (":" SERVER_NAME " 333 " + nick + " #" + channel + " " + nick2 + "!" + user + "@" + host + " " + timestamp + "\r\n");
+}
+
+std::string	my_join_rpl_namreply(const std::string &nick, const std::string& channel)
+{
+	return (":" SERVER_NAME " 353 " + nick + " #" + channel + " " + ":");
+}
+
+std::string	my_join_rpl_endofnames(const std::string &nick, const std::string& channel)
+{
+	return (":" SERVER_NAME " 366 " + nick + " #" + channel + " :End of /NAMES list" + "\r\n");
+}
