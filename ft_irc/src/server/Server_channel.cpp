@@ -106,9 +106,18 @@ void	Server::promotionChannelOperator(std::string channel, int owner, int client
 {
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Client*>::iterator itch;
+	std::map<int, Channel*>* channels = getChannelsMap();
+	std::map<int, Channel*>::iterator itm;
+	int	channelIndex;
 	int	index;
 	int	second;
 
+	channelIndex = getChannelsIndex(channel);
+	if (channelIndex == -1)
+	{
+		std::cerr << RED "Error: The channel doesn't exist" RESET << std::endl;
+		return ;
+	}
 	index = getChannelsIndex(channel);
 	if (index == -1)
 	{
@@ -128,6 +137,9 @@ void	Server::promotionChannelOperator(std::string channel, int owner, int client
 		(*clients)[clientFD]->getOperatorChannels().insert(channel);
 		(*clients)[clientFD]->getChannelsSet().insert(channel);
 		(*clients)[clientFD]->setIsOperator(true);
+		itm = channels->find(channelIndex);
+		itm->second->getOperatorsSet().insert(clientFD);
+		itm->second->getMembersSet().erase(clientFD);
 		std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE "is now an operator of the channel " << YELLOW << channel << RESET << std::endl;
 		return ;
 	}
@@ -385,6 +397,7 @@ void	Server::removeOperatorPrivilegesFromEveryBody(std::string channel)
 		it->second->getOperatorChannels().erase(channel);
 		it->second->getChannelsSet().erase(channel);
 		it->second->getInviteChannels().erase(channel);
+		itm->second->removeMember(it->first);
 		if (it->second->getOperatorChannels().size() == 0)
 			it->second->setIsOperator(false);
 		channelOfTime = it->second->getChannelOfTime();
