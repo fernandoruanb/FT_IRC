@@ -198,7 +198,12 @@ void	Server::changeTopic(std::string channelName, int clientFD, std::string topi
 	struct pollfd (&fds)[1024] = *getMyFds();
 	int	isOperator;
 	int	messageTarget;
-	std::string	username;
+	std::string	nick;
+	std::string	user;
+	std::string	host;
+	std::string	time;
+	time_t	timestamp = std::time(0);
+	std::ostringstream	oss;
 
 	while (it != channels->end())
 	{
@@ -235,11 +240,17 @@ void	Server::changeTopic(std::string channelName, int clientFD, std::string topi
 		std::cerr << RED "Error: You can't change a topic in another channel" RESET << std::endl;
 		return ;
 	}
+	oss << timestamp;
 	it->second->setTopic(topic);
-	username = itc->second->getUserName();
+	time = oss.str();
+	it->second->setTimeStamp(time);
+	nick = itc->second->getNickName();
+	user = itc->second->getUserName();
+	host = itc->second->getHost();
+	it->second->setOwnerTopic(nick);
 	std::cout << LIGHT_BLUE "The topic of the channel " << YELLOW << it->second->getName() << LIGHT_BLUE " changed to " << YELLOW << topic << RESET << std::endl;
 	messageTarget = getClientsIndex(clientFD);
-	sendBuffer[messageTarget] += std::string(BRIGHT_WHITE) + " The topic of channel " + YELLOW + channelName + BRIGHT_WHITE + " changed to " + YELLOW + topic + BRIGHT_WHITE + " by " + MAGENTA + username + RESET;
+	sendBuffer[messageTarget] += my_topic_message(nick, user, host, channelName, topic);
 	fds[messageTarget].events |= POLLOUT;
 }
 
@@ -445,6 +456,12 @@ void	Server::changeChannel(std::string channel, int clientFD)
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Client*>::iterator itc = clients->find(clientFD);
 	struct pollfd (&fds)[1024] = *getMyFds();
+	std::string	nick;
+	std::string	user;
+	std::string	host;
+	std::string	ownerTopic;
+	std::string	time;
+	std::string	topic;
 	int	messageTarget = 0;
 	if (itc == clients->end())
 	{
@@ -477,12 +494,31 @@ void	Server::changeChannel(std::string channel, int clientFD)
 					return ;
 				}
 			}
+			if (itm->second->getMembersNum() >= itm->second->getUserLimit())
+			{
+				std::cerr << RED "Error: The channel userlimit is full!!!" RESET << std::endl;
+				return ;
+			}
 			std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " changing to " << YELLOW << channelOfficial->getName() << RESET << std::endl;
 			client->setChannelOfTime(itm->first);
 			itm->second->addNewMember(clientFD);
+			itm->second->getMembersSet().insert(clientFD);
 			client->getChannelsSet().insert(channel);
 			messageTarget = getClientsIndex(itc->first);
-			sendBuffer[messageTarget] += std::string(ORANGE) + "You changed to channel " + YELLOW + channelName + RESET + "\n";
+			nick = client->getNickName();
+			user = client->getUserName();
+			host = client->getHost();
+			ownerTopic = itm->second->getOwnerTopic();
+			time = itm->second->getTimeStamp();
+			topic = itm->second->getTopic();
+			sendBuffer[messageTarget] += my_join_message(nick, user, host, channel);
+			sendBuffer[messageTarget] += my_join_rpl_topic(nick, channel, topic);
+			if (!time.empty())
+				sendBuffer[messageTarget] += my_join_rpl_topic_whotime(nick, ownerTopic, user, host, channel, time);
+			sendBuffer[messageTarget] += my_join_rpl_namreply(nick, channel);
+			sendBuffer[messageTarget] += itm->second->getOperatorsNames();
+			sendBuffer[messageTarget] += itm->second->getClientsNames() + "\r\n";
+			sendBuffer[messageTarget] += my_join_rpl_endofnames(nick, channel);
 			fds[messageTarget].events |= POLLOUT;
 			return ;
 		}
