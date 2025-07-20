@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/19 16:38:28 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/19 22:39:03 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@
 # include <errno.h>
 # include <limits.h>
 # include <vector>
+# include <ctime>
+# include <sstream>
 # include <unistd.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
