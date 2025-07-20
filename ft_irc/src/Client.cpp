@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/19 12:23:14 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/20 14:28:57 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,8 @@
 #include "../includes/colours.hpp"
 
 Client::Client(int fd)
-	: channelOfTime(0), clientFD(fd), authenticated(false), registered(false), isOperator(false), username("default")
+	: channelOfTime(0), clientFD(fd), authenticated(false), registered(false), isOperator(false), nickname("*"), username("*"), host("localhost")
 {
-	mode = "+";
 	std::cout << LIGHT_BLUE << "Constructor Client* Called in fd: " MAGENTA << fd << RESET << std::endl;
 }
 

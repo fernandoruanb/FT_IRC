@@ -279,7 +279,10 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
 	int	channelOfTime;
 	struct pollfd (&fds)[1024] = *getMyFds();
 	bool	isOperator;
+	std::string	nick;
 	std::string	user;
+	std::string	host;
+	std::string	target;
 	int	messageTarget = 0;
 
 	if (itch == clients->end())
@@ -321,16 +324,20 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
 		std::cerr << RED "Error: The client is not in the target channel " << YELLOW << channel << RESET << std::endl;
 		return ;
 	}
+	nick = own->second->getNickName();
 	user = own->second->getUserName();
+	host = own->second->getHost();
+	target = itch->second->getNickName();
 	itch->second->getOperatorChannels().erase(channel);
 	itch->second->getChannelsSet().erase(channel);
 	itch->second->getInviteChannels().erase(channel);
+	itm->second->removeMember(itch->first);
 	if (itch->second->getOperatorChannels().size() == 0)
 		itch->second->setIsOperator(false);
 	this->changeChannel("Generic", itch->first);
 	std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE " has been kicked by " << YELLOW << owner << LIGHT_BLUE " and lost all privileges coming back to " << YELLOW "Generic" << LIGHT_BLUE " Channel" RESET << std::endl;
 	messageTarget = getClientsIndex(clientFD);
-	sendBuffer[messageTarget] += std::string(RED) + "You were kicked from channel " + YELLOW + channel + RED + " by " + MAGENTA + user + RESET + "\n";
+	sendBuffer[messageTarget] += my_kick_message(nick, user, host, "You were kicked because you are not nice", target, channel);
 	fds[messageTarget].events |= POLLOUT;
 }
 
