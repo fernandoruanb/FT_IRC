@@ -530,7 +530,15 @@ void	Server::changeChannel(std::string channel, int clientFD)
 			sendBuffer[messageTarget] += my_join_message(nick, user, host, channel);
 			sendBuffer[messageTarget] += my_join_rpl_topic(nick, channel, topic);
 			if (!time.empty())
+			{
+				if (nick == "system")
+				{
+					ownerTopic = "*";
+					user = "*";
+					host = "localhost";
+				}
 				sendBuffer[messageTarget] += my_join_rpl_topic_whotime(nick, ownerTopic, user, host, channel, time);
+			}
 			sendBuffer[messageTarget] += my_join_rpl_namreply(nick, channel);
 			sendBuffer[messageTarget] += itm->second->getOperatorsNames();
 			sendBuffer[messageTarget] += itm->second->getClientsNames() + "\r\n";

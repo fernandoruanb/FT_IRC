@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:36:43 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/20 15:27:18 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/20 17:23:49 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,7 @@ Channel::Channel(std::string name): name(name), topic("We love IRC"), userLimit(
 
 	oss << time;
 	this->setTimeStamp(oss.str());
-	this->setOwnerTopic("System");
+	this->setOwnerTopic("system");
 	std::cout << LIGHT_BLUE "Channel " << YELLOW << name << LIGHT_BLUE << " created =D" << RESET << std::endl;
 }
 
