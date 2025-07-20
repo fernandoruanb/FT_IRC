@@ -39,6 +39,19 @@ int	Server::findGoodIndex(void)
 	return (index);
 }
 
+static bool	checkChannelName(std::string name)
+{
+	const char	*temp = name.c_str();
+
+	while (*temp)
+	{
+		if (*temp == ',' || *temp == ' ' || *temp == '\a')
+			return (false);
+		++temp;
+	}
+	return (true);
+}
+
 void	Server::createNewChannel(std::string Name, int clientFD)
 {
 	Channel* channel = new Channel(Name);
@@ -50,6 +63,13 @@ void	Server::createNewChannel(std::string Name, int clientFD)
 	if (numChannels == INT_MAX)
 	{
 		std::cerr << RED "Error: There are too many channels!!!" RESET << std::endl;
+		delete channel;
+		return ;
+	}
+
+	if (!checkChannelName(Name))
+	{
+		std::cerr << RED "Error: The channel name cannot have comma, space and bell caracter" RESET << std::endl;
 		delete channel;
 		return ;
 	}
