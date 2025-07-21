@@ -31,3 +31,4 @@ std::string     my_join_rpl_topic(const std::string& nickname, const std::string
 std::string     my_join_rpl_topic_whotime(const std::string& nick, const std::string& nick2, const std::string& user, const std::string& host, const std::string& channel, std::string& timestamp);
 std::string     my_join_rpl_namreply(const std::string &nick, const std::string& channel);
 std::string     my_join_rpl_endofnames(const std::string &nick, const std::string &channel);
+std::string     my_part_message(const std::string& nick, const std::string& user, const std::string& host, const std::string& channel,  const std::string& message);

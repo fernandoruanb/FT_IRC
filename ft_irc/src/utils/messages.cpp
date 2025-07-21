@@ -130,3 +130,8 @@ std::string	my_join_rpl_endofnames(const std::string &nick, const std::string& c
 {
 	return (":" SERVER_NAME " 366 " + nick + " #" + channel + " :End of /NAMES list" + "\r\n");
 }
+
+std::string	my_part_message(const std::string& nick, const std::string& user, const std::string& host, const std::string& channel,  const std::string& message)
+{
+	return (":" + nick + "!" + user + "@" + host + " PART " + "#" + channel + " :" + message + "\r\n");
+}

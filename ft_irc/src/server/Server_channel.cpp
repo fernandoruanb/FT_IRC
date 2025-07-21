@@ -477,8 +477,10 @@ void	Server::changeChannel(std::string channel, int clientFD)
 	std::string	user;
 	std::string	host;
 	std::string	ownerTopic;
+	std::string	message;
 	std::string	time;
 	std::string	topic;
+	int	channelIndex;
 	int	messageTarget = 0;
 	if (itc == clients->end())
 	{
@@ -488,6 +490,7 @@ void	Server::changeChannel(std::string channel, int clientFD)
 	Client* client = itc->second;
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Channel*>::iterator itm;
+	std::map<int, Channel*>::iterator last;
 	std::string	channelName;
 
 	if (!client)
@@ -501,6 +504,13 @@ void	Server::changeChannel(std::string channel, int clientFD)
 		channelName = itm->second->getName();
 		if (channelName == channel)
 		{
+			channelIndex = getChannelsIndex(channel);
+			if (itc->second->getChannelOfTime() == channelIndex)
+			{
+				std::cerr << RED "Error: You are trying to change to the same channel that you are" RESET << std::endl;
+				return ;
+			}
+			last = channels->find(itc->second->getChannelOfTime());
 			Channel* channelOfficial = itm->second;
 			if (itm->second->getInviteFlag())
 			{
@@ -528,6 +538,8 @@ void	Server::changeChannel(std::string channel, int clientFD)
 			ownerTopic = itm->second->getOwnerTopic();
 			time = itm->second->getTimeStamp();
 			topic = itm->second->getTopic();
+			message = "You left the channel";
+			client->getBufferOut() += my_part_message(nick, user, host, last->second->getName(), message);
 			client->getBufferOut() += my_join_message(nick, user, host, channel);
 			client->getBufferOut() += my_join_rpl_topic(nick, channel, topic);
 			if (!time.empty())
@@ -538,7 +550,7 @@ void	Server::changeChannel(std::string channel, int clientFD)
 					user = "*";
 					host = "localhost";
 				}
-				sendBuffer[messageTarget] += my_join_rpl_topic_whotime(nick, ownerTopic, user, host, channel, time);
+				client->getBufferOut() += my_join_rpl_topic_whotime(nick, ownerTopic, user, host, channel, time);
 			}
 			client->getBufferOut() += my_join_rpl_namreply(nick, channel);
 			client->getBufferOut()  += itm->second->getOperatorsNames();
