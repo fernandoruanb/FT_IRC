@@ -44,22 +44,12 @@ static bool	checkSignUp(Client* &client, std::string &sendBuffer, int i)
 		std::cout << RED "Client not authenticated, sending error message." RESET << std::endl;
 		return (false);
 	}
-	if (client->getRegistered())
-	{
-		if (client->getNickName().empty())
-		{
-			sendBuffer.clear();
-			sendBuffer += msg_err_notregistered();
-			sendBuffer += msg_notice("Please set your nick: NICK <nickname>");
-			fds[i].events |= POLLOUT;
-			return (false);
-		}
-	}
-	else
+	if (!client->getRegistered() || client->getNickName() == "*")
 	{
 		sendBuffer.clear();
 		sendBuffer += msg_err_notregistered();
 		sendBuffer += msg_notice("Please set your user: USER <username> <hostname> <servername> : <realname>");
+		sendBuffer += msg_notice("Please set your nick: NICK <nickname>");
 		std::cout << RED "Client not registered, sending error message." RESET << std::endl;
 		fds[i].events |= POLLOUT;
 		return (false);

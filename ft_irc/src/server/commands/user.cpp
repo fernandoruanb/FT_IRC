@@ -8,8 +8,10 @@ void	Server::user(s_commands	&com)
 	size_t	len = com.args.size();
 
 	if (len < 3)
-		return (callCmdMsg("Not enough parameters", 461, com, this->sendBuffer[com.index]));
+		return (callCmdMsg("Not enough parameters", 461, com, com.sendBuffer));
 
+	if (com.args[0] == "*" || com.args[0] == "system")
+		return (callCmdMsg("Not enough parameters", 461, com, com.sendBuffer));
 	com.client->setUserName(com.args[0]);
 	com.client->setHost(com.args[1]);
 	com.client->setServerName(com.args[2]);

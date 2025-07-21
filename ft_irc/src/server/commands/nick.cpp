@@ -3,6 +3,9 @@
 
 bool	validNick(s_commands& com)
 {
+	if (com.args[0] == "*" || com.args[0] == "system")
+		return (false);
+
 	std::map<int, Client*>::iterator	it;
 	for (it = com.clients->begin(); it != com.clients->end(); it++)
 		if (it->second->getNickName() == com.args[0])
@@ -31,7 +34,10 @@ void	Server::nick(s_commands& com)
 		{
 			this->sendBuffer[com.index].clear();
 			this->sendBuffer[com.index] = msg_error("Nickname is already in use", 433, com);
+			return;
 		}
+		// com.sendBuffer.clear();
+		// com.sendBuffer = "Hello " + com.client->getNickName() + "\n";
 		return;
 	}
 	this->sendBuffer[com.index].clear();

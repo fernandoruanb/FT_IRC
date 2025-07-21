@@ -32,7 +32,7 @@ void    Server::broadcast(int sender)
 	   }
 	   channel = it->second->getChannelOfTime();
            Client* client = it->second;
-           if (client->getAuthenticated() && client->getRegistered() && channelTarget == channel)
+           if (client->getAuthenticated() && client->getNickName() != "*" && client->getRegistered() && channelTarget == channel)
             {
                 this->sendBuffer[index] += this->sendBuffer[sender];
                 fds[index].events |= POLLOUT;
@@ -61,7 +61,7 @@ void    Server::privmsg(int index, int sender, std::string message)
     std::map<int, Client*>::iterator it = clients->find(fds[index].fd);
     Client* client = it->second;
 
-    if (message.empty() || index < 0 || fds[index].fd == -1 || !client->getRegistered() || !client->getAuthenticated() || ownerChannel != channel)
+    if (message.empty() || index < 0 || fds[index].fd == -1 || !client->getRegistered() || !client->getAuthenticated() || client->getNickName() == "*" || ownerChannel != channel)
         return ;
     client->getBufferOut() += message;
     fds[index].events |= POLLOUT;

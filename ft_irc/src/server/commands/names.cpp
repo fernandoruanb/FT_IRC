@@ -14,5 +14,5 @@
 */
 void	Server::names(s_commands& com)
 {
-	
+	(void)com;
 }

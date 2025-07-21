@@ -79,6 +79,7 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 		std::cout << "My args array[" << i << "]: " << com.args[i] << std::endl;
 
 	(this->*(myMap[command]))(com);
+	std::cout << "getRegistred: " << com.client->getRegistered() << std::endl;
 	fds[com.index].events |= POLLOUT;
 	// Limpa o buffer do cliente após processar comando válido
 	// this->recvBuffer[com.index].clear();
