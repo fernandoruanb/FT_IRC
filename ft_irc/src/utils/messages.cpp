@@ -72,8 +72,7 @@ std::string	msg_error(const std::string &message, int error_code, s_commands& co
 }
 void	callCmdMsg(const std::string &message, int error, s_commands& com, std::string &buffer)
 {
-	buffer.clear();
-	buffer = msg_error(message, error, com);
+	buffer += msg_error(message, error, com);
 }
 
 std::string	my_notice_info(const std::string& nickname, const std::string& message)

@@ -38,7 +38,6 @@ static bool	checkSignUp(Client* &client, std::string &sendBuffer, int i)
 	struct pollfd (&fds)[1024] = *getMyFds();
 
 	if (!client->getAuthenticated()) {
-		sendBuffer.clear();
 		sendBuffer += msg_err_notregistered();
 		fds[i].events |= POLLOUT;
 		std::cout << RED "Client not authenticated, sending error message." RESET << std::endl;
@@ -46,7 +45,6 @@ static bool	checkSignUp(Client* &client, std::string &sendBuffer, int i)
 	}
 	if (!client->getRegistered() || client->getNickName() == "*")
 	{
-		sendBuffer.clear();
 		sendBuffer += msg_err_notregistered();
 		sendBuffer += msg_notice("Please set your user: USER <username> <hostname> <servername> : <realname>");
 		sendBuffer += msg_notice("Please set your nick: NICK <nickname>");
