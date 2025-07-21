@@ -18,6 +18,8 @@ static std::string	getNames(Channel* channel, s_commands& com)
 		
 		if (client && !findMode(client->getMode(), 'i'))
 			result += (findMode(client->getMode(), 'o') ? "@": "") + client->getNickName() + " ";
+		
+		std::cout << "cliente[" << client->getNickName() << "] esta: " << client->getChannelOfTime() << std::endl;
 	}
 
 	return (result);
