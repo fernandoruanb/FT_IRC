@@ -200,7 +200,7 @@ void	Server::inviteToChannel(std::string channelName, int operatorFD, int client
 	user = operatorOwner->second->getUserName();
 	host = operatorOwner->second->getHost();
 	target = itc->second->getNickName();
-	sendBuffer[index] += my_invite_message(nick, user, host, target, channelName);
+	itc->second->getBufferOut() += my_invite_message(nick, user, host, target, channelName);
 	fds[index].events |= POLLOUT;
 	std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE " received an invite to " << YELLOW << channelName << LIGHT_BLUE " channel by " << YELLOW << operatorFD << std::endl;
 }
@@ -266,7 +266,7 @@ void	Server::changeTopic(std::string channelName, int clientFD, std::string topi
 	it->second->setOwnerTopic(nick);
 	std::cout << LIGHT_BLUE "The topic of the channel " << YELLOW << it->second->getName() << LIGHT_BLUE " changed to " << YELLOW << topic << RESET << std::endl;
 	messageTarget = getClientsIndex(clientFD);
-	sendBuffer[messageTarget] += my_topic_message(nick, user, host, channelName, topic);
+	itc->second->getBufferOut() += my_topic_message(nick, user, host, channelName, topic);
 	fds[messageTarget].events |= POLLOUT;
 }
 
@@ -370,7 +370,7 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
 	this->changeChannel("Generic", itch->first);
 	std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE " has been kicked by " << YELLOW << owner << LIGHT_BLUE " and lost all privileges coming back to " << YELLOW "Generic" << LIGHT_BLUE " Channel" RESET << std::endl;
 	messageTarget = getClientsIndex(clientFD);
-	sendBuffer[messageTarget] += my_kick_message(nick, user, host, "You were kicked because you are not nice", target, channel);
+	itch->second->getBufferOut() += my_kick_message(nick, user, host, "You were kicked because you are not nice", target, channel);
 	fds[messageTarget].events |= POLLOUT;
 }
 
@@ -528,8 +528,8 @@ void	Server::changeChannel(std::string channel, int clientFD)
 			ownerTopic = itm->second->getOwnerTopic();
 			time = itm->second->getTimeStamp();
 			topic = itm->second->getTopic();
-			sendBuffer[messageTarget] += my_join_message(nick, user, host, channel);
-			sendBuffer[messageTarget] += my_join_rpl_topic(nick, channel, topic);
+			client->getBufferOut() += my_join_message(nick, user, host, channel);
+			client->getBufferOut() += my_join_rpl_topic(nick, channel, topic);
 			if (!time.empty())
 			{
 				if (nick == "system")
@@ -540,10 +540,10 @@ void	Server::changeChannel(std::string channel, int clientFD)
 				}
 				sendBuffer[messageTarget] += my_join_rpl_topic_whotime(nick, ownerTopic, user, host, channel, time);
 			}
-			sendBuffer[messageTarget] += my_join_rpl_namreply(nick, channel);
-			sendBuffer[messageTarget] += itm->second->getOperatorsNames();
-			sendBuffer[messageTarget] += itm->second->getClientsNames() + "\r\n";
-			sendBuffer[messageTarget] += my_join_rpl_endofnames(nick, channel);
+			client->getBufferOut() += my_join_rpl_namreply(nick, channel);
+			client->getBufferOut()  += itm->second->getOperatorsNames();
+			client->getBufferOut() += itm->second->getClientsNames() + "\r\n";
+			client->getBufferOut() += my_join_rpl_endofnames(nick, channel);
 			fds[messageTarget].events |= POLLOUT;
 			return ;
 		}

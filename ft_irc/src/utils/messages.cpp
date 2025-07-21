@@ -98,7 +98,7 @@ std::string	my_invite_message(const std::string& nickname, const std::string& us
 
 std::string	my_topic_message(const std::string& nickname, const std::string& username, const std::string& hostname,  const std::string& channel, const std::string& topic)
 {
-	return (":" + nickname + "!" + username + "@" + hostname + " TOPIC " + "#" + channel + ":new " + topic + "\r\n");
+	return (":" + nickname + "!" + username + "@" + hostname + " TOPIC " + "#" + channel + " :" + topic + "\r\n");
 }
 
 std::string	my_privmsg_message(const std::string& nickname, const std::string& username, const std::string& hostname, const std::string& target, const std::string& message)
