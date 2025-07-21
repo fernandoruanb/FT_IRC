@@ -52,7 +52,7 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	while (buffer[j] == ' ')
 		j++;
 	std::string	arguments = buffer.substr(j);
-	s_commands	com(buffer, clients, fd ,i, arguments, command);
+	s_commands	com(buffer, clients, fd ,i, arguments, command, this->sendBuffer[i]);
 
 	//User can only use PASS, USER, NICK and QUIT if not registred
 	if (!com.client->getAuthenticated() || !com.client->getRegistered())

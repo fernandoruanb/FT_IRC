@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/21 16:53:30 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/21 17:00:09 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,9 @@ struct	s_commands
 	int							index;
 	std::vector<std::string>	args;
 	std::string					command;
+	std::string					&sendBuffer;
 
-	s_commands(std::string &l, std::map<int, Client*>* &c, int f, int i, std::string &a, std::string& com);
+	s_commands(std::string &l, std::map<int, Client*>* &c, int f, int i, std::string &a, std::string& com, std::string &buf);
 };
 
 class	Server

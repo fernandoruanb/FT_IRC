@@ -6,10 +6,13 @@
 	if use NAMES - no arguments
 		shows all user in public channels
 	
-	
+	Sintaxes
+		NAMES #channel
+		NAMES #channel,#channel2,#etc...
+
+		no spaces afters comas
 */
 void	Server::names(s_commands& com)
 {
-	this->sendBuffer[com.index].clear();
-	this->sendBuffer[com.index] = "You called NAMES\n";
+	
 }
