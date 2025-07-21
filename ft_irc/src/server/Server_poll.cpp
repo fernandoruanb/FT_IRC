@@ -33,6 +33,40 @@ void	Server::PollServerRoom(void)
 	}
 }
 
+static bool	checkSignUp(Client* &client, std::string &sendBuffer, int i)
+{
+	struct pollfd (&fds)[1024] = *getMyFds();
+
+	if (!client->getAuthenticated()) {
+		sendBuffer.clear();
+		sendBuffer += msg_err_notregistered();
+		fds[i].events |= POLLOUT;
+		std::cout << RED "Client not authenticated, sending error message." RESET << std::endl;
+		return (false);
+	}
+	if (client->getRegistered())
+	{
+		if (client->getNickName().empty())
+		{
+			sendBuffer.clear();
+			sendBuffer += msg_err_notregistered();
+			sendBuffer += msg_notice("Please set your nick: NICK <nickname>");
+			fds[i].events |= POLLOUT;
+			return (false);
+		}
+	}
+	else
+	{
+		sendBuffer.clear();
+		sendBuffer += msg_err_notregistered();
+		sendBuffer += msg_notice("Please set your user: USER <username> <hostname> <servername> : <realname>");
+		std::cout << RED "Client not registered, sending error message." RESET << std::endl;
+		fds[i].events |= POLLOUT;
+		return (false);
+	}
+	return (true);
+}
+
 void	Server::PollInputClientMonitoring(void)
 {
 	int	index;
@@ -59,43 +93,12 @@ void	Server::PollInputClientMonitoring(void)
 
 					std::string	name = (*clients)[fds[index].fd]->getUserName();
 					std::cout << BRIGHT_GREEN << (name.empty() ? "Client": name) << ": " << YELLOW << fds[index].fd << LIGHT_BLUE << " " << line << RESET << std::endl;
-					// this->sendBuffer[index] = name + ": " + this->sendBuffer[index];
-
-					// if (!handleClientAuthentication(clients, fds[index].fd, (char*)line.c_str(), index)
-					// 	|| handleCommands(clients, line, fds[index].fd, index))
-					// 	continue;
-
-					if (handleCommands(clients, line, fds[index].fd, index))
-						continue;
 
 					Client* client = (*clients)[fds[index].fd];
-					if (!client->getAuthenticated()) {
-						this->sendBuffer[index].clear();
-						this->sendBuffer[index] += msg_err_notregistered();
-						fds[index].events |= POLLOUT;
-						std::cout << RED "Client not authenticated, sending error message." RESET << std::endl;
+					if (handleCommands(clients, line, fds[index].fd, index)
+						|| !checkSignUp(client, this->sendBuffer[index], index))
 						continue;
-					}
-					if (!client->getRegistered()) {
-						this->sendBuffer[index].clear();
-						this->sendBuffer[index] += msg_err_notregistered();
-						fds[index].events |= POLLOUT;
-						std::cout << RED "Client not registered, sending error message." RESET << std::endl;
-						continue;
-					}
-					//    if (line.rfind("NICK ", 0) == 0) {
-					// 	   handleNick(clients, fds[index].fd, line, index);
-					// 	   continue;
-					//    }
-					// std::string cmd = line;
-					// cmd.erase(cmd.find_last_not_of("\r\n") + 1); // Remove \r\n do final
 
-					// if (cmd.compare(0, 4, "PING") == 0) {
-					// 	s_commands	com(line, clients, fds[index].fd, index);
-					// 	// Agora aceita "PING", "PING ", "PING:..." etc.
-					// 	handlePing(com);
-					// 	continue;
-					// }
 					this->sendBuffer[index].clear();
 					if (!isEmptyInput(line))
 					this->sendBuffer[index] += "\n" + std::string(YELLOW) + (*clients)[fds[index].fd]->getNickName() + RESET + ": " + line;

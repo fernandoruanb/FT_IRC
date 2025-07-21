@@ -17,7 +17,6 @@ void	Server::pass(s_commands& com)
 					client->setAuthenticated(true);
 					this->sendBuffer[com.index].clear();
 					this->sendBuffer[com.index] += msg_notice("Authentication successful");
-					this->sendBuffer[com.index] += msg_notice("USER <username> <hostname> <servername> :<realname>");
 					fds[com.index].events |= POLLOUT;
 					return ;
 				} else {	

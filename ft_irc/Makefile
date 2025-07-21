@@ -32,6 +32,7 @@ SRCS =	utils/messages.cpp \
 		server/commands/names.cpp \
 		server/commands/notice.cpp \
 		server/commands/oper.cpp \
+		server/commands/s_commands.cpp \
 		server/commands/part.cpp \
 		server/commands/pass.cpp \
 		server/commands/privmsg.cpp \

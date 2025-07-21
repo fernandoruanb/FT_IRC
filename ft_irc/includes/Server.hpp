@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/19 16:38:28 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/21 16:09:45 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,33 +52,7 @@ struct	s_commands
 	std::vector<std::string>	args;
 	std::string					command;
 
-	s_commands(std::string &l, std::map<int, Client*>* &c, int f, int i, std::string &a, std::string& com)
-        : line(l), clients(c), fd(f), index(i)
-	{
-		command = com;
-		client = NULL;
-		std::map<int, Client*>::iterator it = clients->find(fd);
-		if (it != clients->end())
-			client = it->second;
-		
-		if (a.empty() || a[0] == '\n' || a[0] == '\r')
-			return;
-		size_t	start = 0;
-		size_t	j;
-		for (j = 0; j < a.size(); j++)
-			if (a[j] == ' ' || a[j] == '\n' || a[j] == '\r')
-			{
-				if (j > start)
-					args.push_back(a.substr(start, j - start));
-				start = j + 1;
-			}
-		if (start < a.size())
-		{
-			while (a[j] && a[j] != '\n' && a[j] != '\r')
-				j++;
-			args.push_back(a.substr(start, j));
-		}
-	}
+	s_commands(std::string &l, std::map<int, Client*>* &c, int f, int i, std::string &a, std::string& com);
 };
 
 class	Server
@@ -130,11 +104,11 @@ class	Server
 		std::string	getText(std::string& buffer, size_t *pos, std::map<int, Client*>* clients, bool check_name);
 		
 		//Commands
-		void	user(s_commands	&commands);
+		void	user(s_commands&);
 		bool	handleCommands(std::map<int, Client*>* &clients, std::string& buffer, int fd, int i);
-		void	mode(s_commands &com);
+		void	mode(s_commands&);
 		void	nick(s_commands&);
-		void	handlePing(s_commands &commands);
+		void	handlePing(s_commands &);
 		void	invite(s_commands&);
 		void	join(s_commands&);
 		void	kick(s_commands&);
@@ -170,5 +144,6 @@ std::map<int, Client*>* getClientsMap(void);
 struct pollfd(*getMyFds(void))[1024];
 bool	*getRunning(void);
 bool	findMode(const std::string& myModes, const char mode);
+bool	validNick(s_commands& com);
 
 #endif /* SERVER_HPP */

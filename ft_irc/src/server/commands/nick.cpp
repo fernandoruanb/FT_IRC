@@ -1,7 +1,7 @@
 #include "../includes/Server.hpp"
 #include "../includes/messages.hpp"
 
-static bool	validNick(s_commands& com)
+bool	validNick(s_commands& com)
 {
 	std::map<int, Client*>::iterator	it;
 	for (it = com.clients->begin(); it != com.clients->end(); it++)
