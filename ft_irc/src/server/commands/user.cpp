@@ -12,6 +12,7 @@ void	Server::user(s_commands	&com)
 
 	if (com.args[0] == "*" || com.args[0] == "system")
 		return (callCmdMsg("Not enough parameters", 461, com, com.sendBuffer));
+
 	com.client->setUserName(com.args[0]);
 	com.client->setHost(com.args[1]);
 	com.client->setServerName(com.args[2]);
