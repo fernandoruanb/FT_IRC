@@ -63,6 +63,6 @@ void    Server::privmsg(int index, int sender, std::string message)
 
     if (message.empty() || index < 0 || fds[index].fd == -1 || !client->getRegistered() || !client->getAuthenticated() || ownerChannel != channel)
         return ;
-    this->sendBuffer[index] += message;
+    client->getBufferOut() += message;
     fds[index].events |= POLLOUT;
 }
