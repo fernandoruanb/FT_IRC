@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:26:36 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/19 22:40:43 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/21 19:07:04 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,8 @@ class	Channel
 		bool	getInviteFlag(void) const;
 		bool	getTopicFlag(void) const;
 		void	addNewMember(int clientFD);
+		bool	isMemberOfChannel(int fd) const;
+		bool	isOperatorOfChannel(int fd) const;
 };
 std::ofstream	operator<<(std::ostream &out, const Channel &other);
 #endif /* CHANNEL_HPP */

@@ -17,18 +17,15 @@ void	Server::pass(s_commands& com)
 					client->setAuthenticated(true);
 					this->sendBuffer[com.index].clear();
 					this->sendBuffer[com.index] += msg_notice("Authentication successful");
-					fds[com.index].events |= POLLOUT;
 					return ;
 				} else {	
 					this->sendBuffer[com.index].clear();
 					this->sendBuffer[com.index] += msg_err_passwdmismatch();
-					fds[com.index].events |= POLLOUT;
 					return ;
 				}
 			} else {
 				this->sendBuffer[com.index].clear();
 				this->sendBuffer[com.index] += msg_err_needmoreparams("PASS");
-				fds[com.index].events |= POLLOUT;
 				return ;
 			}
 		}

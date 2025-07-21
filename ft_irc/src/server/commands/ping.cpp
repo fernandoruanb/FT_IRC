@@ -10,7 +10,7 @@ void Server::handlePing(s_commands &commands) {
         if (commands.line.substr(0, 4) == "PING") {
             std::string response = "PONG";
             if (commands.line.length() > 4) {
-                response += commands.line.substr(4); // inclui o espaço e o argumento, se houver
+                response += commands.line.substr(4);
             }
             this->sendBuffer[commands.index].clear();
             this->sendBuffer[commands.index] += response + "\r\n"; 

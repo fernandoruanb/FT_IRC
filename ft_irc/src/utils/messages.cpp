@@ -47,6 +47,10 @@ std::string msg_err_notonchannel(const std::string& channel) {
     return ":" SERVER_NAME " 442 * " + channel + " :You're not on that channel\r\n";
 }
 
+std::string msg_err_usernotinchannel(const std::string& user, const std::string& channel) {
+	return ":" SERVER_NAME " 441 * " + user + " :They aren't on that channel\r\n";
+}
+
 std::string msg_err_channelisfull(const std::string& channel) {
     return ":" SERVER_NAME " 471 * " + channel + " :Cannot join channel (+l)\r\n";
 }
