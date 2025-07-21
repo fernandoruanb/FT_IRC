@@ -126,8 +126,11 @@ void	Server::PollInputClientMonitoring(void)
 
 void	Server::PollOutMonitoring(void)
 {
+	std::map<int, Client*>* clients = getClientsMap();
+	std::map<int, Client*>::iterator it = clients->begin();
 	int	index;
 	ssize_t	bytes;
+	ssize_t	bytes2;
 	struct pollfd (&fds)[1024] = *getMyFds();
 
 	index = 0;
@@ -135,6 +138,7 @@ void	Server::PollOutMonitoring(void)
 	{
 		if (fds[index].revents & POLLOUT)
 		{
+			it = clients->find(fds[index].fd);
 			/*
 				This is a test-doesn't workd properly
 				what it does
@@ -147,7 +151,10 @@ void	Server::PollOutMonitoring(void)
 			bytes = send(fds[index].fd, this->sendBuffer[index].c_str(), sendBuffer[index].size(), 0);
 			if (bytes > 0)
 				this->sendBuffer[index].erase(0, bytes);
-			if (this->sendBuffer[index].empty())
+			bytes2 = send(fds[index].fd, it->second->getBufferOut().c_str(), it->second->getBufferOut().size(), 0);
+			if (bytes2 > 0)
+				it->second->getBufferOut().erase(0, bytes2);
+			if (this->sendBuffer[index].empty() && it->second->getBufferOut().empty())
 				fds[index].events &= ~POLLOUT;
 		}
 		++index;

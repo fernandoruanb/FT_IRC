@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:26:36 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/19 13:58:19 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/19 22:40:43 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,13 @@ class	Channel
 		std::string	topic;
 		std::string	password;
 		int	userLimit;
+		int	membersNum;
 		bool	inviteFlag;
 		bool	topicFlag;
+		std::string	operatorsNames;
+		std::string	clientsNames;
+		std::string	ownerTopic;
+		std::string	timestamp;
 		std::string		mode;
 		std::set<int>	members;
 		std::set<int>	operators;
@@ -40,6 +45,16 @@ class	Channel
 	public:
 		Channel(std::string name);
 		~Channel(void);
+		std::string	getOperatorsNames(void);
+		std::string	getClientsNames(void);
+		std::set<int>&	getOperatorsSet(void);
+		std::set<int>&	getMembersSet(void);
+		void	removeMember(int clientFD);
+		int	getMembersNum(void) const;
+		std::string	getTimeStamp(void) const;
+		std::string	getOwnerTopic(void) const;
+		void	setOwnerTopic(std::string nick);
+		void	setTimeStamp(std::string time);
 		void	setChannelIndex(int index);
 		int	getChannelIndex(void) const;
 		void	setName(std::string name);
