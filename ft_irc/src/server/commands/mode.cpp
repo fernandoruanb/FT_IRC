@@ -1,4 +1,5 @@
 #include "../includes/Server.hpp"
+#include <sstream>
 
 static bool	isSigned(const char c)
 {
@@ -110,6 +111,88 @@ static void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffe
 	// std::cout << target->getNickName() << " Is operator: " << target->getIsOperator() << std::endl;
 }
 
+static void	addChannelMode(s_commands &com, Channel* &target)
+{
+	std::string	currentMode = target->getMode();
+	char		sign = com.args[1][0];
+	std::string	flags = com.args[1].substr(1);
+	std::string	Channel = com.args[0];
+	size_t		i;
+
+	for (i = 0; i < flags.size(); i++)
+	{
+		char	flag = flags[i];
+		bool	flagFound = findMode(currentMode, flag);
+
+		switch (flag)
+		{
+			case 't':
+				if (com.args.size() != 2)
+				{
+					com.sendBuffer += "Invalid num of arguments\n";
+					return;
+				}
+				if (sign == '+' && !flagFound)
+				{
+					currentMode += flag;
+					target->setTopicFlag(true);
+					break;
+				}
+				if (sign == '-' && flagFound)
+				{
+					size_t	pos = currentMode.find(flag);
+					currentMode.erase(pos, 1);
+				}
+				break;
+			case 'k':
+				if (com.args.size() != 3)
+				{
+					com.sendBuffer += "Invalid num of arguments\n";
+					return;
+				}
+				if (sign == '+' && !flagFound)
+				{
+					currentMode += flag;
+					target->setPassWord(com.args[2]);
+					break;
+				}
+				if (sign == '-' && flagFound)
+				{
+					size_t	pos = currentMode.find(flag);
+					currentMode.erase(pos, 1);
+					target->getPassWord().clear();
+				}
+				break;
+			case 'l':
+				if (com.args.size() != 3)
+				{
+					com.sendBuffer += "Invalid num of arguments\n";
+					return;
+				}
+				if (sign == '+' && !flagFound)
+				{
+					int	limit;
+					std::istringstream	ss(com.args[2]);
+
+					ss >> limit;
+					if (ss.fail())
+					{
+						com.sendBuffer += "Tem coisa errada no numero de clientes q vc pos\n";
+						return;
+					}
+					currentMode += flag;
+					target->setUserLimit(limit);
+					break;
+				}
+				break;
+			case 'o':
+				break;
+		}
+	}
+
+	target->setMode(currentMode);
+}
+
 /*
 	Handle user modes
 
@@ -148,7 +231,12 @@ void	Server::mode(s_commands &com)
 		if (!target)
 			return;
 		addUserMode(target, com, this->sendBuffer[com.index]);
+		return;
 	}
-	//Tratar os canais qnd fernando subir o update
+	
+	Channel*	target = getTargetChannel(com, this->channels, com.sendBuffer);
+	if (!target)
+		return;
+	addChannelMode(com, target);
 
 }
