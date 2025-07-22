@@ -246,6 +246,7 @@ void	Server::changeTopic(std::string channelName, int clientFD, std::string topi
 	{
 		std::cerr << RED "Error: The channel doesn't exist to change topic" RESET << std::endl;
 		itc->second->getBufferOut() += msg_err_nosuchchannel(nick, channelName);
+		fds[itc->first].events |= POLLOUT;
 		return ;
 	}
 	nick = itc->second->getNickName();

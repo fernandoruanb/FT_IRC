@@ -134,3 +134,13 @@ std::string	my_part_message(const std::string& nick, const std::string& user, co
 {
 	return (":" + nick + "!" + user + "@" + host + " PART " + "#" + channel + " :" + message + "\r\n");
 }
+
+std::string	my_useronchannel(const std::string& owner, const std::string& nick, const std::string& channel, const std::string& message)
+{
+	return (":" SERVER_NAME " 443 " + owner + " " + nick + " #" + channel + " :" + message + "\r\n");
+}
+
+std::string	my_notonchannel(const std::string& nick, const std::string& channel, const std::string& message)
+{
+	return (":" SERVER_NAME " 442 " + nick + " #" + channel + " :" + message + "\r\n");
+}
