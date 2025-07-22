@@ -435,6 +435,20 @@ void	Server::removeOperatorPrivilegesFromEveryBody(std::string channel)
 	std::cout << BRIGHT_GREEN "The channel " << ORANGE << channel << BRIGHT_GREEN " was cleaned successfully" RESET << std::endl;
 }
 
+bool	Server::AuthenticationKeyProcess(const std::string channel, const std::string key)
+{
+	std::map<int, Channel*>* channels = getChannelsMap();
+	std::string	password;
+	int	index;
+
+	index = getChannelsIndex(channel);
+	password = (*channels)[index]->getPassWord();
+
+	if (key == password)
+		return (true);
+	return (false);
+}
+
 void	Server::deleteChannel(std::string channel, int clientFD)
 {
 	std::map<int, Channel*>* channels = getChannelsMap();

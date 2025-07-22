@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/21 17:03:58 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/22 18:49:38 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,10 +75,12 @@ class	Server
 		bool	*running;
 		Server&	operator=(const Server &other);
 		Server(const Server &other);
+
 		void    inviteToChannel(std::string channelName, int operatorFD, int clientFD);
 		bool	checkName(std::string Name);
 		void	changeChannelInviteFlag(std::string channel, bool flag);
 		int	getChannelsIndex(std::string channel);
+		bool    AuthenticationKeyProcess(const std::string channel, const std::string key);
 		int	getClientsIndex(int clientFD);
 		void    promotionChannelOperator(std::string channel, int owner, int clientFD);
 		void	changeChannel(std::string Name, int clientFD);
