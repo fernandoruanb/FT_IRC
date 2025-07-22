@@ -38,6 +38,8 @@ void	Server::nick(s_commands& com)
 		}
 		// com.sendBuffer.clear();
 		// com.sendBuffer = "Hello " + com.client->getNickName() + "\n";
+		if (com.client->getUserName() != "*")
+			com.client->setRegistered(true);
 		return;
 	}
 	this->sendBuffer[com.index].clear();

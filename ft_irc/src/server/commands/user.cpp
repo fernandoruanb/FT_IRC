@@ -31,6 +31,7 @@ void	Server::user(s_commands	&com)
 		
 		com.client->setRealName(name);
 	}
-	com.client->setRegistered(true);
+	if (com.client->getNickName() != "*")
+		com.client->setRegistered(true);
 	this->sendBuffer[com.index] = "Hello " + com.client->getUserName() + "@" + com.client->getHost() + " " + com.client->getServerName() + " " + com.client->getRealName() + "\n";
 }
