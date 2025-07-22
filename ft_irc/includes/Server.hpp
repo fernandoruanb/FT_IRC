@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/22 18:49:38 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/22 20:02:26 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ class	Server
 		struct pollfd (*fds)[1024];
 		std::string	recvBuffer[1024];
 		std::string	sendBuffer[1024];
+		std::string	sendHistory[1024];
 		std::map<int, Channel*>* channels;
 		std::map<int, Client*>* clients;
 		int	serverIRC;

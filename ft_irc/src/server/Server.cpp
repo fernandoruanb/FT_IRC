@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/22 18:31:53 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/22 20:23:54 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,7 @@ void	Server::addNewClient(int clientFD)
 		if (clientFD == 4)
 		{
 			this->createNewChannel("One", clientFD);
-			this->changeChannel("Generic", clientFD);
+			//this->changeChannel("Generic", clientFD);
 		}
 		if (clientFD == 5)
 		{
@@ -101,7 +101,8 @@ void	Server::addNewClient(int clientFD)
 			this->changeTopic("Two", clientFD, "Masters of Universe");
 			//this->inviteToChannel("Three", clientFD, 4);
 			//this->kickFromChannel("Seven", clientFD, 4);
-			//this->changeChannel("Generic", clientFD);
+			this->changeChannel("One", clientFD);
+			this->changeChannel("Generic", clientFD);
 		}
 	}
 	// NOTICE message to the new client. Asking for authentication.

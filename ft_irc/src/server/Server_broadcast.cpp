@@ -4,7 +4,9 @@ void    Server::broadcast(int sender)
 {
 	struct pollfd (&fds)[1024] = *getMyFds();
 	std::map<int, Client*>* clients = getClientsMap();
+	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Client*>::iterator it = clients->find(fds[sender].fd);
+	std::string	channelName;
 	if (it == clients->end())
 	{
 		std::cerr << RED "Error: The owner is a ghost!!!" RESET << std::endl;
@@ -31,13 +33,24 @@ void    Server::broadcast(int sender)
 		continue ;
 	   }
 	   channel = it->second->getChannelOfTime();
+	   channelName = (*channels)[channel]->getName();
            Client* client = it->second;
-           if (client->getAuthenticated() && client->getNickName() != "*" && client->getRegistered() && channelTarget == channel)
-            {
-                this->sendBuffer[index] += this->sendBuffer[sender];
-                fds[index].events |= POLLOUT;
-            }
-            index++;
+		if (client->getAuthenticated() && client->getNickName() != "*" && client->getRegistered() && channelTarget == channel)
+		{
+			this->sendBuffer[index] += this->sendBuffer[sender];
+			fds[index].events |= POLLOUT;
+		}
+		if (client->getAuthenticated() && client->getNickName() != "*" && client->getRegistered() && channelTarget != channel
+		&& client->getChannelsSet().find(channelName) != client->getChannelsSet().end())
+		{
+			std::cout << "A mensagem do owner: " << this->sendBuffer[sender] << std::endl;
+			this->sendHistory[index] += this->sendBuffer[sender];
+			std::cout << ORANGE "ChannelOwner: " << channelName << std::endl;
+			channelName = (*channels)[channelTarget]->getName();
+			std::cout << BRIGHT_GREEN "ChannelTarget: " << channelName << RESET << std::endl;
+			std::cout << "O History: " << this->sendHistory[index] << std::endl;
+		}
+		index++;
         }
         this->sendBuffer[sender].clear();
     }
