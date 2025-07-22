@@ -35,4 +35,5 @@ std::string     my_part_message(const std::string& nick, const std::string& user
 std::string     my_topic_operator_error(const std::string& nick, const std::string& channel, const std::string& message);
 std::string     my_useronchannel(const std::string& owner, const std::string& nick, const std::string& channel, const std::string& message);
 std::string     my_notonchannel(const std::string& nick, const std::string& channel, const std::string& message);
-
+std::string     my_nosuchnickchannel(const std::string& nick, const std::string& forget,const std::string& channel, const std::string& message);
+std::string     my_usernotinchannel(std::string& nick, const std::string& target, const std::string& channel, const std::string& message);
