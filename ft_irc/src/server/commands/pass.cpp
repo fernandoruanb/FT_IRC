@@ -3,14 +3,13 @@
 void	Server::pass(s_commands& com)
 {
 	if (com.client->getRegistered()) {
-		com.sendBuffer[com.index] = msg_err_alreadyregistered(com.client->getNickName());
+		this->sendBuffer[com.index] = msg_err_alreadyregistered(com.client->getNickName());
 		return;
 	}
 	std::map<int, Client*>::iterator it = com.clients->find(com.fd);
 	if (it != com.clients->end()) {
 		Client* client = it->second;
 		if (!client->getAuthenticated()) {
-			struct pollfd (&fds)[1024] = *getMyFds();
 			if (com.line.empty() || com.line == "\r" || com.line == "\n" || com.line == "\r\n") {
 				return ;
 			}

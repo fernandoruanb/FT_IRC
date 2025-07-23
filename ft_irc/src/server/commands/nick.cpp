@@ -20,6 +20,14 @@ bool	validNick(s_commands& com)
 */
 void	Server::nick(s_commands& com)
 {
+	if (!com.client->getAuthenticated()) {
+		this->sendBuffer[com.index] = my_notice_error(com.client->getNickName(), "You must authenticate first with the PASS command.");
+		return;
+	}
+	if (com.client->getRegistered()) {
+		this->sendBuffer[com.index] = msg_err_alreadyregistered(com.client->getNickName());
+		return;
+	}
 	if (!com.args.size())
 	{
 		this->sendBuffer[com.index].clear();

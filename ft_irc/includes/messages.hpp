@@ -14,6 +14,7 @@ std::string msg_err_notregistered();
 std::string msg_err_unknowncommand(const std::string& cmd);
 std::string msg_err_nosuchchannel(const std::string& nick, const std::string& channel);
 std::string msg_err_notonchannel(const std::string& nick, const std::string& channel);
+std::string msg_err_usernotinchannel(const std::string nick, const std::string& user, const std::string& channel);
 std::string msg_err_channelisfull(const std::string& nick, const std::string& channel);
 std::string msg_err_chanoprivsneeded(const std::string& nick, const std::string& channel, const std::string& message);
 std::string msg_err_erroneusnickname(const std::string& nick);
