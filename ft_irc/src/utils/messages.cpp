@@ -59,6 +59,10 @@ std::string msg_err_erroneusnickname(const std::string& nick) {
     return ":" SERVER_NAME " 432 * " + nick + " :Erroneous nickname\r\n";
 }
 
+std::string msg_err_alreadyregistered(const std::string& nick) {
+	return (":" SERVER_NAME " 462 " + nick + " :You may not reregister\r\n");
+}
+
 std::string msg_notice(const std::string& text) {
     return (CYAN ":" SERVER_NAME " NOTICE * : " YELLOW  + text + "\r\n" RESET);
 }

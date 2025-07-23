@@ -5,6 +5,10 @@
 */
 void	Server::user(s_commands	&com)
 {
+	if (com.client->getRegistered()){
+		com.sendBuffer[com.index] = msg_err_alreadyregistered(com.client->getNickName());
+		return;
+	}
 	size_t	len = com.args.size();
 
 	if (len < 3)
