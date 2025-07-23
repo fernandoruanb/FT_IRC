@@ -6,7 +6,7 @@
 /*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:36:43 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/21 19:07:12 by fcaldas-         ###   ########.fr       */
+/*   Updated: 2025/07/21 21:58:28 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,30 +36,14 @@ std::string	Channel::getOperatorsNames(void)
 	return (this->operatorsNames);
 }
 
-bool isMemberOfChannel(int clientFD) const
+bool Channel::isMemberOfChannel(int clientFD) const
 {
-	std::map<int, Client*>* clients = getClientsMap();
-	std::set<int>& members = this->getMembersSet();
-	for (std::set<int>::iterator it = members.begin(); it != members.end(); ++it)
-	{
-		std::map<int, Client*>::iterator itc = clients->find(*it);
-		if (itc != clients->end() && itc->second->getFD() == clientFD)
-			return true;
-	}
-	return false;
+	return (this->members.find(clientFD) != this->members.end());
 }
 
-bool isOperatorOfChannel(int clientFD) const
+bool Channel::isOperatorOfChannel(int fd) const
 {
-	std::map<int, Client*>* clients = getClientsMap();
-	std::set<int>& operators = this->getOperatorsSet();
-	for (std::set<int>::iterator it = operators.begin(); it != operators.end(); ++it)
-	{
-		std::map<int, Client*>::iterator itc = clients->find(*it);
-		if (itc != clients->end() && itc->second->getFD() == clientFD)
-			return true;
-	}
-	return false;
+	return (this->operators.find(fd) != this->operators.end());
 }
 
 std::string	Channel::getClientsNames(void)
