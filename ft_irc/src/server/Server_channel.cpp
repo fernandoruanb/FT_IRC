@@ -60,7 +60,7 @@ void	Server::createNewChannel(std::string Name, int clientFD)
 	std::map<int, Client*>::iterator it = clients->find(clientFD);
 	int	index;
 
-	if (numChannels == INT_MAX)
+	if (numChannels == 1024)
 	{
 		std::cerr << RED "Error: There are too many channels!!!" RESET << std::endl;
 		delete channel;
@@ -69,7 +69,7 @@ void	Server::createNewChannel(std::string Name, int clientFD)
 
 	if (!checkChannelName(Name))
 	{
-		std::cerr << RED "Error: The channel name cannot have comma, space and bell caracter" RESET << std::endl;
+		std::cerr << RED "Error: The channel name cannot have comma, space and bell character" RESET << std::endl;
 		delete channel;
 		return ;
 	}
@@ -613,5 +613,5 @@ void	Server::changeChannel(std::string channel, int clientFD)
 		}
 		itm++;
 	}
-	std::cerr << RED "Error: Impossible to change the channel because it's a ghost" RESET << std::endl;
+	createNewChannel(channel, clientFD);
 }

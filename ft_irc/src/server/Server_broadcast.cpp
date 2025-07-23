@@ -41,6 +41,7 @@ void    Server::broadcast(int sender, std::string line)
 		if (client->getAuthenticated() && client->getNickName() != "*" && client->getRegistered() && clientCurrentChannel == ownerChannel)
 		{
 			this->sendBuffer[index] += this->sendBuffer[sender];
+			this->sendBuffer[index] += " " + it->second->getNickName() + " :" + line;
 			fds[index].events |= POLLOUT;
 		}
 		if (client->getAuthenticated() && client->getNickName() != "*" && client->getRegistered() && clientCurrentChannel != ownerChannel)
@@ -48,10 +49,10 @@ void    Server::broadcast(int sender, std::string line)
 			if ((*clients)[fds[sender].fd]->getChannelsSet().find(clientChannelName) != (*clients)[fds[sender].fd]->getChannelsSet().end())
 			{
 				std::cout << "A mensagem do owner: " << line << std::endl;
-				(*clients)[fds[index].fd]->getSendHistory()[ownerChannel] += line;
+				(*clients)[fds[index].fd]->getSendHistory()[ownerChannel] += this->sendBuffer[sender] + " " + it->second->getNickName() + " :" + line;
 				std::cout << ORANGE "ownerChannelName: " << ownerChannelName << std::endl;
 				std::cout << BRIGHT_GREEN "clientChannelName: " << clientChannelName << RESET << std::endl;
-				std::cout << "O History: " << (*clients)[fds[index].fd]->getSendHistory()[ownerChannel] << std::endl;
+				std::cout << "The History: " << (*clients)[fds[index].fd]->getSendHistory()[ownerChannel] << std::endl;
 			}
 		}
 		index++;

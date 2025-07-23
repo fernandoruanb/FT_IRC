@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/23 12:27:23 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/23 14:29:38 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,7 @@ void	Server::addNewClient(int clientFD)
 		if (clientFD == 4)
 		{
 			this->createNewChannel("One", clientFD);
-			//this->changeChannel("Generic", clientFD);
+			this->changeChannel("Generic", clientFD);
 		}
 		if (clientFD == 5)
 		{
