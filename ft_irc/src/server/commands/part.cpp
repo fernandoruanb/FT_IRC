@@ -8,20 +8,20 @@ void	Server::part(s_commands& com)
 		return ;
 	}
 	std::string	msg;
-	bool		foundMsg = false;
+	bool		haveMsg = false;
 	for (int i = 0; i < com.args.size(); ++i) {
 		if (com.args[i].size() > 0 && com.args[i][0] == ':') {
 			msg = com.args[i].substr(1);
-			foundMsg = true;
+			haveMsg = true;
 			continue ;
 		}
-		if (foundMsg) {
+		if (haveMsg) {
 			msg += " " + com.args[i];
 		}
 	}
 	for (int i = 0; i < com.args.size(); ++i) {
 		if (com.args[i][0] == ':')
-			continue ;
+			break ;
 		if (com.args[i].empty() || com.args[i][0] != '#') {
 			this->sendBuffer[com.index] += msg_err_nosuchchannel(com.args[i]);
 			continue ;
@@ -38,7 +38,7 @@ void	Server::part(s_commands& com)
 			continue ;
 		}
 		channel->removeMember(clientIndex);
-		if (foundMsg) {
+		if (haveMsg) {
 			this->sendBuffer[com.index] += ":" + getClientsMap()->find(com.fd)->second->getNickName() + "!" + getClientsMap()->find(com.fd)->second->getUserName() + " PART " + com.args[i] + " :" + msg + "\n";
 			broadcast(com.index);
 		} else {
