@@ -1,19 +1,22 @@
 #include "../../includes/Server.hpp"
 
-void    Server::broadcast(int sender)
+void    Server::broadcast(int sender, std::string line)
 {
 	struct pollfd (&fds)[1024] = *getMyFds();
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Client*>::iterator it = clients->find(fds[sender].fd);
-	std::string	channelName;
+	std::map<int, Client*>::iterator itc;
+	std::string	clientChannelName;
+	std::string	ownerChannelName;
 	if (it == clients->end())
 	{
 		std::cerr << RED "Error: The owner is a ghost!!!" RESET << std::endl;
 		return ;
 	}
-	int	channelTarget = it->second->getChannelOfTime();
-	int	channel;
+	int	ownerChannel = it->second->getChannelOfTime();
+	ownerChannelName = (*channels)[ownerChannel]->getName();
+	int	clientCurrentChannel;
 	int    index;
 
     index = 1;
@@ -32,23 +35,24 @@ void    Server::broadcast(int sender)
 		index++;
 		continue ;
 	   }
-	   channel = it->second->getChannelOfTime();
-	   channelName = (*channels)[channel]->getName();
+	   clientCurrentChannel = it->second->getChannelOfTime();
+	   clientChannelName = (*channels)[clientCurrentChannel]->getName();
            Client* client = it->second;
-		if (client->getAuthenticated() && client->getNickName() != "*" && client->getRegistered() && channelTarget == channel)
+		if (client->getAuthenticated() && client->getNickName() != "*" && client->getRegistered() && clientCurrentChannel == ownerChannel)
 		{
 			this->sendBuffer[index] += this->sendBuffer[sender];
 			fds[index].events |= POLLOUT;
 		}
-		if (client->getAuthenticated() && client->getNickName() != "*" && client->getRegistered() && channelTarget != channel
-		&& client->getChannelsSet().find(channelName) != client->getChannelsSet().end())
+		if (client->getAuthenticated() && client->getNickName() != "*" && client->getRegistered() && clientCurrentChannel != ownerChannel)
 		{
-			std::cout << "A mensagem do owner: " << this->sendBuffer[sender] << std::endl;
-			this->sendHistory[index] += this->sendBuffer[sender];
-			std::cout << ORANGE "ChannelOwner: " << channelName << std::endl;
-			channelName = (*channels)[channelTarget]->getName();
-			std::cout << BRIGHT_GREEN "ChannelTarget: " << channelName << RESET << std::endl;
-			std::cout << "O History: " << this->sendHistory[index] << std::endl;
+			if ((*clients)[fds[sender].fd]->getChannelsSet().find(clientChannelName) != (*clients)[fds[sender].fd]->getChannelsSet().end())
+			{
+				std::cout << "A mensagem do owner: " << line << std::endl;
+				(*clients)[fds[index].fd]->getSendHistory()[ownerChannel] += line;
+				std::cout << ORANGE "ownerChannelName: " << ownerChannelName << std::endl;
+				std::cout << BRIGHT_GREEN "clientChannelName: " << clientChannelName << RESET << std::endl;
+				std::cout << "O History: " << (*clients)[fds[index].fd]->getSendHistory()[ownerChannel] << std::endl;
+			}
 		}
 		index++;
         }

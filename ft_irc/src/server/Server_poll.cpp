@@ -90,7 +90,7 @@ void	Server::PollInputClientMonitoring(void)
 					this->sendBuffer[index].clear();
 					if (!isEmptyInput(line))
 					this->sendBuffer[index] += "\n" + std::string(YELLOW) + (*clients)[fds[index].fd]->getNickName() + RESET + ": " + line;
-					this->broadcast(index);
+					this->broadcast(index, line);
 					//this->privmsg(index - 1, "You are very special =D\n");
 					fds[index].events |= POLLOUT;
 				}
@@ -119,6 +119,7 @@ void	Server::PollOutMonitoring(void)
 	int	index;
 	ssize_t	bytes;
 	ssize_t	bytes2;
+	ssize_t	bytes3;
 	struct pollfd (&fds)[1024] = *getMyFds();
 
 	index = 0;
@@ -127,6 +128,9 @@ void	Server::PollOutMonitoring(void)
 		if (fds[index].revents & POLLOUT)
 		{
 			it = clients->find(fds[index].fd);
+
+			bytes3	= send(fds[index].fd, it->second->getSendHistory()[it->second->getChannelOfTime()].c_str(), it->second->getSendHistory()[it->second->getChannelOfTime()].size(), 0);
+
 			/*
 				This is a test-doesn't workd properly
 				what it does
@@ -142,7 +146,9 @@ void	Server::PollOutMonitoring(void)
 			bytes2 = send(fds[index].fd, it->second->getBufferOut().c_str(), it->second->getBufferOut().size(), 0);
 			if (bytes2 > 0)
 				it->second->getBufferOut().erase(0, bytes2);
-			if (this->sendBuffer[index].empty() && it->second->getBufferOut().empty())
+			if (bytes3 > 0)
+				it->second->getSendHistory()[it->second->getChannelOfTime()].erase(0, bytes3);
+			if (this->sendBuffer[index].empty() && it->second->getBufferOut().empty() && it->second->getSendHistory()[it->second->getChannelOfTime()].empty())
 				fds[index].events &= ~POLLOUT;
 		}
 		++index;

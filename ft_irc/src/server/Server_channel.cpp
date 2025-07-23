@@ -527,6 +527,7 @@ void	Server::changeChannel(std::string channel, int clientFD)
 	std::string	message;
 	std::string	time;
 	std::string	topic;
+	int	clientIndex;
 	int	channelIndex;
 	int	messageTarget = 0;
 	if (itc == clients->end())
@@ -534,6 +535,8 @@ void	Server::changeChannel(std::string channel, int clientFD)
 		std::cerr << RED "Error: The client is a ghost trying to changing a channel" RESET << std::endl;
 		return ;
 	}
+	clientIndex = getClientsIndex(clientFD);
+	fds[clientIndex].events |= POLLOUT;
 	Client* client = itc->second;
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Channel*>::iterator itm;

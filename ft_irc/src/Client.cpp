@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/21 17:40:11 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/23 13:11:13 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,6 +139,11 @@ std::string	Client::getHost(void) const
 std::set<std::string>&	Client::getOperatorChannels(void)
 {
 	return (operatorChannels);
+}
+
+std::string	(&Client::getSendHistory(void))[1024]
+{
+	return (sendHistory);
 }
 
 std::ostream& operator<<(std::ostream &out, const Client &other)
