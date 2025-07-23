@@ -46,7 +46,7 @@ void    Server::broadcast(int sender, std::string line)
 		}
 		if (client->getAuthenticated() && client->getNickName() != "*" && client->getRegistered() && clientCurrentChannel != ownerChannel)
 		{
-			if ((*clients)[fds[sender].fd]->getChannelsSet().find(clientChannelName) != (*clients)[fds[sender].fd]->getChannelsSet().end())
+			if ((*clients)[fds[sender].fd]->getChannelsSet().find(clientChannelName) != (*clients)[fds[sender].fd]->getChannelsSet().end() && (*clients)[fds[index].fd]->getChannelsSet().find(ownerChannelName) != (*clients)[fds[index].fd]->getChannelsSet().end())
 			{
 				std::cout << "A mensagem do owner: " << line << std::endl;
 				(*clients)[fds[index].fd]->getSendHistory()[ownerChannel] += this->sendBuffer[sender] + " " + it->second->getNickName() + " :" + line;
