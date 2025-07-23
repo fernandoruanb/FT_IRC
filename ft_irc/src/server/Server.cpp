@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/21 20:13:03 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/23 18:42:13 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,8 +61,6 @@ void	Server::addNewClient(int clientFD)
 {
 	int	index;
 	struct pollfd (&fds)[1024] = getPollFds();
-	std::map<int, Channel*>* channels = getChannelsMap();
-	std::map<int, Channel*>::iterator it = channels->find(0);
 	index = 1;
 	while (index < 1024)
 	{
@@ -76,36 +74,10 @@ void	Server::addNewClient(int clientFD)
 		return ;
 	}
 	(*this->clients)[clientFD] = new Client(clientFD);
-	Client* theClient = (*this->clients)[clientFD];
-	theClient->getChannelsSet().insert("Generic");
-	theClient->setChannelOfTime(0);
 	fds[index].fd = clientFD;
 	fds[index].events = POLLIN;
 	fcntl(clientFD, F_SETFL, O_NONBLOCK);
 	this->numClients++;
-	if (it != channels->end())
-	{
-		std::cout << LIGHT_BLUE "Adding new client " << YELLOW << clientFD << LIGHT_BLUE " To generic channel =D" << std::endl;
-		Channel* generic = it->second;
-		generic->addNewMember(clientFD);
-		if (clientFD == 4)
-		{
-			this->createNewChannel("One", clientFD);
-			this->changeChannel("Generic", clientFD);
-		}
-		if (clientFD == 5)
-		{
-			this->createNewChannel("Two", clientFD);
-			//this->deleteChannel("Nine", clientFD);
-			//this->changeChannel("Six", clientFD);
-			this->changeTopic("Two", clientFD, "Masters of Universe");
-			//this->inviteToChannel("Three", clientFD, 4);
-			//this->kickFromChannel("Seven", clientFD, 4);
-
-			//descomentar dps
-			// this->changeChannel("Generic", clientFD);
-		}
-	}
 	// NOTICE message to the new client. Asking for authentication.
 	this->sendBuffer[index] = msg_notice("Connected. Please authenticate with \"PASS <password>\"");
 	fds[index].events |= POLLOUT;

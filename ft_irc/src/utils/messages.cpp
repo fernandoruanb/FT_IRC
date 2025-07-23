@@ -47,6 +47,10 @@ std::string msg_err_notonchannel(const std::string& nick, const std::string& cha
     return ":" SERVER_NAME " 442 " + nick + " #" + channel + " :You're not on that channel\r\n";
 }
 
+std::string msg_err_usernotinchannel(const std::string nick, const std::string& user, const std::string& channel) {
+	return ":" SERVER_NAME " 441 * " + nick + " " + user + " " + channel + " :They aren't on that channel\r\n";
+}
+
 std::string msg_err_channelisfull(const std::string& nick, const std::string& channel) {
     return ":" SERVER_NAME " 471 " + nick + " #" + channel + " :Cannot join channel (+l)\r\n";
 }
@@ -57,6 +61,10 @@ std::string msg_err_chanoprivsneeded(const std::string& nick, const std::string&
 
 std::string msg_err_erroneusnickname(const std::string& nick) {
     return ":" SERVER_NAME " 432 * " + nick + " :Erroneous nickname\r\n";
+}
+
+std::string msg_err_alreadyregistered(const std::string& nick) {
+	return (":" SERVER_NAME " 462 " + nick + " :You may not reregister\r\n");
 }
 
 std::string msg_notice(const std::string& text) {
@@ -133,4 +141,24 @@ std::string	my_join_rpl_endofnames(const std::string &nick, const std::string& c
 std::string	my_part_message(const std::string& nick, const std::string& user, const std::string& host, const std::string& channel,  const std::string& message)
 {
 	return (":" + nick + "!" + user + "@" + host + " PART " + "#" + channel + " :" + message + "\r\n");
+}
+
+std::string	my_useronchannel(const std::string& owner, const std::string& nick, const std::string& channel, const std::string& message)
+{
+	return (":" SERVER_NAME " 443 " + owner + " " + nick + " #" + channel + " :" + message + "\r\n");
+}
+
+std::string	my_notonchannel(const std::string& nick, const std::string& channel, const std::string& message)
+{
+	return (":" SERVER_NAME " 442 " + nick + " #" + channel + " :" + message + "\r\n");
+}
+
+std::string	my_nosuchnickchannel(const std::string& nick, const std::string& target ,const std::string& channel, const std::string& message)
+{
+	return (":" SERVER_NAME " 401 " + nick + " " + target + " #" + channel + " :" + message + "\r\n");
+}
+
+std::string	my_usernotinchannel(std::string& nick, const std::string& target, const std::string& channel, const std::string& message)
+{
+	return (":" SERVER_NAME " 441 " + nick + " " + target + " #" + channel + " :" + message + "\r\n");
 }

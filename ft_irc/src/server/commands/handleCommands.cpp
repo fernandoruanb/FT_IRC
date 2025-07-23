@@ -80,6 +80,12 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 
 	(this->*(myMap[command]))(com);
 	std::cout << "getRegistred: " << com.client->getRegistered() << std::endl;
+	if (com.client->getAuthenticated() && com.client->getRegistered() && com.client->getChannelsSet().find("Generic") == com.client->getChannelsSet().end())
+	{
+		changeChannel("Generic", com.fd);
+		com.client->getChannelsSet().insert("Generic");
+		com.client->setChannelOfTime(0);
+	}
 	fds[com.index].events |= POLLOUT;
 	// Limpa o buffer do cliente após processar comando válido
 	// this->recvBuffer[com.index].clear();

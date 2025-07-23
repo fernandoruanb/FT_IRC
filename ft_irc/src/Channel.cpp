@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:36:43 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/20 18:36:43 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/23 17:28:45 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,16 @@ std::string	Channel::getOperatorsNames(void)
 		++it;
 	}
 	return (this->operatorsNames);
+}
+
+bool Channel::isMemberOfChannel(int clientFD) const
+{
+	return (this->members.find(clientFD) != this->members.end());
+}
+
+bool Channel::isOperatorOfChannel(int fd) const
+{
+	return (this->operators.find(fd) != this->operators.end());
 }
 
 std::string	Channel::getClientsNames(void)
@@ -162,7 +172,7 @@ void	Channel::setInviteFlag(bool inviteflag)
 
 void	Channel::setTopicFlag(bool topicflag)
 {
-	this->topicFlag = topicflag;	
+	this->topicFlag = topicflag;
 }
 
 std::string	Channel::getName(void) const
@@ -194,6 +204,7 @@ void	Channel::setMode(const std::string& mod)
 {
 	this->mode = mod;
 }
+
 const std::string&	Channel::getMode(void) const
 {
 	return (mode);

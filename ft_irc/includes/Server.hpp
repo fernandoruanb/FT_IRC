@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/21 17:03:58 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/23 17:57:34 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include "Channel.hpp"
 # include "Client.hpp"
 # include <iostream>
+# include <cstdlib>
 # include <fcntl.h>
 # include <signal.h>
 # include <poll.h>
@@ -75,10 +76,12 @@ class	Server
 		bool	*running;
 		Server&	operator=(const Server &other);
 		Server(const Server &other);
+
 		void    inviteToChannel(std::string channelName, int operatorFD, int clientFD);
 		bool	checkName(std::string Name);
 		void	changeChannelInviteFlag(std::string channel, bool flag);
 		int	getChannelsIndex(std::string channel);
+		bool    AuthenticationKeyProcess(const std::string channel, const std::string key);
 		int	getClientsIndex(int clientFD);
 		void    promotionChannelOperator(std::string channel, int owner, int clientFD);
 		void	changeChannel(std::string Name, int clientFD);
@@ -91,7 +94,7 @@ class	Server
 		void	startIRCService(void);
 		void	manageBuffers(int index);
 		void	shutdownService(void);
-		void	broadcast(int index);
+		void	broadcast(int index, std::string line);
 		void	chargePrivileges(int target);
 		void	startPollFds(void);
 		bool	handleClientAuthentication(std::map<int, Client*>* clients, int fd, char* buffer, int pollIndex);

@@ -2,11 +2,14 @@
 
 void	Server::pass(s_commands& com)
 {
+	if (com.client->getRegistered()) {
+		this->sendBuffer[com.index] = msg_err_alreadyregistered(com.client->getNickName());
+		return;
+	}
 	std::map<int, Client*>::iterator it = com.clients->find(com.fd);
 	if (it != com.clients->end()) {
 		Client* client = it->second;
 		if (!client->getAuthenticated()) {
-			struct pollfd (&fds)[1024] = *getMyFds();
 			if (com.line.empty() || com.line == "\r" || com.line == "\n" || com.line == "\r\n") {
 				return ;
 			}
@@ -17,18 +20,15 @@ void	Server::pass(s_commands& com)
 					client->setAuthenticated(true);
 					this->sendBuffer[com.index].clear();
 					this->sendBuffer[com.index] += msg_notice("Authentication successful");
-					fds[com.index].events |= POLLOUT;
 					return ;
 				} else {	
 					this->sendBuffer[com.index].clear();
 					this->sendBuffer[com.index] += msg_err_passwdmismatch();
-					fds[com.index].events |= POLLOUT;
 					return ;
 				}
 			} else {
 				this->sendBuffer[com.index].clear();
 				this->sendBuffer[com.index] += msg_err_needmoreparams("PASS");
-				fds[com.index].events |= POLLOUT;
 				return ;
 			}
 		}

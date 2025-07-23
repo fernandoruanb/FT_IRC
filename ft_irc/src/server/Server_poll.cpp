@@ -37,17 +37,19 @@ static bool	checkSignUp(Client* &client, std::string &sendBuffer, int i)
 {
 	struct pollfd (&fds)[1024] = *getMyFds();
 
-	if (!client->getAuthenticated()) {
-		sendBuffer += msg_err_notregistered();
-		fds[i].events |= POLLOUT;
-		std::cout << RED "Client not authenticated, sending error message." RESET << std::endl;
-		return (false);
-	}
+	// if (!client->getAuthenticated()) {
+	// 	sendBuffer += msg_err_notregistered();
+	// 	fds[i].events |= POLLOUT;
+	// 	std::cout << RED "Client not authenticated, sending error message." RESET << std::endl;
+	// 	return (false);
+	// }
 	if (!client->getRegistered() || client->getNickName() == "*")
 	{
 		sendBuffer += msg_err_notregistered();
-		sendBuffer += msg_notice("Please set your user: USER <username> <hostname> <servername> : <realname>");
-		sendBuffer += msg_notice("Please set your nick: NICK <nickname>");
+		sendBuffer += msg_notice("Please assure the following commands are set:");
+		sendBuffer += msg_notice("Password: PASS <password>");
+		sendBuffer += msg_notice("Nick: NICK <nickname>");
+		sendBuffer += msg_notice("User: USER <username> <hostname> <servername> : <realname>");
 		std::cout << RED "Client not registered, sending error message." RESET << std::endl;
 		fds[i].events |= POLLOUT;
 		return (false);
@@ -89,8 +91,8 @@ void	Server::PollInputClientMonitoring(void)
 
 					this->sendBuffer[index].clear();
 					if (!isEmptyInput(line))
-					this->sendBuffer[index] += "\n" + std::string(YELLOW) + (*clients)[fds[index].fd]->getNickName() + RESET + ": " + line;
-					this->broadcast(index);
+					this->sendBuffer[index] += std::string("\n:") + (*clients)[fds[index].fd]->getNickName() + "!" + (*clients)[fds[index].fd]->getUserName() + "@" + (*clients)[fds[index].fd]->getHost() + " PRIVMSG";
+					this->broadcast(index, line);
 					//this->privmsg(index - 1, "You are very special =D\n");
 					fds[index].events |= POLLOUT;
 				}
@@ -119,6 +121,7 @@ void	Server::PollOutMonitoring(void)
 	int	index;
 	ssize_t	bytes;
 	ssize_t	bytes2;
+	ssize_t	bytes3;
 	struct pollfd (&fds)[1024] = *getMyFds();
 
 	index = 0;
@@ -127,6 +130,7 @@ void	Server::PollOutMonitoring(void)
 		if (fds[index].revents & POLLOUT)
 		{
 			it = clients->find(fds[index].fd);
+
 			/*
 				This is a test-doesn't workd properly
 				what it does
@@ -142,7 +146,10 @@ void	Server::PollOutMonitoring(void)
 			bytes2 = send(fds[index].fd, it->second->getBufferOut().c_str(), it->second->getBufferOut().size(), 0);
 			if (bytes2 > 0)
 				it->second->getBufferOut().erase(0, bytes2);
-			if (this->sendBuffer[index].empty() && it->second->getBufferOut().empty())
+			bytes3	= send(fds[index].fd, it->second->getSendHistory()[it->second->getChannelOfTime()].c_str(), it->second->getSendHistory()[it->second->getChannelOfTime()].size(), 0);
+			if (bytes3 > 0)
+				it->second->getSendHistory()[it->second->getChannelOfTime()].erase(0, bytes3);
+			if (this->sendBuffer[index].empty() && it->second->getBufferOut().empty() && it->second->getSendHistory()[it->second->getChannelOfTime()].empty())
 				fds[index].events &= ~POLLOUT;
 		}
 		++index;

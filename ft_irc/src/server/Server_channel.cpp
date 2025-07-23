@@ -60,7 +60,7 @@ void	Server::createNewChannel(std::string Name, int clientFD)
 	std::map<int, Client*>::iterator it = clients->find(clientFD);
 	int	index;
 
-	if (numChannels == INT_MAX)
+	if (numChannels == 1024)
 	{
 		std::cerr << RED "Error: There are too many channels!!!" RESET << std::endl;
 		delete channel;
@@ -69,7 +69,7 @@ void	Server::createNewChannel(std::string Name, int clientFD)
 
 	if (!checkChannelName(Name))
 	{
-		std::cerr << RED "Error: The channel name cannot have comma, space and bell caracter" RESET << std::endl;
+		std::cerr << RED "Error: The channel name cannot have comma, space and bell character" RESET << std::endl;
 		delete channel;
 		return ;
 	}
@@ -246,6 +246,7 @@ void	Server::changeTopic(std::string channelName, int clientFD, std::string topi
 	{
 		std::cerr << RED "Error: The channel doesn't exist to change topic" RESET << std::endl;
 		itc->second->getBufferOut() += msg_err_nosuchchannel(nick, channelName);
+		fds[itc->first].events |= POLLOUT;
 		return ;
 	}
 	nick = itc->second->getNickName();
@@ -434,6 +435,20 @@ void	Server::removeOperatorPrivilegesFromEveryBody(std::string channel)
 	std::cout << BRIGHT_GREEN "The channel " << ORANGE << channel << BRIGHT_GREEN " was cleaned successfully" RESET << std::endl;
 }
 
+bool	Server::AuthenticationKeyProcess(const std::string channel, const std::string key)
+{
+	std::map<int, Channel*>* channels = getChannelsMap();
+	std::string	password;
+	int	index;
+
+	index = getChannelsIndex(channel);
+	password = (*channels)[index]->getPassWord();
+
+	if (key == password)
+		return (true);
+	return (false);
+}
+
 void	Server::deleteChannel(std::string channel, int clientFD)
 {
 	std::map<int, Channel*>* channels = getChannelsMap();
@@ -512,6 +527,7 @@ void	Server::changeChannel(std::string channel, int clientFD)
 	std::string	message;
 	std::string	time;
 	std::string	topic;
+	int	clientIndex;
 	int	channelIndex;
 	int	messageTarget = 0;
 	if (itc == clients->end())
@@ -519,6 +535,8 @@ void	Server::changeChannel(std::string channel, int clientFD)
 		std::cerr << RED "Error: The client is a ghost trying to changing a channel" RESET << std::endl;
 		return ;
 	}
+	clientIndex = getClientsIndex(clientFD);
+	fds[clientIndex].events |= POLLOUT;
 	Client* client = itc->second;
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Channel*>::iterator itm;
@@ -595,5 +613,5 @@ void	Server::changeChannel(std::string channel, int clientFD)
 		}
 		itm++;
 	}
-	std::cerr << RED "Error: Impossible to change the channel because it's a ghost" RESET << std::endl;
+	createNewChannel(channel, clientFD);
 }
