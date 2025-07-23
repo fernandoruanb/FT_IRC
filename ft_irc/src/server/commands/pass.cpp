@@ -2,6 +2,10 @@
 
 void	Server::pass(s_commands& com)
 {
+	if (com.client->getRegistered()) {
+		com.sendBuffer[com.index] = msg_err_alreadyregistered(com.client->getNickName());
+		return;
+	}
 	std::map<int, Client*>::iterator it = com.clients->find(com.fd);
 	if (it != com.clients->end()) {
 		Client* client = it->second;

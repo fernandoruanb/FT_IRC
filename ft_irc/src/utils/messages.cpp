@@ -39,28 +39,32 @@ std::string msg_err_unknowncommand(const std::string& cmd) {
     return ":" SERVER_NAME " 421 * " + cmd + " :Unknown command\r\n";
 }
 
-std::string msg_err_nosuchchannel(const std::string& channel) {
-    return ":" SERVER_NAME " 403 * " + channel + " :No such channel\r\n";
+std::string msg_err_nosuchchannel(const std::string& nick, const std::string& channel) {
+    return ":" SERVER_NAME " 403 " + nick + " #" + channel + " :No such channel\r\n";
 }
 
-std::string msg_err_notonchannel(const std::string& channel) {
-    return ":" SERVER_NAME " 442 * " + channel + " :You're not on that channel\r\n";
+std::string msg_err_notonchannel(const std::string& nick, const std::string& channel) {
+    return ":" SERVER_NAME " 442 " + nick + " #" + channel + " :You're not on that channel\r\n";
 }
 
 std::string msg_err_usernotinchannel(const std::string& user, const std::string& channel) {
 	return ":" SERVER_NAME " 441 * " + user + " :They aren't on that channel\r\n";
 }
 
-std::string msg_err_channelisfull(const std::string& channel) {
-    return ":" SERVER_NAME " 471 * " + channel + " :Cannot join channel (+l)\r\n";
+std::string msg_err_channelisfull(const std::string& nick, const std::string& channel) {
+    return ":" SERVER_NAME " 471 " + nick + " #" + channel + " :Cannot join channel (+l)\r\n";
 }
 
-std::string msg_err_chanoprivsneeded(const std::string& channel) {
-    return ":" SERVER_NAME " 482 * " + channel + " :You're not channel operator\r\n";
+std::string msg_err_chanoprivsneeded(const std::string& nick, const std::string& channel, const std::string& message) {
+    return ":" SERVER_NAME " 482 " + nick + " #" + channel + message +"\r\n";
 }
 
 std::string msg_err_erroneusnickname(const std::string& nick) {
     return ":" SERVER_NAME " 432 * " + nick + " :Erroneous nickname\r\n";
+}
+
+std::string msg_err_alreadyregistered(const std::string& nick) {
+	return (":" SERVER_NAME " 462 " + nick + " :You may not reregister\r\n");
 }
 
 std::string msg_notice(const std::string& text) {
@@ -76,8 +80,7 @@ std::string	msg_error(const std::string &message, int error_code, s_commands& co
 }
 void	callCmdMsg(const std::string &message, int error, s_commands& com, std::string &buffer)
 {
-	buffer.clear();
-	buffer = msg_error(message, error, com);
+	buffer += msg_error(message, error, com);
 }
 
 std::string	my_notice_info(const std::string& nickname, const std::string& message)
@@ -138,4 +141,24 @@ std::string	my_join_rpl_endofnames(const std::string &nick, const std::string& c
 std::string	my_part_message(const std::string& nick, const std::string& user, const std::string& host, const std::string& channel,  const std::string& message)
 {
 	return (":" + nick + "!" + user + "@" + host + " PART " + "#" + channel + " :" + message + "\r\n");
+}
+
+std::string	my_useronchannel(const std::string& owner, const std::string& nick, const std::string& channel, const std::string& message)
+{
+	return (":" SERVER_NAME " 443 " + owner + " " + nick + " #" + channel + " :" + message + "\r\n");
+}
+
+std::string	my_notonchannel(const std::string& nick, const std::string& channel, const std::string& message)
+{
+	return (":" SERVER_NAME " 442 " + nick + " #" + channel + " :" + message + "\r\n");
+}
+
+std::string	my_nosuchnickchannel(const std::string& nick, const std::string& target ,const std::string& channel, const std::string& message)
+{
+	return (":" SERVER_NAME " 401 " + nick + " " + target + " #" + channel + " :" + message + "\r\n");
+}
+
+std::string	my_usernotinchannel(std::string& nick, const std::string& target, const std::string& channel, const std::string& message)
+{
+	return (":" SERVER_NAME " 441 " + nick + " " + target + " #" + channel + " :" + message + "\r\n");
 }

@@ -5,6 +5,10 @@
 */
 void	Server::user(s_commands	&com)
 {
+	if (com.client->getRegistered()){
+		com.sendBuffer[com.index] = msg_err_alreadyregistered(com.client->getNickName());
+		return;
+	}
 	size_t	len = com.args.size();
 
 	if (len < 3)
@@ -12,6 +16,7 @@ void	Server::user(s_commands	&com)
 
 	if (com.args[0] == "*" || com.args[0] == "system")
 		return (callCmdMsg("Not enough parameters", 461, com, com.sendBuffer));
+
 	com.client->setUserName(com.args[0]);
 	com.client->setHost(com.args[1]);
 	com.client->setServerName(com.args[2]);
@@ -30,6 +35,7 @@ void	Server::user(s_commands	&com)
 		
 		com.client->setRealName(name);
 	}
-	com.client->setRegistered(true);
+	if (com.client->getNickName() != "*")
+		com.client->setRegistered(true);
 	this->sendBuffer[com.index] = "Hello " + com.client->getUserName() + "@" + com.client->getHost() + " " + com.client->getServerName() + " " + com.client->getRealName() + "\n";
 }

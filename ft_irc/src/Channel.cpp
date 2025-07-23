@@ -6,7 +6,7 @@
 /*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:36:43 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/21 21:58:28 by fcaldas-         ###   ########.fr       */
+/*   Updated: 2025/07/23 17:28:45 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,7 +172,7 @@ void	Channel::setInviteFlag(bool inviteflag)
 
 void	Channel::setTopicFlag(bool topicflag)
 {
-	this->topicFlag = topicflag;	
+	this->topicFlag = topicflag;
 }
 
 std::string	Channel::getName(void) const
@@ -204,6 +204,7 @@ void	Channel::setMode(const std::string& mod)
 {
 	this->mode = mod;
 }
+
 const std::string&	Channel::getMode(void) const
 {
 	return (mode);

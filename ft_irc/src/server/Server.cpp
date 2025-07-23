@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
+/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/21 11:42:01 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/23 14:29:38 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,7 @@ void	Server::addNewClient(int clientFD)
 			this->changeTopic("Two", clientFD, "Masters of Universe");
 			//this->inviteToChannel("Three", clientFD, 4);
 			//this->kickFromChannel("Seven", clientFD, 4);
+			this->changeChannel("One", clientFD);
 			this->changeChannel("Generic", clientFD);
 		}
 	}
@@ -150,7 +151,10 @@ Server::Server(std::string portCheck, std::string password): numChannels(0)
 		this->channels = getChannelsMap();
 		(*channels)[0] = new Channel("Generic");
 		numChannels++;
-		//this->createNewChannel("One");
+		//isso eh um test
+		// this->createNewChannel("One", 5);
+		// this->changeChannel("One", 5);
+
 		port = atoiIRC(portCheck);
 		if (port == -1)
 			throw std::exception();

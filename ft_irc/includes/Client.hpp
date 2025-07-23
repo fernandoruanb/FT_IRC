@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:22:05 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/19 12:23:02 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/23 13:08:21 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ class	Client
 		std::string		nickname;
 		std::string		username;
 		std::string		realname;
+		std::string		sendHistory[1024];
 		std::string		bufferIn;
 		std::string		bufferOut;
 		std::string		host;
@@ -71,6 +72,7 @@ class	Client
 		bool			getIsOperator(void) const;
 		bool			getRegistered(void) const;
 		std::string		getHost(void) const; // nickname!username@host
+		std::string     (&getSendHistory(void))[1024];
 		std::set<int>&	getChannels(void);
 };
 std::ostream& operator<<(std::ostream &out, const Client &other);

@@ -60,7 +60,7 @@ void	Server::createNewChannel(std::string Name, int clientFD)
 	std::map<int, Client*>::iterator it = clients->find(clientFD);
 	int	index;
 
-	if (numChannels == INT_MAX)
+	if (numChannels == 1024)
 	{
 		std::cerr << RED "Error: There are too many channels!!!" RESET << std::endl;
 		delete channel;
@@ -69,7 +69,7 @@ void	Server::createNewChannel(std::string Name, int clientFD)
 
 	if (!checkChannelName(Name))
 	{
-		std::cerr << RED "Error: The channel name cannot have comma, space and bell caracter" RESET << std::endl;
+		std::cerr << RED "Error: The channel name cannot have comma, space and bell character" RESET << std::endl;
 		delete channel;
 		return ;
 	}
@@ -166,14 +166,19 @@ void	Server::inviteToChannel(std::string channelName, int operatorFD, int client
 		std::cerr << RED "Error: The operator doesn't exist. It's a ghost!" RESET << std::endl;
 		return ;
 	}
+	nick = itc->second->getNickName();
 	if (!itc->second->getIsOperator())
 	{
 		std::cerr << RED "Error: There is someone trying to invite other people without enough permissions" RESET << std::endl;
+		itc->second->getBufferOut() += msg_err_chanoprivsneeded(nick, channelName, "You are not an operator");
+		fds[itc->first].events |= POLLOUT;
 		return ;
 	}
 	if (itc->second->getOperatorChannels().find(channelName) == itc->second->getOperatorChannels().end())
 	{
 		std::cerr << RED "Error: The operator is a valid operator but not from that channel" RESET << std::endl;
+		itc->second->getBufferOut() += msg_err_chanoprivsneeded(nick, channelName, "You are not an operator of that channel");
+		fds[itc->first].events |= POLLOUT;
 		return ;
 	}
 	itc = clients->find(clientFD);
@@ -232,28 +237,42 @@ void	Server::changeTopic(std::string channelName, int clientFD, std::string topi
 				break ;
 		}
 	}
-	if (it == channels->end())
-	{
-		std::cerr << RED "Error: The channel doesn't exist to change topic" RESET << std::endl;
-		return ;
-	}
 	if (itc == clients->end())
 	{
 		std::cerr << RED "Error: A ghost can't change the channel topic" RESET << std::endl;
 		return ;
 	}
+	if (it == channels->end())
+	{
+		std::cerr << RED "Error: The channel doesn't exist to change topic" RESET << std::endl;
+		itc->second->getBufferOut() += msg_err_nosuchchannel(nick, channelName);
+		fds[itc->first].events |= POLLOUT;
+		return ;
+	}
+	nick = itc->second->getNickName();
 	isOperator = itc->second->getIsOperator();
 	if (it->second->getTopicFlag())
 	{
 		if (!isOperator)
 		{
 			std::cerr << RED "Error: The client isn't a true operator to do privileged action" RESET << std::endl;
+			itc->second->getBufferOut() += msg_err_chanoprivsneeded(nick, channelName, "You are not an operator");
+			fds[itc->first].events |= POLLOUT;
+			return ;
+		}
+		if (itc->second->getOperatorChannels().find(channelName) == itc->second->getOperatorChannels().end())
+		{
+			std::cerr << RED "Error: The client is an operator but not from that channel" RESET << std::endl;
+			itc->second->getBufferOut() += msg_err_chanoprivsneeded(nick, channelName, "You are not an operator of that channel");
+			fds[itc->first].events |= POLLOUT; 
 			return ;
 		}
 	}
 	if (it->first != itc->second->getChannelOfTime())
 	{
+		itc->second->getBufferOut() += msg_err_notonchannel(nick, channelName);
 		std::cerr << RED "Error: You can't change a topic in another channel" RESET << std::endl;
+		fds[itc->first].events |= POLLOUT;
 		return ;
 	}
 	oss << timestamp;
@@ -323,10 +342,13 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
 		std::cerr << RED "Error: There is a ghost trying to kick someone!!!" RESET << std::endl;
 		return ;
 	}
+	nick = itch->second->getNickName();
 	isOperator = itch->second->getIsOperator();
 	if (!isOperator)
 	{
 		std::cerr << RED "Error: The owner isn't a true operator of the channel " << YELLOW << channel << RED " to kick someone" RESET << std::endl;
+		itch->second->getBufferOut() += msg_err_chanoprivsneeded(nick, channel, "You are not an operator");
+		fds[itch->first].events |= POLLOUT;
 		return ;
 	}
 	channelOfTime = itch->second->getChannelOfTime();
@@ -334,6 +356,8 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
 	if (itm == channels->end())
 	{
 		std::cerr << RED "Error: It's impossible to kick someone from a ghost channel" RESET << std::endl;
+		itch->second->getBufferOut() += msg_err_nosuchchannel(nick, channel);
+		fds[itch->first].events |= POLLOUT;
 		return ;
 	}
 	if (channel != itm->second->getName())
@@ -344,6 +368,8 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
 	if (itch->second->getOperatorChannels().find(channel) == itch->second->getOperatorChannels().end())
 	{
 		std::cerr << RED "Error: You are an operator but not from the target channel" RESET << std::endl;
+		itch->second->getBufferOut() += msg_err_chanoprivsneeded(nick, channel, "You are not an operator of that channel");
+		fds[itch->first].events |= POLLOUT;
 		return ;
 	}
 	itch = clients->find(clientFD);
@@ -409,14 +435,30 @@ void	Server::removeOperatorPrivilegesFromEveryBody(std::string channel)
 	std::cout << BRIGHT_GREEN "The channel " << ORANGE << channel << BRIGHT_GREEN " was cleaned successfully" RESET << std::endl;
 }
 
+bool	Server::AuthenticationKeyProcess(const std::string channel, const std::string key)
+{
+	std::map<int, Channel*>* channels = getChannelsMap();
+	std::string	password;
+	int	index;
+
+	index = getChannelsIndex(channel);
+	password = (*channels)[index]->getPassWord();
+
+	if (key == password)
+		return (true);
+	return (false);
+}
+
 void	Server::deleteChannel(std::string channel, int clientFD)
 {
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Client*>::iterator itch = clients->find(clientFD);
 	std::string	channelName;
+	struct pollfd (&fds)[1024] = *getMyFds();
 	int	channelOfTime;
 	bool	isOperator;
+	std::string	nick;
 	int	index;
 
 	if (itch == clients->end())
@@ -424,15 +466,20 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 		std::cerr << RED "Error: Impossible to remove a channel because the client is a ghost" RESET << std::endl;
 		return ;
 	}
+	nick = itch->second->getNickName();
 	isOperator = itch->second->getIsOperator();
 	if (!isOperator)
 	{
 		std::cerr << RED "Error: The client " << YELLOW << clientFD << RED " isn't an operator" RESET << std::endl;
+		itch->second->getBufferOut() += msg_err_chanoprivsneeded(nick, channel, "You are not an operator");
+		fds[itch->first].events |= POLLOUT;
 		return ;
 	}
 	if (itch->second->getOperatorChannels().find(channel) == itch->second->getOperatorChannels().end())
 	{
 		std::cerr << RED "Error: The client isn't a valid operator of the channel " << YELLOW << channel << RESET << std::endl;
+		itch->second->getBufferOut() += msg_err_chanoprivsneeded(nick, channel, "You are not an operator of that channel");
+		fds[itch->first].events |= POLLOUT;
 		return ;
 	}
 	index = 1;
@@ -480,6 +527,7 @@ void	Server::changeChannel(std::string channel, int clientFD)
 	std::string	message;
 	std::string	time;
 	std::string	topic;
+	int	clientIndex;
 	int	channelIndex;
 	int	messageTarget = 0;
 	if (itc == clients->end())
@@ -487,6 +535,8 @@ void	Server::changeChannel(std::string channel, int clientFD)
 		std::cerr << RED "Error: The client is a ghost trying to changing a channel" RESET << std::endl;
 		return ;
 	}
+	clientIndex = getClientsIndex(clientFD);
+	fds[clientIndex].events |= POLLOUT;
 	Client* client = itc->second;
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Channel*>::iterator itm;
@@ -524,6 +574,8 @@ void	Server::changeChannel(std::string channel, int clientFD)
 			if (itm->second->getMembersNum() >= itm->second->getUserLimit())
 			{
 				std::cerr << RED "Error: The channel userlimit is full!!!" RESET << std::endl;
+				itc->second->getBufferOut() += msg_err_channelisfull(nick, channel);
+				fds[itc->first].events |= POLLOUT;
 				return ;
 			}
 			std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " changing to " << YELLOW << channelOfficial->getName() << RESET << std::endl;
@@ -561,5 +613,5 @@ void	Server::changeChannel(std::string channel, int clientFD)
 		}
 		itm++;
 	}
-	std::cerr << RED "Error: Impossible to change the channel because it's a ghost" RESET << std::endl;
+	createNewChannel(channel, clientFD);
 }

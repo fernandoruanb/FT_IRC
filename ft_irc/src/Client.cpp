@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/20 14:42:55 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/23 13:11:13 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include "../includes/colours.hpp"
 
 Client::Client(int fd)
-	: channelOfTime(0), clientFD(fd), authenticated(false), registered(false), isOperator(false), nickname("*"), username("*"), host("localhost")
+	: channelOfTime(0), clientFD(fd), authenticated(false), registered(false), isOperator(false), nickname("*"), username("*"), host("localhost"), mode("+")
 {
 	std::cout << LIGHT_BLUE << "Constructor Client* Called in fd: " MAGENTA << fd << RESET << std::endl;
 }
@@ -139,6 +139,11 @@ std::string	Client::getHost(void) const
 std::set<std::string>&	Client::getOperatorChannels(void)
 {
 	return (operatorChannels);
+}
+
+std::string	(&Client::getSendHistory(void))[1024]
+{
+	return (sendHistory);
 }
 
 std::ostream& operator<<(std::ostream &out, const Client &other)
