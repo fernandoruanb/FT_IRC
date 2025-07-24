@@ -6,7 +6,7 @@
 /*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/24 11:49:09 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/24 17:10:30 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,8 @@
 # include "colours.hpp"
 # include "messages.hpp"
 
-#define SERVER_NAME "irc.maroto.com"
+# define SERVER_NAME "irc.maroto.com"
+# define VERSION "1.0"
 
 class Channel;
 
@@ -109,6 +110,7 @@ class	Server
 		static void	handleSignal(int signal);
 		bool	isValidArgs(const std::string &buffer, size_t pos, bool &op);
 		std::string	getText(std::string& buffer, size_t *pos, std::map<int, Client*>* clients, bool check_name);
+		void	tryRegister(s_commands& com);
 		
 		//Commands
 		void	user(s_commands&);

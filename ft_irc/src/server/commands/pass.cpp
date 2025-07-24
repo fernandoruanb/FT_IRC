@@ -18,16 +18,13 @@ void	Server::pass(s_commands& com)
 				pass.erase(pass.find_last_not_of("\r\n") + 1);
 				if (pass == this->getPassword()) {
 					client->setAuthenticated(true);
-					this->sendBuffer[com.index].clear();
-					this->sendBuffer[com.index] += msg_notice("Authentication successful");
+					this->tryRegister(com);
 					return ;
-				} else {	
-					this->sendBuffer[com.index].clear();
+				} else {
 					this->sendBuffer[com.index] += msg_err_passwdmismatch();
 					return ;
 				}
 			} else {
-				this->sendBuffer[com.index].clear();
 				this->sendBuffer[com.index] += msg_err_needmoreparams("PASS");
 				return ;
 			}

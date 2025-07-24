@@ -5,8 +5,8 @@ struct	s_commands;
 
 std::string msg_welcome(const std::string& nick);
 std::string msg_yourhost(const std::string& nick);
-std::string msg_created();
-std::string msg_svrinfo();
+std::string msg_created(const std::string& nick);
+std::string msg_svrinfo(const std::string& nick);
 std::string msg_err_needmoreparams(const std::string& cmd);
 std::string msg_err_passwdmismatch();
 std::string msg_err_nicknameinuse(const std::string& nick);

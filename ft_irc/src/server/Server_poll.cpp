@@ -33,22 +33,22 @@ void	Server::PollServerRoom(void)
 	}
 }
 
-static bool	checkSignUp(Client* &client, std::string &sendBuffer, int i)
-{
-	struct pollfd (&fds)[1024] = *getMyFds();
-	if (!client->getRegistered() || client->getNickName() == "*")
-	{
-		sendBuffer += msg_err_notregistered();
-		sendBuffer += msg_notice("Please assure the following commands are set:");
-		sendBuffer += msg_notice("Password: PASS <password>");
-		sendBuffer += msg_notice("Nick: NICK <nickname>");
-		sendBuffer += msg_notice("User: USER <username> <hostname> <servername> : <realname>");
-		std::cout << RED "Client not registered, sending error message." RESET << std::endl;
-		fds[i].events |= POLLOUT;
-		return (false);
-	}
-	return (true);
-}
+// static bool	checkSignUp(Client* &client, std::string &sendBuffer, int i)
+// {
+// 	struct pollfd (&fds)[1024] = *getMyFds();
+// 	if (!client->getRegistered() || client->getNickName() == "*")
+// 	{
+// 		sendBuffer += msg_err_notregistered();
+// 		sendBuffer += msg_notice("Please assure the following commands are set:");
+// 		sendBuffer += msg_notice("Password: PASS <password>");
+// 		sendBuffer += msg_notice("Nick: NICK <nickname>");
+// 		sendBuffer += msg_notice("User: USER <username> <hostname> <servername> : <realname>");
+// 		std::cout << RED "Client not registered, sending error message." RESET << std::endl;
+// 		fds[i].events |= POLLOUT;
+// 		return (false);
+// 	}
+// 	return (true);
+// }
 
 
 void	Server::PollInputClientMonitoring(void)
@@ -125,9 +125,11 @@ void	Server::PollInputClientMonitoring(void)
 						std::cout << "=== Fim do DEBUG ===" << std::endl;
 							continue; 
 					}
+					// end of debug
+					
 					Client* client = (*clients)[fds[index].fd];
 					if (handleCommands(clients, line, fds[index].fd, index)
-						|| !checkSignUp(client, this->sendBuffer[index], index))
+						|| client->getRegistered() == false)
 						continue;
 
 					this->sendBuffer[index].clear();

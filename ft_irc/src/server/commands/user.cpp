@@ -5,10 +5,10 @@
 */
 void	Server::user(s_commands	&com)
 {
-	if (!com.client->getAuthenticated()) {
-		this->sendBuffer[com.index] = my_notice_error(com.client->getNickName(), "You must authenticate first with the PASS command.");
-		return;
-	}
+	// if (!com.client->getAuthenticated()) {
+	// 	this->sendBuffer[com.index] = my_notice_error(com.client->getNickName(), "You must authenticate first with the PASS command.");
+	// 	return;
+	// }
 	if (com.client->getRegistered()){
 		this->sendBuffer[com.index] += msg_err_alreadyregistered(com.client->getNickName());
 		return;
@@ -39,7 +39,6 @@ void	Server::user(s_commands	&com)
 		
 		com.client->setRealName(name);
 	}
-	if (com.client->getNickName() != "*")
-		com.client->setRegistered(true);
-	this->sendBuffer[com.index] = "Hello " + com.client->getUserName() + "@" + com.client->getHost() + " " + com.client->getServerName() + " " + com.client->getRealName() + "\n";
+	this->tryRegister(com);
+	// this->sendBuffer[com.index] = "Hello " + com.client->getUserName() + "@" + com.client->getHost() + " " + com.client->getServerName() + " " + com.client->getRealName() + "\n";
 }
