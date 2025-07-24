@@ -147,14 +147,15 @@ static void	addChannelMode(s_commands &com, Channel* &target)
 				}
 				break;
 			case 'k':
-				if (sign == '+' && !flagFound)
+				if (sign == '+')
 				{
 					if (len != 3)
 					{
 						com.sendBuffer += "Invalid num of arguments\n";
 						return;
 					}
-					currentMode += flag;
+					if (!flagFound)
+						currentMode += flag;
 					target->setPassWord(com.args[2]);
 					break;
 				}

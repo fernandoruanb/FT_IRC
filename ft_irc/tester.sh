@@ -3,16 +3,18 @@
 LOG="tester.log"
 HOST="localhost"
 PORT=6667
-TIME=3
+TIME=10
 
 COMMANDS=$(cat << EOF
 PASS 12345
 NICK Miku
 USER Miku * 0: Hatsune Miku
-Hello world
-MODE Miku +io
-MODE Miku
+MODE #Generic +k helloWorld
+MODE #Generic +k lala
+MODE #Generic +k
 MODE #Generic
+MODE #Generic -k
+MODE Generic
 EOF
 )
 

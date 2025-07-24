@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/24 17:21:44 by fcaldas-         ###   ########.fr       */
+/*   Updated: 2025/07/24 19:43:10 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ void Server::tryRegister(s_commands& com)
 {
     if (com.client->getAuthenticated() && com.client->hasNick() && com.client->hasUser() && !com.client->getRegistered()) {
         com.client->setRegistered(true);
-        com.sendBuffer += msg_welcome(com.client->getNickName());
+        com.sendBuffer += msg_welcome(com.client);
 		com.sendBuffer += msg_yourhost(com.client->getNickName());
 		com.sendBuffer += msg_created(com.client->getNickName());
 		com.sendBuffer += msg_svrinfo(com.client->getNickName());
