@@ -56,7 +56,7 @@ std::string msg_err_channelisfull(const std::string& nick, const std::string& ch
 }
 
 std::string msg_err_chanoprivsneeded(const std::string& nick, const std::string& channel, const std::string& message) {
-    return ":" SERVER_NAME " 482 " + nick + " #" + channel + message +"\r\n";
+    return ":" SERVER_NAME " 482 " + nick + " #" + channel + " :" + message +"\r\n";
 }
 
 std::string msg_err_erroneusnickname(const std::string& nick) {
