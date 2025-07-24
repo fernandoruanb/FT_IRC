@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jonas <jonas@student.42.fr>                +#+  +:+       +#+        */
+/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:26:36 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/23 19:37:25 by jonas            ###   ########.fr       */
+/*   Updated: 2025/07/24 15:37:02 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,8 @@ class	Channel
 		std::set<int>&	getMembersSet(void);
 		void	removeMember(int clientFD);
 		int	getMembersNum(void) const;
-		std::string	&getTimeStamp(void) const;
-		std::string	&getOwnerTopic(void) const;
+		std::string	&getTimeStamp(void);
+		std::string	&getOwnerTopic(void);
 		void	setOwnerTopic(std::string nick);
 		void	setTimeStamp(std::string time);
 		void	setChannelIndex(int index);
@@ -65,8 +65,8 @@ class	Channel
 		void	setTopicFlag(bool topicflag);
 		void	setMode(const std::string&);
 		const std::string&	getMode(void) const;
-		std::string	&getName(void) const;
-		std::string	&getTopic(void) const;
+		std::string	&getName(void);
+		std::string	&getTopic(void);
 		std::string	&getPassWord(void);
 		int	getUserLimit(void) const;
 		bool	getInviteFlag(void) const;

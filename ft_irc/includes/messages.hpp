@@ -2,8 +2,9 @@
 #include <string>
 
 struct	s_commands;
+class	Client;
 
-std::string msg_welcome(const std::string& nick);
+std::string msg_welcome(Client* &target);
 std::string msg_yourhost(const std::string& nick);
 std::string msg_created();
 std::string msg_svrinfo();

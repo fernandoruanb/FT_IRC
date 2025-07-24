@@ -1,0 +1,7 @@
+Test start at Thu Jul 24 05:35:20 PM -03 2025
+Sending commands to localhost:6667
+:Miku!Miku@* JOIN  #Generic
+:irc.maroto.com 332 Miku #Generic :We love IRC
+:irc.maroto.com 333 Miku #Generic system!Miku@* 1753389319
+:irc.maroto.com 353 Miku #Generic :Miku 
+:irc.maroto.com 366 Miku #Generic :End of /NAMES list

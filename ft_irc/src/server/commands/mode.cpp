@@ -113,11 +113,18 @@ static void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffe
 
 static void	addChannelMode(s_commands &com, Channel* &target)
 {
+	size_t		len = com.args.size();
+	if (len < 2)
+		return;
+
 	std::string	currentMode = target->getMode();
 	char		sign = com.args[1][0];
 	std::string	flags = com.args[1].substr(1);
 	std::string	Channel = com.args[0];
 	size_t		i;
+
+	if (currentMode.empty() || currentMode[0] != '+')
+		currentMode.insert(0, 1, '+');
 
 	for (i = 0; i < flags.size(); i++)
 	{
@@ -127,11 +134,6 @@ static void	addChannelMode(s_commands &com, Channel* &target)
 		switch (flag)
 		{
 			case 't':
-				if (com.args.size() != 2)
-				{
-					com.sendBuffer += "Invalid num of arguments\n";
-					return;
-				}
 				if (sign == '+' && !flagFound)
 				{
 					currentMode += flag;
@@ -145,13 +147,13 @@ static void	addChannelMode(s_commands &com, Channel* &target)
 				}
 				break;
 			case 'k':
-				if (com.args.size() != 3)
-				{
-					com.sendBuffer += "Invalid num of arguments\n";
-					return;
-				}
 				if (sign == '+' && !flagFound)
 				{
+					if (len != 3)
+					{
+						com.sendBuffer += "Invalid num of arguments\n";
+						return;
+					}
 					currentMode += flag;
 					target->setPassWord(com.args[2]);
 					break;
@@ -164,13 +166,13 @@ static void	addChannelMode(s_commands &com, Channel* &target)
 				}
 				break;
 			case 'l':
-				if (com.args.size() != 3)
-				{
-					com.sendBuffer += "Invalid num of arguments\n";
-					return;
-				}
 				if (sign == '+' && !flagFound)
 				{
+					if (len != 3)
+					{
+						com.sendBuffer += "Invalid num of arguments\n";
+						return;
+					}
 					int	limit;
 					std::istringstream	ss(com.args[2]);
 
@@ -191,6 +193,8 @@ static void	addChannelMode(s_commands &com, Channel* &target)
 	}
 
 	target->setMode(currentMode);
+	com.sendBuffer += msg_notice("MODE " + target->getName() + " " + com.args[1]);
+	std::cout << "senha do canal: " << target->getPassWord() << std::endl;
 }
 
 /*
@@ -233,10 +237,8 @@ void	Server::mode(s_commands &com)
 		addUserMode(target, com, this->sendBuffer[com.index]);
 		return;
 	}
-	
 	Channel*	target = getTargetChannel(com, this->channels, com.sendBuffer);
 	if (!target)
 		return;
 	addChannelMode(com, target);
-
 }
