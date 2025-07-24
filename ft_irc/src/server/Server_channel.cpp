@@ -99,7 +99,7 @@ void	Server::createNewChannel(std::string Name, int clientFD)
         (*channels)[index]->getOperatorsSet().insert(clientFD);
         (*channels)[index]->getMembersSet().erase(clientFD);
 	std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " is now the operator of " << YELLOW << Name << LIGHT_BLUE " Channel" RESET << std::endl;
-	changeChannel(Name, clientFD);
+	changeChannel(Name, clientFD, 0);
 }
 
 
@@ -393,7 +393,7 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
 	itm->second->removeMember(itch->first);
 	if (itch->second->getOperatorChannels().size() == 0)
 		itch->second->setIsOperator(false);
-	this->changeChannel("Generic", itch->first);
+	this->changeChannel("Generic", itch->first, 0);
 	std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE " has been kicked by " << YELLOW << owner << LIGHT_BLUE " and lost all privileges coming back to " << YELLOW "Generic" << LIGHT_BLUE " Channel" RESET << std::endl;
 	messageTarget = getClientsIndex(clientFD);
 	itch->second->getBufferOut() += my_kick_message(nick, user, host, "You were kicked because you are not nice", target, channel);
@@ -429,7 +429,7 @@ void	Server::removeOperatorPrivilegesFromEveryBody(std::string channel)
 			it->second->setIsOperator(false);
 		channelOfTime = it->second->getChannelOfTime();
 		if (channelOfTime == itm->first)
-			changeChannel("Generic", it->second->getClientFD());
+			changeChannel("Generic", it->second->getClientFD(), 0);
 		it++;
 	}
 	std::cout << BRIGHT_GREEN "The channel " << ORANGE << channel << BRIGHT_GREEN " was cleaned successfully" RESET << std::endl;
@@ -493,7 +493,7 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 			if (channelOfTime == index)
 			{
 				std::cout << LIGHT_BLUE "Changing to " << YELLOW << "Generic" << LIGHT_BLUE " Channel client " << YELLOW << clientFD << RESET << std::endl;
-				this->changeChannel("Generic", itch->second->getClientFD());
+				this->changeChannel("Generic", itch->second->getClientFD(), 0);
 			}
 			this->removeOperatorPrivilegesFromEveryBody(channelName);
 			delete itc->second;
@@ -515,7 +515,7 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 	std::cerr << RED "Error: The channel " << YELLOW << channel << RED " doesn't exist" RESET << std::endl;
 }
 
-void	Server::changeChannel(std::string channel, int clientFD)
+void	Server::changeChannel(std::string channel, int clientFD, bool flag)
 {
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Client*>::iterator itc = clients->find(clientFD);
@@ -555,7 +555,7 @@ void	Server::changeChannel(std::string channel, int clientFD)
 		if (channelName == channel)
 		{
 			channelIndex = getChannelsIndex(channel);
-			if (itc->second->getChannelOfTime() == channelIndex)
+			if (itc->second->getChannelOfTime() == channelIndex && flag != 1)
 			{
 				std::cerr << RED "Error: You are trying to change to the same channel that you are" RESET << std::endl;
 				return ;
@@ -591,7 +591,8 @@ void	Server::changeChannel(std::string channel, int clientFD)
 			time = itm->second->getTimeStamp();
 			topic = itm->second->getTopic();
 			message = "You left the channel";
-			client->getBufferOut() += my_part_message(nick, user, host, last->second->getName(), message);
+			if (flag != 1)
+				client->getBufferOut() += my_part_message(nick, user, host, last->second->getName(), message);
 			client->getBufferOut() += my_join_message(nick, user, host, channel);
 			client->getBufferOut() += my_join_rpl_topic(nick, channel, topic);
 			if (!time.empty())

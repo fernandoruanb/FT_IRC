@@ -6,7 +6,7 @@
 /*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/23 17:57:34 by fcaldas-         ###   ########.fr       */
+/*   Updated: 2025/07/23 19:52:03 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ class	Server
 		bool    AuthenticationKeyProcess(const std::string channel, const std::string key);
 		int	getClientsIndex(int clientFD);
 		void    promotionChannelOperator(std::string channel, int owner, int clientFD);
-		void	changeChannel(std::string Name, int clientFD);
+		void	changeChannel(std::string Name, int clientFD, bool flag);
 		void	deleteChannel(std::string Name, int clientFD);
 		void    removeOperatorPrivilegesFromEveryBody(std::string channel);
 		void    createNewChannel(std::string Name, int clientFD);
