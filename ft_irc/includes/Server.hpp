@@ -6,7 +6,7 @@
 /*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/23 19:52:03 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/24 11:49:09 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,7 @@ class	Server
 		Server&	operator=(const Server &other);
 		Server(const Server &other);
 
+		int     getClientsFdByName(std::string nickname);
 		void    inviteToChannel(std::string channelName, int operatorFD, int clientFD);
 		bool	checkName(std::string Name);
 		void	changeChannelInviteFlag(std::string channel, bool flag);
@@ -94,7 +95,7 @@ class	Server
 		void	startIRCService(void);
 		void	manageBuffers(int index);
 		void	shutdownService(void);
-		void	broadcast(int index, std::string line);
+		void	broadcast(int index, std::string line, int targetChannel = -1);
 		void	chargePrivileges(int target);
 		void	startPollFds(void);
 		bool	handleClientAuthentication(std::map<int, Client*>* clients, int fd, char* buffer, int pollIndex);

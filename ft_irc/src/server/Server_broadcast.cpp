@@ -1,6 +1,6 @@
 #include "../../includes/Server.hpp"
 
-void    Server::broadcast(int sender, std::string line)
+void    Server::broadcast(int sender, std::string line, int targetChannel)
 {
 	struct pollfd (&fds)[1024] = *getMyFds();
 	std::map<int, Client*>* clients = getClientsMap();
@@ -9,12 +9,19 @@ void    Server::broadcast(int sender, std::string line)
 	std::map<int, Client*>::iterator itc;
 	std::string	clientChannelName;
 	std::string	ownerChannelName;
+	std::string	targetChannelName;
+	std::string	test;
+	int	ownerChannel;
+
 	if (it == clients->end())
 	{
 		std::cerr << RED "Error: The owner is a ghost!!!" RESET << std::endl;
 		return ;
 	}
-	int	ownerChannel = it->second->getChannelOfTime();
+	if (targetChannel != -1)
+		ownerChannel = targetChannel;
+	else
+		ownerChannel = it->second->getChannelOfTime();
 	ownerChannelName = (*channels)[ownerChannel]->getName();
 	int	clientCurrentChannel;
 	int    index;

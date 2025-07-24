@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/23 18:42:13 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/24 10:45:10 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -287,4 +287,18 @@ void	Server::manageBuffers(int index)
 	this->sendBuffer[index].clear();
 	this->sendBuffer[index] = this->sendBuffer[this->numClients - 1];
 	this->sendBuffer[this->numClients - 1].clear();
+}
+
+int	Server::getClientsFdByName(std::string nickname)
+{
+	std::map<int, Client*>* clients = getClientsMap();
+	std::map<int, Client*>::iterator it = clients->begin();
+
+	while (it != clients->end())
+	{
+		if (nickname == it->second->getNickName())
+			return (it->first);
+		++it;
+	}
+	return (-1);
 }

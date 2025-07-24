@@ -93,7 +93,6 @@ void	Server::PollInputClientMonitoring(void)
 					if (!isEmptyInput(line))
 					this->sendBuffer[index] += std::string("\n:") + (*clients)[fds[index].fd]->getNickName() + "!" + (*clients)[fds[index].fd]->getUserName() + "@" + (*clients)[fds[index].fd]->getHost() + " PRIVMSG";
 					this->broadcast(index, line);
-					//this->privmsg(index - 1, "You are very special =D\n");
 					fds[index].events |= POLLOUT;
 				}
 			}
