@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/23 19:30:15 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/24 10:47:30 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,6 +174,7 @@ void			Client::setMode(const std::string& c)
 {
 	mode = c;
 }
+
 const std::string&		Client::getMode(void) const
 {
 	return (mode);
