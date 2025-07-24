@@ -48,6 +48,18 @@ void	Server::privmsg(s_commands& com)
 		fds[com.index].events |= POLLOUT;
 		return ;
 	}
-	this->sendBuffer[com.index].clear();
-	this->sendBuffer[com.index] = "You called PRIVMSG\n";
+	else
+	{
+		int	targetFD = getClientsFdByName(com.args[0]);
+
+		if (targetFD == -1)
+		{
+			std::cerr << RED "Error: that client doesn't exist" RESET << std::endl;
+			return ;
+		}
+		int	index = 1;
+		while (fds[index].fd != targetFD)
+			++index;
+		privmsg(index, com.index, message);
+	}
 }
