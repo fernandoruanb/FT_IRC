@@ -2,3 +2,4 @@ ircserver
 bin
 *.o
 .vscode
+tester.log
