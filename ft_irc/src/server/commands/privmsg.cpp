@@ -60,6 +60,11 @@ void	Server::privmsg(s_commands& com)
 		int	index = 1;
 		while (fds[index].fd != targetFD)
 			++index;
+		if (index == numClients || index == -1)
+		{
+			std::cerr << RED "Error: The client doesn't exist" RESET << std::endl;
+			return ;
+		}
 		privmsg(index, com.index, message);
 	}
 }
