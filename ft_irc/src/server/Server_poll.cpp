@@ -36,13 +36,6 @@ void	Server::PollServerRoom(void)
 static bool	checkSignUp(Client* &client, std::string &sendBuffer, int i)
 {
 	struct pollfd (&fds)[1024] = *getMyFds();
-
-	// if (!client->getAuthenticated()) {
-	// 	sendBuffer += msg_err_notregistered();
-	// 	fds[i].events |= POLLOUT;
-	// 	std::cout << RED "Client not authenticated, sending error message." RESET << std::endl;
-	// 	return (false);
-	// }
 	if (!client->getRegistered() || client->getNickName() == "*")
 	{
 		sendBuffer += msg_err_notregistered();
@@ -56,6 +49,7 @@ static bool	checkSignUp(Client* &client, std::string &sendBuffer, int i)
 	}
 	return (true);
 }
+
 
 void	Server::PollInputClientMonitoring(void)
 {
@@ -84,6 +78,53 @@ void	Server::PollInputClientMonitoring(void)
 					std::string	name = (*clients)[fds[index].fd]->getUserName();
 					std::cout << BRIGHT_GREEN << (name.empty() ? "Client": name) << ": " << YELLOW << fds[index].fd << LIGHT_BLUE << " " << line << RESET << std::endl;
 
+					// print all members of all channels for debug:
+					// if commanded DEBUG
+					if (line.find("DEBUG") != std::string::npos)
+					{
+						std::map<int, Channel*>* channels = getChannelsMap();
+						std::map<int, Client*>* clients = getClientsMap();
+						std::map<int, Channel*>::iterator itc = channels->begin();
+
+						std::cout << "=== DEBUG: Canais e seus membros ===" << std::endl;
+						while (itc != channels->end())
+						{
+							Channel* channel = itc->second;
+							std::cout << "Canal: #" << channel->getName() << std::endl;
+							// Operadores
+							std::set<int>& operators = channel->getOperatorsSet();
+							if (operators.empty())
+								std::cout << "  (sem operadores)" << std::endl;
+							else
+							{
+								std::cout << "  Operadores:" << std::endl;
+								for (std::set<int>::iterator ito = operators.begin(); ito != operators.end(); ++ito)
+								{
+									std::map<int, Client*>::iterator itcl = clients->find(*ito);
+									if (itcl != clients->end())
+										std::cout << "    @ " << itcl->second->getNickName() << std::endl;
+								}
+							}
+							// Membros
+							std::set<int>& members = channel->getMembersSet();
+							if (members.empty())
+								std::cout << "  (sem membros)" << std::endl;
+							else
+							{
+								std::set<int>::iterator itm = members.begin();
+								while (itm != members.end())
+								{
+									std::map<int, Client*>::iterator itcl = clients->find(*itm);
+									if (itcl != clients->end())
+										std::cout << "  - " << itcl->second->getNickName() << std::endl;
+									++itm;
+								}
+							}
+							++itc;
+						}
+						std::cout << "=== Fim do DEBUG ===" << std::endl;
+							continue; 
+					}
 					Client* client = (*clients)[fds[index].fd];
 					if (handleCommands(clients, line, fds[index].fd, index)
 						|| !checkSignUp(client, this->sendBuffer[index], index))

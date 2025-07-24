@@ -24,20 +24,31 @@ void	Server::part(s_commands& com)
 			break ;
 		if (com.args[i].empty() || com.args[i][0] != '#') {
 			this->sendBuffer[com.index] += msg_err_nosuchchannel(com.client->getNickName(), com.args[i]);
+			std::cout << "channel EMPTY or no '#': " << com.args[i] << std::endl; /// debug
 			continue ;
 		}
-		int channelIndex = getChannelsIndex(com.args[i]);
+		std::string channelName = com.args[i].substr(1);
+		int channelIndex = getChannelsIndex((channelName));
 		if (channelIndex == -1) {
-			this->sendBuffer[com.index] += msg_err_nosuchchannel(com.client->getNickName(), com.args[i]);
+			this->sendBuffer[com.index] += msg_err_nosuchchannel(com.client->getNickName(), channelName);
+			std::cout << "channel not found: " << channelName << std::endl; /// debug
 			continue ;
 		}
 		Channel* channel = this->channels->find(channelIndex)->second;
-		int clientIndex = getClientsIndex(com.fd);
-		if (!channel->isMemberOfChannel(clientIndex)) {
+		if (!channel->isMemberOfChannel(com.fd) && !channel->isOperatorOfChannel(com.fd)) {
 			this->sendBuffer[com.index] += msg_err_notonchannel(com.client->getNickName(), com.args[i]);
+			std::cout << "client not member of channel: " << com.args[i] << std::endl; /// debug
 			continue ;
 		}
-		channel->removeMember(clientIndex);
+		if (channel->isMemberOfChannel(com.fd)) {
+			com.client->getChannelsSet().erase(channelName);
+			channel->removeMember(com.fd);
+		}
+		if (channel->isOperatorOfChannel(com.fd)) {
+			com.client->getChannelsSet().erase(channelName);
+			com.client->getOperatorChannels().erase(channelName);
+		}
+
 		if (haveMsg) {
 			this->sendBuffer[com.index] += ":" + getClientsMap()->find(com.fd)->second->getNickName() + "!" + getClientsMap()->find(com.fd)->second->getUserName() + " PART " + com.args[i] + " :" + msg + "\n";
 			broadcast(com.index, this->sendBuffer[com.index]);
