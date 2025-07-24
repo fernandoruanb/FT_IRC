@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/24 10:45:10 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/24 17:21:44 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,25 @@
 // 	return true;
 // }
 
+// void	Server::registeredMessage(s_commands& com)
+// {
+// 	com.sendBuffer += msg_welcome(com.client->getNickName());
+// 	com.sendBuffer += msg_yourhost(com.client->getNickName());
+// 	com.sendBuffer += msg_created(com.client->getNickName());
+// 	com.sendBuffer += msg_svrinfo(com.client->getNickName());
+// }
+
+void Server::tryRegister(s_commands& com)
+{
+    if (com.client->getAuthenticated() && com.client->hasNick() && com.client->hasUser() && !com.client->getRegistered()) {
+        com.client->setRegistered(true);
+        com.sendBuffer += msg_welcome(com.client->getNickName());
+		com.sendBuffer += msg_yourhost(com.client->getNickName());
+		com.sendBuffer += msg_created(com.client->getNickName());
+		com.sendBuffer += msg_svrinfo(com.client->getNickName());
+    }
+}
+
 void	Server::addNewClient(int clientFD)
 {
 	int	index;
@@ -79,7 +98,7 @@ void	Server::addNewClient(int clientFD)
 	fcntl(clientFD, F_SETFL, O_NONBLOCK);
 	this->numClients++;
 	// NOTICE message to the new client. Asking for authentication.
-	this->sendBuffer[index] = msg_notice("Connected. Please authenticate with \"PASS <password>\"");
+	// this->sendBuffer[index] = msg_notice("Connected. Please authenticate with \"PASS <password>\"");
 	fds[index].events |= POLLOUT;
 	std::cout << BRIGHT_GREEN "New Client added: " << YELLOW << clientFD << RESET << std::endl;
 }

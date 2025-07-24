@@ -20,10 +20,10 @@ bool	validNick(s_commands& com)
 */
 void	Server::nick(s_commands& com)
 {
-	if (!com.client->getAuthenticated()) {
-		this->sendBuffer[com.index] = my_notice_error(com.client->getNickName(), "You must authenticate first with the PASS command.");
-		return;
-	}
+	// if (!com.client->getAuthenticated()) {
+	// 	this->sendBuffer[com.index] = my_notice_error(com.client->getNickName(), "You must authenticate first with the PASS command.");
+	// 	return;
+	// }
 	if (!com.args.size())
 	{
 		this->sendBuffer[com.index].clear();
@@ -40,6 +40,9 @@ void	Server::nick(s_commands& com)
 			this->sendBuffer[com.index] = msg_error("Nickname is already in use", 433, com);
 			return;
 		}
+		// com.sendBuffer.clear();
+		// com.sendBuffer = "Hello " + com.client->getNickName() + "\n";
+		this->tryRegister(com);
 	}
 	this->sendBuffer[com.index] = msg_notice("NICK " + com.client->getNickName());
 	if (!com.client->getRegistered() && com.client->getUserName() != "*")

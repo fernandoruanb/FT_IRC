@@ -8,17 +8,17 @@ std::string msg_welcome(Client* &target) {
     return ( ":" SERVER_NAME " 001 " + nick + " :Welcome to the IRC Network, " + nick + "!" + nick + "@" + target->getHost() + "\r\n" );
 }
 
-// std::string msg_yourhost(const std::string& nick) {
-//     return ":" SERVER_NAME " 002 " + nick + " :Your host is " + SERVER_NAME + ", running version " VERSION "\r\n";
-// }
+std::string msg_yourhost(const std::string& nick) {
+    return ":" SERVER_NAME " 002 " + nick + " :Your host is " + SERVER_NAME + ", running version " VERSION "\r\n";
+}
 
-// std::string msg_created() {
-//     return ":" SERVER_NAME " 003 * :This server was created " __DATE__ " at " __TIME__ "\r\n";
-// }
+std::string msg_created(const std::string& nick) {
+    return ":" SERVER_NAME " 003 " + nick + " :This server was created " __DATE__ " at " __TIME__ "\r\n";
+}
 
-// std::string msg_svrinfo() {
-//     return ":" SERVER_NAME " 004 * " SERVER_NAME " " VERSION " :<http://www.42.fr/>\r\n";
-// } 
+std::string msg_svrinfo(const std::string& nick) {
+    return ":" SERVER_NAME " 004 " + nick + " :" SERVER_NAME " " VERSION " o o\r\n";
+}
 
 std::string msg_err_needmoreparams(const std::string& cmd) {
     return (CYAN ":" SERVER_NAME " 461 " + cmd + YELLOW " :Not enough parameters\r\n" RESET);
@@ -57,7 +57,7 @@ std::string msg_err_channelisfull(const std::string& nick, const std::string& ch
 }
 
 std::string msg_err_chanoprivsneeded(const std::string& nick, const std::string& channel, const std::string& message) {
-    return ":" SERVER_NAME " 482 " + nick + " #" + channel + message +"\r\n";
+    return ":" SERVER_NAME " 482 " + nick + " #" + channel + " :" + message +"\r\n";
 }
 
 std::string msg_err_erroneusnickname(const std::string& nick) {

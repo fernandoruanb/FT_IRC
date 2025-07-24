@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:22:05 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/23 13:08:21 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/24 16:41:25 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,8 @@ class	Client
 		std::string		getHost(void) const; // nickname!username@host
 		std::string     (&getSendHistory(void))[1024];
 		std::set<int>&	getChannels(void);
+		bool			hasNick(void) const;
+		bool			hasUser(void) const;
 };
 std::ostream& operator<<(std::ostream &out, const Client &other);
 #endif /* CLIENT_HPP */
