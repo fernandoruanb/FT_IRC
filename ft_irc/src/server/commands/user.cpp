@@ -1,5 +1,4 @@
 #include "../includes/Server.hpp"
-
 /*
 	USER <username> <hostname> <servername> : <real name>
 */

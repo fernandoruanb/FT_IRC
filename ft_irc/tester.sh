@@ -19,7 +19,7 @@ EOF
 echo "Test start at $(date)" >> "$LOG"
 echo "Sending commands to $HOST:$PORT" >> "$LOG"
 
-OUTPUT=$( printf "%s\n" "$COMMANDS" | timeout $TIME nc $HOST $PORT)
+OUTPUT=$( printf "%s\n" "$COMMANDS" | timeout $TIME nc -C $HOST $PORT)
 
 echo "$OUTPUT" >> "$LOG"
 
