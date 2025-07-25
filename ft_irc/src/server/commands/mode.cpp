@@ -21,7 +21,7 @@ static	Client	*getTargetClient(s_commands &com, std::string &sendBuffer)
 static Channel*	getTargetChannel(s_commands &com, std::map<int, Channel*>* &channels, std::string &sendBuffer)
 {
 	std::map<int, Channel*>::iterator	it;
-	//	Removing # from #Generic
+	//	Removing # from #<chanelName>
 	std::string	name = com.args[0].substr(1);
 
 	for (it = channels->begin(); it != channels->end(); it++)
@@ -41,7 +41,7 @@ static void	showModes(s_commands& com, std::string &sendBuffer, std::map<int, Ch
 	{
 		Client*	target = getTargetClient(com, sendBuffer);
 		if (target)
-			callCmdMsg(target->getMode(com.client->getChannelOfTime()), 221, com, sendBuffer);
+			callCmdMsg("+" + target->getMode(com.client->getChannelOfTime()), 221, com, sendBuffer);
 		return;
 	}
 
@@ -60,10 +60,10 @@ static void	showModes(s_commands& com, std::string &sendBuffer, std::map<int, Ch
 */
 bool	findMode(const std::string& myModes, const char mode)
 {
-	if (myModes.empty() || myModes.size() < 2)
+	if (myModes.empty())
 		return (false);
 
-	for (size_t i = 1; i < myModes.size(); i++)
+	for (size_t i = 0; i < myModes.size(); i++)
 		if (myModes[i] == mode)
 			return (true);
 	
@@ -82,16 +82,17 @@ static void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffe
 	//	Check the target modes
 	for (size_t i = 0; i < args.size(); i++)
 	{
-		bool	isActive = false;
 		char	mode = args[i];
+		bool	isActive = findMode(currentMode, mode);
 
-		for (size_t j = 0; j < currentMode.size(); j++)
-			if (currentMode[j] == mode)
-			{
-				isActive = true;
-				break;
-			}
-		
+		if (mode == 'o' && !findMode(com.client->getMode(com.client->getChannelOfTime()), 'o'))
+		{
+			std::cout << "achei? " << findMode(com.client->getMode(com.client->getChannelOfTime()), 'o') << std::endl;
+			std::cout << "meu modo: " + com.client->getMode(com.client->getChannelOfTime()) << std::endl;
+			callCmdMsg("You're not channel operator", 482, com, com.sendBuffer);
+			return;
+		}
+
 		if (sign == '+' && !isActive)
 			currentMode += mode;
 		if (sign == '-' && isActive)
@@ -104,7 +105,7 @@ static void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffe
 	target->setMode(currentMode, com.client->getChannelOfTime());
 	target->setIsOperator(findMode(target->getMode(com.client->getChannelOfTime()), 'o'));
 	sendBuffer.clear();
-	sendBuffer = msg_notice("MODE " + "+" + target->getNickName() + " " + com.args[1]);
+	sendBuffer = msg_notice("MODE " + target->getNickName() + " " + com.args[1]);
 	// std::cout << target->getNickName() << " Is operator: " << target->getIsOperator() << std::endl;
 }
 
@@ -119,9 +120,6 @@ static void	addChannelMode(s_commands &com, Channel* &target)
 	std::string	flags = com.args[1].substr(1);
 	std::string	Channel = com.args[0];
 	size_t		i;
-
-	if (currentMode.empty() || currentMode[0] != '+')
-		currentMode.insert(0, 1, '+');
 
 	for (i = 0; i < flags.size(); i++)
 	{
