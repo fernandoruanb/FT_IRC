@@ -31,7 +31,7 @@ int	Server::findGoodIndex(void)
 
 	index = 1;
 	it = channels->find(index);
-	while (index < INT_MAX && it != channels->end())
+	while (index < 1024 && it != channels->end())
 	{
 		index++;
 		it = channels->find(index);
