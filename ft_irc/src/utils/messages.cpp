@@ -3,8 +3,9 @@
 #include "../includes/Server.hpp"
 #include "../includes/colours.hpp"
 
-std::string msg_welcome(const std::string& nick) {
-    return ( ":" SERVER_NAME " 001 " + nick + " :Welcome to the IRC Network, " + nick + "!\r\n" );
+std::string msg_welcome(Client* &target) {
+	std::string	nick = target->getNickName();
+    return ( ":" SERVER_NAME " 001 " + nick + " :Welcome to the IRC Network, " + nick + "!" + nick + "@" + target->getHost() + "\r\n" );
 }
 
 std::string msg_yourhost(const std::string& nick) {

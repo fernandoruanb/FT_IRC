@@ -95,6 +95,7 @@ void	Server::createNewChannel(std::string Name, int clientFD)
 	client->getOperatorChannels().insert(Name);
 	client->getInviteChannels().insert(Name);
 	client->getChannelsSet().insert(Name);
+	client->addMode('o', index);
 	(*channels)[index]->addNewMember(clientFD);
         (*channels)[index]->getOperatorsSet().insert(clientFD);
         (*channels)[index]->getMembersSet().erase(clientFD);

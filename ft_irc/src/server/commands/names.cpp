@@ -3,7 +3,6 @@
 static std::string	getNames(Channel* channel, s_commands& com)
 {
 	std::set<int>	members = channel->getMembersSet();
-	std::set<int>	opertators = channel->getOperatorsSet();
 	std::string		result;
 
 	std::set<int>::const_iterator it;
@@ -16,11 +15,11 @@ static std::string	getNames(Channel* channel, s_commands& com)
 		if (cit != com.clients->end())
 			client = cit->second;
 		
-		if (client && !findMode(client->getMode(), 'i'))
-			result += (findMode(client->getMode(), 'o') ? "@": "") + client->getNickName() + " ";
-		
-		std::cout << "cliente[" << client->getNickName() << "] esta: " << client->getChannelOfTime() << std::endl;
+		if (client && !findMode(client->getMode(com.client->getChannelOfTime()), 'i'))
+			result += client->getNickName() + " ";
 	}
+
+	result += channel->getOperatorsNames();
 
 	return (result);
 }

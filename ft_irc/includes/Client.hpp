@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:22:05 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/24 16:41:25 by fcaldas-         ###   ########.fr       */
+/*   Updated: 2025/07/25 17:50:19 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <string>
 # include <set>
+#include <map>
 
 class	Client
 {
@@ -33,7 +34,8 @@ class	Client
 		std::string		bufferOut;
 		std::string		host;
 		std::string		serverName;
-		std::string		mode;
+		// std::string		mode;
+		std::map<int, std::string>	mode;
 		Client(const Client &other);
 		Client& operator=(const Client &other);
 		std::set<std::string>	operatorChannels;
@@ -55,8 +57,11 @@ class	Client
 		void			setIsOperator(bool isOperator);
 		void			setHost(std::string host);
 		void			setServerName(const std::string&);
-		void			setMode(const std::string&);
-		const std::string&		getMode(void) const;
+		void			setMode(const std::string&, int channelFd);
+		const std::string	&getMode(int index) const;
+		void			addMode(const char c, int index);
+		// void			setMode(const std::string&);
+		// const std::string&		getMode(void) const;
 		const std::string	&getServerName(void) const;
 		std::set<std::string>&		getChannelsSet(void);
 		std::string		getNickName(void) const;

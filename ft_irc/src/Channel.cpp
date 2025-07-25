@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:36:43 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/23 20:30:52 by fcaldas-         ###   ########.fr       */
+/*   Updated: 2025/07/24 19:40:51 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,12 +89,12 @@ int		Channel::getMembersNum(void) const
 	return (membersNum);
 }
 
-std::string	Channel::getTimeStamp(void) const
+std::string&	Channel::getTimeStamp(void)
 {
 	return (timestamp);
 }
 
-std::string	Channel::getOwnerTopic(void) const
+std::string&	Channel::getOwnerTopic(void)
 {
 	return (ownerTopic);
 }
@@ -175,17 +175,17 @@ void	Channel::setTopicFlag(bool topicflag)
 	this->topicFlag = topicflag;
 }
 
-std::string	Channel::getName(void) const
+std::string&	Channel::getName(void)
 {
 	return (name);
 }
 
-std::string	Channel::getTopic(void) const
+std::string&	Channel::getTopic(void)
 {
 	return (topic);
 }
 
-std::string	Channel::getPassWord(void) const
+std::string&	Channel::getPassWord(void)
 {
 	return (password);
 }

@@ -1,5 +1,4 @@
 #include "../includes/Server.hpp"
-
 /*
 	USER <username> <hostname> <servername> : <real name>
 */
@@ -39,6 +38,9 @@ void	Server::user(s_commands	&com)
 		
 		com.client->setRealName(name);
 	}
-	this->tryRegister(com);
+	if (com.client->getNickName() != "*")
+		com.client->setRegistered(true);
+	if (com.client->getNickName() != "*")
+		com.sendBuffer += msg_welcome(com.client);
 	// this->sendBuffer[com.index] = "Hello " + com.client->getUserName() + "@" + com.client->getHost() + " " + com.client->getServerName() + " " + com.client->getRealName() + "\n";
 }
