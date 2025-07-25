@@ -18,7 +18,11 @@ void	Server::topic(s_commands& com)
 		channel = com.args[0].substr(1, com.args[0].size());
 		int channelIndex = getChannelsIndex(channel);
 		if (channelIndex == -1)
+		{
+			it->second->getBufferOut() += msg_err_nosuchchannel(it->second->getNickName(), channel);
+			fds[com.index].events |= POLLOUT;
 			return ;
+		}
 		itm = channels->find(channelIndex);
 		it->second->getBufferOut() += my_join_rpl_topic(it->second->getNickName(), itm->second->getName(), itm->second->getTopic());
 		fds[com.index].events |= POLLOUT;

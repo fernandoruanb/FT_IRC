@@ -36,18 +36,35 @@ void	Server::part(s_commands& com)
 		}
 		Channel* channel = this->channels->find(channelIndex)->second;
 		if (!channel->isMemberOfChannel(com.fd) && !channel->isOperatorOfChannel(com.fd)) {
-			this->sendBuffer[com.index] += msg_err_notonchannel(com.client->getNickName(), com.args[i]);
+			this->sendBuffer[com.index] += msg_err_notonchannel(com.client->getNickName(), channelName);
 			std::cout << "client not member of channel: " << com.args[i] << std::endl; /// debug
 			continue ;
 		}
 		if (channel->isMemberOfChannel(com.fd)) {
 			com.client->getChannelsSet().erase(channelName);
 			channel->removeMember(com.fd);
+			com.client->getOperatorChannels().erase(channelName);
+			com.client->getChannelsSet().erase(channelName);
+			com.client->getInviteChannels().erase(channelName);
+			channel->removeMember(com.fd);
+			channel->getOperatorsSet().erase(com.fd);
+        		channel->getMembersSet().erase(com.fd);
+			com.client->getSendHistory()[channelIndex].clear();
+			this->changeChannel("Generic", com.fd, 0);
 		}
 		if (channel->isOperatorOfChannel(com.fd)) {
 			com.client->getChannelsSet().erase(channelName);
 			com.client->getOperatorChannels().erase(channelName);
+			com.client->getInviteChannels().erase(channelName);
+			channel->removeMember(com.fd);
+			channel->getOperatorsSet().erase(com.fd);
+        		channel->getMembersSet().erase(com.fd);
+			com.client->getSendHistory()[channelIndex].clear();
+			this->changeChannel("Generic", com.fd, 0);
 		}
+        	if (com.client->getOperatorChannels().size() == 0)
+                	com.client->setIsOperator(false);
+		return ;
 
 		if (haveMsg) {
 			this->sendBuffer[com.index] += ":" + getClientsMap()->find(com.fd)->second->getNickName() + "!" + getClientsMap()->find(com.fd)->second->getUserName() + " PART " + com.args[i] + " :" + msg + "\n";
@@ -56,6 +73,6 @@ void	Server::part(s_commands& com)
 			this->sendBuffer[com.index] += ":" + getClientsMap()->find(com.fd)->second->getNickName() + "!" + getClientsMap()->find(com.fd)->second->getUserName() + " PART " + com.args[i] + "\n";
 			broadcast(com.index, this->sendBuffer[com.index]);
 		}
-		this->sendBuffer[com.index] += "You have left the channel: " + com.args[i] + "\n";
+		com.client->getBufferOut() += ":" + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " PART " + " #" + channel->getName() + " :You have left the channel: " + "\r\n";
 	}
 }
