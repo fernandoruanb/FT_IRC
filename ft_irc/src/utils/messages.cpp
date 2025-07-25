@@ -153,9 +153,9 @@ std::string	my_notonchannel(const std::string& nick, const std::string& channel,
 	return (":" SERVER_NAME " 442 " + nick + " #" + channel + " :" + message + "\r\n");
 }
 
-std::string	my_nosuchnickchannel(const std::string& nick, const std::string& target ,const std::string& channel, const std::string& message)
+std::string	my_nosuchnickchannel(const std::string& nick, const std::string& target)
 {
-	return (":" SERVER_NAME " 401 " + nick + " " + target + " #" + channel + " :" + message + "\r\n");
+	return (":" SERVER_NAME " 401 " + nick + " " + target + " :no such nick/channel" + "\r\n");
 }
 
 std::string	my_usernotinchannel(std::string& nick, const std::string& target, const std::string& channel, const std::string& message)

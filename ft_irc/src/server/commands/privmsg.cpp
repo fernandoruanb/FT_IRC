@@ -34,13 +34,15 @@ void	Server::privmsg(s_commands& com)
 		if (targetChannel == -1)
 		{
 			std::cerr << RED "Error: That channel doesn't exist" RESET << std::endl;
+			com.client->getBufferOut() += msg_err_nosuchchannel(com.client->getNickName(), com.args[0].substr(1));
 			return ;
 		}
 		std::map<int, Channel*>::iterator itm = channels->find(targetChannel);
 		std::string	targetChannelName = itm->second->getName();
 		if (it->second->getChannelsSet().find(targetChannelName) == it->second->getChannelsSet().end())
 		{
-			std::cerr << RED "Error: You are not in that channel" RESET << std::endl;
+			std::cerr << RED "Error: You are not on that channel" RESET << std::endl;
+			com.client->getBufferOut() += my_notonchannel(com.client->getNickName(), com.args[0].substr(1), "You are not on that channel");
 			return ;
 		}
 		sendBuffer[com.index] += std::string("\n:") + (*clients)[fds[com.index].fd]->getNickName() + "!" + (*clients)[fds[com.index].fd]->getUserName() + "@" + (*clients)[fds[com.index].fd]->getHost() + " PRIVMSG";
@@ -55,6 +57,7 @@ void	Server::privmsg(s_commands& com)
 		if (targetFD == -1)
 		{
 			std::cerr << RED "Error: that client doesn't exist" RESET << std::endl;
+			com.client->getBufferOut() += my_nosuchnickchannel(com.client->getNickName(), com.args[0]);
 			return ;
 		}
 		int	index = 1;
@@ -63,6 +66,7 @@ void	Server::privmsg(s_commands& com)
 		if (index == numClients || index == -1)
 		{
 			std::cerr << RED "Error: The client doesn't exist" RESET << std::endl;
+			com.client->getBufferOut() += my_nosuchnickchannel(com.client->getNickName(), com.args[0]);
 			return ;
 		}
 		privmsg(index, com.index, message);

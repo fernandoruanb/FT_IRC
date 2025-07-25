@@ -12,7 +12,6 @@ void	Server::join(s_commands& com)
 		return ;
 	}
 	channel = com.args[0].substr(1, com.args[0].size());
-	std::cout << "Olá: " << channel << std::endl;
 	changeChannel(channel, com.fd, 0);
 	this->sendBuffer[com.index].clear();
 	this->sendBuffer[com.index] = "You called JOIN\n";
