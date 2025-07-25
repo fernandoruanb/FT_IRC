@@ -9,12 +9,9 @@ COMMANDS=$(cat << EOF
 PASS 12345
 NICK Miku
 USER Miku * 0: Hatsune Miku
-MODE #Generic +k helloWorld
-MODE #Generic +k lala
-MODE #Generic +k
-MODE #Generic
-MODE #Generic -k
-MODE Generic
+JOIN #channel1,#channel2,#channel3
+MODE #channel2 +k helloWorld
+JOIN #channel2 helloWorld
 EOF
 )
 
