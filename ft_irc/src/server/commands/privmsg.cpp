@@ -1,41 +1,95 @@
 #include "../includes/Server.hpp"
 
+static std::vector<std::string>	getAllChannels(s_commands& com)
+{
+	std::vector<std::string>	channels;
+	std::size_t	index = 0;
+
+	while (index < com.args.size())
+	{
+		if (com.args[index][0] == '#')
+			channels.push_back(com.args[index].substr(1));
+		if (com.args[index][0] == ':')
+			break ;
+		++index;
+	}
+	return (channels);
+}
+
+static std::vector<std::string>	getAllClients(s_commands& com)
+{
+	std::vector<std::string>	clients;
+	std::size_t	index = 0;
+
+	while (index < com.args.size())
+	{
+		if (com.args[index][0] == ':')
+			break ;
+		if (com.args[index][0] != '#')
+			clients.push_back(com.args[index]);
+		++index;
+	}
+	return (clients);
+}
+
+static std::string	getTheMessage(s_commands& com)
+{
+	std::size_t	index = 0;
+	std::string	message;
+
+	while (index < com.args.size())
+	{
+		if (com.args[index][0] == ':')
+		{
+			message += com.args[index].substr(1);
+			message += " ";
+			++index;
+			while (index < com.args.size())
+			{
+				message += com.args[index];
+				if (index + 1 < com.args.size())
+					message += " ";
+				++index;
+			}
+			message += "\r\n";
+			return (message);
+		}
+		++index;
+	}
+	return (message);
+}
+
 void	Server::privmsg(s_commands& com)
 {
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Channel*>* channels = getChannelsMap();
+	std::vector<std::string> channelsVector = getAllChannels(com);
+	std::vector<std::string> clientsVector = getAllClients(com);
+	std::string	message = getTheMessage(com);
 	struct pollfd	(&fds)[1024] = *getMyFds();
 	int	clientFD;
 
 	if (com.args.size() < 2)
 		return ;
-	if (com.args[1][0] != ':')
+
+	if (channelsVector.empty() && clientsVector.empty())
 		return ;
-
-	std::string	message = com.args[1].substr(1, com.args[1].size());
+	if (message.empty())
+		return ;
 	clientFD = fds[com.index].fd;
-	std::size_t	index = 2;
 
-	if (index + 1 < com.args.size())
-		message += " ";
-	while (index < com.args.size())
-	{
-		message += com.args[index];
-		if (index + 1 < com.args.size())
-			message += " ";
-		++index;
-	}
-	message += "\r\n";
-	if (com.args[0][0] == '#')
+	std::size_t	index = 0;
+	while (index < channelsVector.size() && !channelsVector[index].empty())
 	{
 		std::map<int, Client*>::iterator it = clients->find(clientFD);
-		std::string	target = com.args[0].substr(1, com.args[0].size());
+		std::string	target = channelsVector[index];
 		int	targetChannel = getChannelsIndex(target);
 		if (targetChannel == -1)
 		{
 			std::cerr << RED "Error: That channel doesn't exist" RESET << std::endl;
 			com.client->getBufferOut() += msg_err_nosuchchannel(com.client->getNickName(), com.args[0].substr(1));
-			return ;
+			++index;
+			continue ;
 		}
 		std::map<int, Channel*>::iterator itm = channels->find(targetChannel);
 		std::string	targetChannelName = itm->second->getName();
@@ -43,32 +97,48 @@ void	Server::privmsg(s_commands& com)
 		{
 			std::cerr << RED "Error: You are not on that channel" RESET << std::endl;
 			com.client->getBufferOut() += my_notonchannel(com.client->getNickName(), com.args[0].substr(1), "You are not on that channel");
-			return ;
+			++index;
+			continue ;
 		}
 		sendBuffer[com.index] += std::string("\n:") + (*clients)[fds[com.index].fd]->getNickName() + "!" + (*clients)[fds[com.index].fd]->getUserName() + "@" + (*clients)[fds[com.index].fd]->getHost() + " PRIVMSG";
 		broadcast(com.index, message, targetChannel);
 		fds[com.index].events |= POLLOUT;
-		return ;
+		++index;
 	}
-	else
+	index = 0;
+	int	test = 1;
+	std::string	targetChannelName;
+	int	targetChannelOfTime;
+
+	while (index < clientsVector.size() && !clientsVector[index].empty())
 	{
-		int	targetFD = getClientsFdByName(com.args[0]);
+		test = 1;
+		int	targetFD = getClientsFdByName(clientsVector[index]);
 
 		if (targetFD == -1)
 		{
 			std::cerr << RED "Error: that client doesn't exist" RESET << std::endl;
 			com.client->getBufferOut() += my_nosuchnickchannel(com.client->getNickName(), com.args[0]);
-			return ;
-		}
-		int	index = 1;
-		while (fds[index].fd != targetFD)
 			++index;
-		if (index == numClients || index == -1)
+			continue ;
+		}
+		while (fds[test].fd != targetFD)
+			++test;
+		if (test == numClients || test == -1)
 		{
 			std::cerr << RED "Error: The client doesn't exist" RESET << std::endl;
 			com.client->getBufferOut() += my_nosuchnickchannel(com.client->getNickName(), com.args[0]);
-			return ;
+			++index;
+			continue ;
 		}
-		privmsg(index, com.index, message);
+		targetChannelOfTime = (*clients)[targetFD]->getChannelOfTime();
+		targetChannelName = (*channels)[targetChannelOfTime]->getName();
+		if (std::find(channelsVector.begin(), channelsVector.end(), targetChannelName) != channelsVector.end())
+		{
+			++index;
+			continue ;
+		}
+		privmsg(test, com.index, message);
+		++index;
 	}
 }

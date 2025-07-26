@@ -30,6 +30,7 @@
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
+# include <algorithm>
 # include "colours.hpp"
 # include "messages.hpp"
 
