@@ -93,7 +93,12 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	}
 
 	if (!signin && com.client->getRegistered())
-		com.sendBuffer += msg_welcome(com.client);
+		com.sendBuffer +=
+			msg_welcome(com.client)
+			+ msg_yourhost(com.client->getNickName())
+			+ msg_created(com.client->getNickName())
+			+ msg_svrinfo(com.client->getNickName());
+
 
 	fds[com.index].events |= POLLOUT;
 	// Limpa o buffer do cliente após processar comando válido
