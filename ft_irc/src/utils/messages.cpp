@@ -69,7 +69,7 @@ std::string msg_err_alreadyregistered(const std::string& nick) {
 }
 
 std::string msg_notice(const std::string& text) {
-    return (CYAN ":" SERVER_NAME " NOTICE * : " YELLOW  + text + "\r\n" RESET);
+    return (":" SERVER_NAME " NOTICE * : " + text + "\r\n" RESET);
 }
 
 std::string	msg_error(const std::string &message, int error_code, s_commands& com)
