@@ -64,7 +64,7 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 		const std::string	allowed[3] = {"USER", "NICK", "QUIT"};
 		bool	isValid = false;
 
-		for (size_t i = 0; i < allowed->size(); i++)s
+		for (size_t i = 0; i < allowed->size(); i++)
 			if (command == allowed[i])
 			{
 				isValid = true;
