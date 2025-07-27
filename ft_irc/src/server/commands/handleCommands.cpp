@@ -53,15 +53,18 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 		j++;
 	std::string	arguments = buffer.substr(j);
 	s_commands	com(buffer, clients, fd ,i, arguments, command, this->sendBuffer[i]);
+
 	if (!com.client->getAuthenticated())
-		if (command != PASS)
+	{
+		if (command != "PASS")
 			return (false);
+	}
 	else if (!com.client->getRegistered())
 	{
 		const std::string	allowed[3] = {"USER", "NICK", "QUIT"};
 		bool	isValid = false;
 
-		for (size_t i = 0; i < allowed->size(); i++)
+		for (size_t i = 0; i < allowed->size(); i++)s
 			if (command == allowed[i])
 			{
 				isValid = true;
