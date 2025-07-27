@@ -53,6 +53,7 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 		j++;
 	std::string	arguments = buffer.substr(j);
 	s_commands	com(buffer, clients, fd ,i, arguments, command, this->sendBuffer[i]);
+	bool	signin = com.client->getRegistered();
 
 	if (!com.client->getAuthenticated())
 	{
@@ -90,6 +91,10 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 		com.client->getChannelsSet().insert("Generic");
 		com.client->setChannelOfTime(0);
 	}
+
+	if (!signin && com.client->getRegistered())
+		com.sendBuffer += msg_welcome(com.client);
+
 	fds[com.index].events |= POLLOUT;
 	// Limpa o buffer do cliente após processar comando válido
 	// this->recvBuffer[com.index].clear();

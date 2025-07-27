@@ -47,7 +47,7 @@ void	Server::nick(s_commands& com)
 	this->sendBuffer[com.index] = msg_notice("NICK " + com.client->getNickName());
 	if (!com.client->getRegistered() && com.client->getUserName() != "*")
 	{
-		com.sendBuffer += msg_welcome(com.client);
+		// com.sendBuffer += msg_welcome(com.client);
 		com.client->setRegistered(true);
 	}
 	else
