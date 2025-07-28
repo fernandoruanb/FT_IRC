@@ -137,6 +137,8 @@ static void	caseT(s_commands& com, s_mode& mode)
 }
 static void	caseK(s_commands& com, s_mode& mode)
 {
+	bool	hasPermition = findMode(com.client->getMode(mode.channelIndex), 'o');
+
 	if (mode.sign == '+')
 	{
 		if (mode.len != 3)
@@ -145,7 +147,7 @@ static void	caseK(s_commands& com, s_mode& mode)
 			return;
 		}
 		std::cout << "indice do canal: " << mode.channelIndex << std::endl;
-		if (findMode(com.client->getMode(mode.channelIndex), 'o'))
+		if (hasPermition)
 		{
 			if (!mode.flagFound)
 				mode.currentMode += mode.flag;
@@ -157,9 +159,15 @@ static void	caseK(s_commands& com, s_mode& mode)
 	}
 	if (mode.sign == '-' && mode.flagFound)
 	{
-		size_t	pos = mode.currentMode.find(mode.flag);
-		mode.currentMode.erase(pos, 1);
-		mode.target->getPassWord().clear();
+		if (hasPermition)
+		{
+			size_t	pos = mode.currentMode.find(mode.flag);
+			mode.currentMode.erase(pos, 1);
+			mode.target->getPassWord().clear();
+			return;
+		}
+		com.sendBuffer += "vc n tem permissao pra isso aqui n amigo'-'\n";
+		return;
 	}
 }
 static void	caseL(s_commands& com, s_mode& mode)
@@ -183,6 +191,17 @@ static void	caseL(s_commands& com, s_mode& mode)
 		mode.currentMode += mode.flag;
 		mode.target->setUserLimit(limit);
 		return;
+	}
+	if (mode.sign == '-' && mode.flagFound)
+	{
+		if (mode.len != 2)
+		{
+			com.sendBuffer += "Invalid num of arguments\n";
+			return;
+		}
+		size_t	pos = mode.currentMode.find(mode.flag);
+		mode.currentMode.erase(pos, 1);
+		mode.target->setUserLimit(1024);
 	}
 }
 static void	caseO(s_commands& com, s_mode& mode)
@@ -221,8 +240,6 @@ static void	caseI(s_commands& com, s_mode& mode)
 	}
 }
 
-
-
 static void	addChannelMode(s_commands &com, Channel* &target, int channelIndex)
 {
 	size_t		len = com.args.size();
@@ -254,101 +271,6 @@ static void	addChannelMode(s_commands &com, Channel* &target, int channelIndex)
 		
 		s_mode	mode(sign, flag, flagFound, target, currentMode, len, channelIndex);	
 		myMap[flag](com, mode);
-		// switch (flag)
-		// {
-		// 	case 't':
-		// 		if (sign == '+' && !flagFound)
-		// 		{
-		// 			currentMode += flag;
-		// 			target->setTopicFlag(true);
-		// 			break;
-		// 		}
-		// 		if (sign == '-' && flagFound)
-		// 		{
-		// 			size_t	pos = currentMode.find(flag);
-		// 			currentMode.erase(pos, 1);
-		// 		}
-		// 		break;
-		// 	case 'k':
-		// 		if (sign == '+')
-		// 		{
-		// 			if (len != 3)
-		// 			{
-		// 				com.sendBuffer += "Invalid num of arguments\n";
-		// 				return;
-		// 			}
-		// 			std::cout << "indice do canal: " << channelIndex<< std::endl;
-		// 			if (findMode(com.client->getMode(channelIndex), 'o'))
-		// 			{
-		// 				if (!flagFound)
-		// 					currentMode += flag;
-		// 				target->setPassWord(com.args[2]);
-		// 				break;
-		// 			}
-		// 			com.sendBuffer += "vc n tem permissao pra isso aqui n amigo'-'\n";
-		// 			break;
-		// 		}
-		// 		if (sign == '-' && flagFound)
-		// 		{
-		// 			size_t	pos = currentMode.find(flag);
-		// 			currentMode.erase(pos, 1);
-		// 			target->getPassWord().clear();
-		// 		}
-		// 		break;
-		// 	case 'l':
-		// 		if (sign == '+' && !flagFound)
-		// 		{
-		// 			if (len != 3)
-		// 			{
-		// 				com.sendBuffer += "Invalid num of arguments\n";
-		// 				return;
-		// 			}
-		// 			int	limit;
-		// 			std::istringstream	ss(com.args[2]);
-
-		// 			ss >> limit;
-		// 			if (ss.fail())
-		// 			{
-		// 				com.sendBuffer += "Tem coisa errada no numero de clientes q vc pos\n";
-		// 				return;
-		// 			}
-		// 			currentMode += flag;
-		// 			target->setUserLimit(limit);
-		// 			break;
-		// 		}
-		// 		break;
-		// 	case 'o':
-		// 		if (len != 3)
-		// 		{
-		// 			com.sendBuffer += "Invalid num of arguments\n";
-		// 			return;
-		// 		}
-		// 		Client*	client = getTargetClient(com, com.args[2], com.sendBuffer);
-		// 		if (!client)
-		// 			break;
-		// 		client->setIsOperator(true);
-		// 		client->addMode(flag, channelIndex);
-		// 		target->setOperator(client->getClientFD());
-		// 		break;
-		// 	case 'i':
-		// 		if (len != 2)
-		// 		{
-		// 			com.sendBuffer += "Invalid num of arguments\n";
-		// 			return;
-		// 		}
-		// 		if (sign == '+' && !flagFound)
-		// 		{
-		// 			currentMode += flag;
-		// 			target->setInviteFlag(true);
-		// 		}
-		// 		if (sign == '-' && flagFound)
-		// 		{
-		// 			size_t	pos = currentMode.find(flag);
-		// 			currentMode.erase(pos, 1);
-		// 			target->setInviteFlag(false);
-		// 		}
-		// 		break;
-		// }
 	}
 
 	target->setMode(currentMode);
