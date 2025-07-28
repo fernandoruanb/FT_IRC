@@ -242,6 +242,11 @@ static void	caseI(s_commands& com, s_mode& mode)
 
 static void	addChannelMode(s_commands &com, Channel* &target, int channelIndex)
 {
+	if (target->getName() == "Generic")
+	{
+		com.sendBuffer += "Ta ficando pichuru das ideias meu consagrado, pode fazer isso nao\n";
+		return;
+	}
 	size_t		len = com.args.size();
 	if (len < 2)
 		return;
