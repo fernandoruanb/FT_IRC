@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:36:43 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/24 19:40:51 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/28 17:03:41 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,4 +208,9 @@ void	Channel::setMode(const std::string& mod)
 const std::string&	Channel::getMode(void) const
 {
 	return (mode);
+}
+
+void	Channel::setOperator(int fd)
+{
+	this->operators.insert(fd);	
 }

@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:26:36 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/24 15:37:02 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/28 17:03:12 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ class	Channel
 		void	addNewMember(int clientFD);
 		bool	isMemberOfChannel(int fd) const;
 		bool	isOperatorOfChannel(int fd) const;
+		void	setOperator(int fd);
 };
 std::ofstream	operator<<(std::ostream &out, const Channel &other);
 #endif /* CHANNEL_HPP */
