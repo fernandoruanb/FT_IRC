@@ -44,6 +44,7 @@ void	Server::join(s_commands& com)
 {
 	Channel*	firstChannel = NULL;
 	size_t		passIndex = 0;
+	bool		create = false;
 	std::string	firstPass;
 	Channel*	currentChannel = NULL;
 	std::vector<std::string>	channelsArgs;
@@ -68,6 +69,7 @@ void	Server::join(s_commands& com)
 		{
 			createNewChannel(name, com.fd);
 			currentChannel = getChannel(name, this->channels);
+			create = true;
 		}
 		if (!firstChannel)
 		{
@@ -87,7 +89,9 @@ void	Server::join(s_commands& com)
 				continue;
 			}
 		}
-		currentChannel->addNewMember(com.fd);
+
+		if (!create)
+			currentChannel->addNewMember(com.fd);
 
 		std::cout << "Membros do " + currentChannel->getName() + ": " + currentChannel->getClientsNames() << std::endl;
 	}
