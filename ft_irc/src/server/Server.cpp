@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/28 19:13:16 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/28 20:43:59 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,6 +131,21 @@ int	Server::atoiIRC(std::string port)
 	return (result);
 }
 
+int	Server::getClientFDByNick(std::string nickname, int numClients)
+{
+	struct pollfd (&fds)[1024] = *getMyFds();
+	std::map<int, Client*>* clients = getClientsMap();
+	int	index = 1;
+
+	while (index < numClients && fds[index].fd != -1)
+	{
+		if ((*clients)[fds[index].fd]->getNickName() == nickname)
+			return (fds[index].fd);
+		++index;
+	}
+	return (-1);
+}
+
 Server::Server(std::string portCheck, std::string password): supremeKey("hunter42"), supremeUser("root"), numChannels(0)
 {
 	int	port;
@@ -152,7 +167,7 @@ Server::Server(std::string portCheck, std::string password): supremeKey("hunter4
 			throw std::exception();
 		if (password.empty())
 			throw std::exception();
-		std::cout << LIGHT_BLUE "Starting the server with your configuration 127.0.0.1:" << YELLOW <<  port << RESET << std::endl;
+		std::cout << LIGHT_BLUE "Starting the server with your configuration 127.0.0.1:" << YELLOW << port << RESET << std::endl;
 		init(port, password);
 
 	} catch (std::exception &e) 

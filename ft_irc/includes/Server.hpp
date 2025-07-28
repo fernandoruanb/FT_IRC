@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/28 19:44:37 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/28 20:27:08 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,7 @@ class	Server
 		Server&	operator=(const Server &other);
 		Server(const Server &other);
 
+		int	getClientFDByNick(std::string nickname, int numClients);
 		int     getClientsFdByName(std::string nickname);
 		void    inviteToChannel(std::string channelName, int operatorFD, int clientFD);
 		bool	checkName(std::string Name);
