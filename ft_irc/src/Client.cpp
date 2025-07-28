@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/28 12:43:17 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/28 15:02:35 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,6 +205,7 @@ void Client::setMode(const std::string &mode, int channelFd)
 {
 	this->mode[channelFd] = mode;
 }
+
 const std::string &Client::getMode(int index) const
 {
 	std::map<int, std::string>::const_iterator it = mode.find(index);

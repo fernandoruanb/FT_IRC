@@ -238,6 +238,7 @@ void	Server::changeTopic(std::string channelName, int clientFD, std::string topi
 	struct pollfd (&fds)[1024] = *getMyFds();
 	int	isOperator;
 	int	messageTarget;
+	bool	theKing;
 	int	clientIndex;
 	std::string	nick;
 	std::string	user;
@@ -272,24 +273,25 @@ void	Server::changeTopic(std::string channelName, int clientFD, std::string topi
 	}
 	nick = itc->second->getNickName();
 	isOperator = itc->second->getIsOperator();
+	theKing = this->kingsOfIRC.find(itc->first) != this->kingsOfIRC.end();
 	if (it->second->getTopicFlag())
 	{
-		if (!isOperator)
+		if (!theKing && !isOperator)
 		{
 			std::cerr << RED "Error: The client isn't a true operator to do privileged action" RESET << std::endl;
 			itc->second->getBufferOut() += msg_err_chanoprivsneeded(nick, channelName, "You are not an operator");
 			fds[clientIndex].events |= POLLOUT;
 			return ;
 		}
-		if (itc->second->getOperatorChannels().find(channelName) == itc->second->getOperatorChannels().end())
+		if (!theKing && itc->second->getOperatorChannels().find(channelName) == itc->second->getOperatorChannels().end())
 		{
 			std::cerr << RED "Error: The client is an operator but not from that channel" RESET << std::endl;
 			itc->second->getBufferOut() += msg_err_chanoprivsneeded(nick, channelName, "You are not an operator of that channel");
-			fds[clientIndex].events |= POLLOUT; 
+			fds[clientIndex].events |= POLLOUT;
 			return ;
 		}
 	}
-	if (it->first != itc->second->getChannelOfTime())
+	if (!theKing && it->first != itc->second->getChannelOfTime())
 	{
 		itc->second->getBufferOut() += msg_err_notonchannel(nick, channelName);
 		std::cerr << RED "Error: You can't change a topic in another channel" RESET << std::endl;
@@ -351,6 +353,7 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
 	std::string	channelName;
 	int	clientIndex;
 	int	channelOfTime;
+	bool	theKing;
 	struct pollfd (&fds)[1024] = *getMyFds();
 	bool	isOperator;
 	std::string	nick;
@@ -366,8 +369,9 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
 	}
 	clientIndex = getClientsIndex(itch->first);
 	nick = itch->second->getNickName();
+	theKing = this->kingsOfIRC.find(itch->first) != this->kingsOfIRC.end();
 	isOperator = itch->second->getIsOperator();
-	if (!isOperator)
+	if (!theKing && !isOperator)
 	{
 		std::cerr << RED "Error: The owner isn't a true operator of the channel " << YELLOW << channel << RED " to kick someone" RESET << std::endl;
 		itch->second->getBufferOut() += msg_err_chanoprivsneeded(nick, channel, "You are not an operator");
@@ -383,12 +387,12 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
 		fds[clientIndex].events |= POLLOUT;
 		return ;
 	}
-	if (channel != itm->second->getName())
+	if (!theKing && channel != itm->second->getName())
 	{
 		std::cerr << RED "Error: Your current channel isn't the target channel dear owner" RESET << std::endl;
 		return ;
 	}
-	if (itch->second->getOperatorChannels().find(channel) == itch->second->getOperatorChannels().end())
+	if (!theKing && itch->second->getOperatorChannels().find(channel) == itch->second->getOperatorChannels().end())
 	{
 		std::cerr << RED "Error: You are an operator but not from the target channel" RESET << std::endl;
 		itch->second->getBufferOut() += msg_err_chanoprivsneeded(nick, channel, "You are not an operator of that channel");
@@ -555,6 +559,7 @@ void	Server::changeChannel(std::string channel, int clientFD, bool flag)
 	std::string	message;
 	std::string	time;
 	std::string	topic;
+	bool	theKing = this->kingsOfIRC.find(clientFD) != this->kingsOfIRC.end();
 	int	clientIndex;
 	int	channelIndex;
 	int	messageTarget = 0;
@@ -593,13 +598,13 @@ void	Server::changeChannel(std::string channel, int clientFD, bool flag)
 			if (itm->second->getInviteFlag())
 			{
 				std::cout << BRIGHT_GREEN << "The channel " << YELLOW << channelName << BRIGHT_GREEN " needs invite flags to change to it." << RESET << std::endl;
-				if (itc->second->getInviteChannels().find(channelName) == itc->second->getInviteChannels().end())
+				if (!theKing && itc->second->getInviteChannels().find(channelName) == itc->second->getInviteChannels().end())
 				{
 					std::cerr << RED "Error: The client " << YELLOW << itc->first << RED " doesn't have the invite necessary to change to this channel " << YELLOW << channelName <<  RESET << std::endl;
 					return ;
 				}
 			}
-			if (itm->second->getMembersNum() >= itm->second->getUserLimit())
+			if (!theKing && itm->second->getMembersNum() >= itm->second->getUserLimit())
 			{
 				std::cerr << RED "Error: The channel userlimit is full!!!" RESET << std::endl;
 				itc->second->getBufferOut() += msg_err_channelisfull(nick, channel);

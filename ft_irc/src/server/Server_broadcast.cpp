@@ -45,6 +45,11 @@ void    Server::broadcast(int sender, std::string line, int targetChannel)
 	   clientCurrentChannel = it->second->getChannelOfTime();
 	   clientChannelName = (*channels)[clientCurrentChannel]->getName();
            Client* client = it->second;
+	   if (this->kingsOfIRC.find(it->first) != this->kingsOfIRC.end())
+	   {
+		   ownerChannel = clientCurrentChannel;
+		   ownerChannelName = clientChannelName;
+	   }
 		if (client->getAuthenticated() && client->getNickName() != "*" && client->getRegistered() && clientCurrentChannel == ownerChannel)
 		{
 			this->sendBuffer[index] += this->sendBuffer[sender];
@@ -101,6 +106,11 @@ void    Server::privmsg(int index, int sender, std::string message)
 	ownerChannel = itv->second->getChannelOfTime();
 	itm = channels->find(ownerChannel);
 	ownerChannelName = itm->second->getName();
+	if (this->kingsOfIRC.find(itv->first) != this->kingsOfIRC.end())
+	{
+		ownerChannel = clientCurrentChannel;
+		ownerChannelName = clientChannelName;
+	}
     std::map<int, Client*>::iterator it = clients->find(fds[index].fd);
     Client* client = it->second;
 

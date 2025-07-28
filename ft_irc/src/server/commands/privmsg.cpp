@@ -93,7 +93,7 @@ void	Server::privmsg(s_commands& com)
 		}
 		std::map<int, Channel*>::iterator itm = channels->find(targetChannel);
 		std::string	targetChannelName = itm->second->getName();
-		if (it->second->getChannelsSet().find(targetChannelName) == it->second->getChannelsSet().end())
+		if (this->kingsOfIRC.find(it->first) == this->kingsOfIRC.end() && it->second->getChannelsSet().find(targetChannelName) == it->second->getChannelsSet().end())
 		{
 			std::cerr << RED "Error: You are not on that channel" RESET << std::endl;
 			com.client->getBufferOut() += my_notonchannel(com.client->getNickName(), com.args[0].substr(1), "You are not on that channel");
