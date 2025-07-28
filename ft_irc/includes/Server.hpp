@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/28 19:09:59 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/28 19:44:37 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,19 @@ struct	s_commands
 	std::string					command;
 
 	s_commands(std::string &l, std::map<int, Client*>* &c, int f, int i, std::string &a, std::string& com, std::string &buf);
+};
+
+struct	s_mode
+{
+	char	sign;
+	char	flag;
+	bool	flagFound;
+	Channel* &target;
+	std::string	&currentMode;
+	size_t		len;
+	id_t		channelIndex;
+
+	s_mode(char s, char f, bool ff, Channel* &t, std::string& c, size_t l, int i);
 };
 
 class	Server

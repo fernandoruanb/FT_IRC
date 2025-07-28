@@ -27,12 +27,15 @@ static std::string	getNames(Channel* channel, s_commands& com)
 static void	showAllNames(s_commands& com, std::map<int, Channel*>* &channels)
 {
 	std::string	names;
+	std::string	prefix;
 
 	std::map<int, Channel*>::iterator it;
 	for (it = channels->begin(); it != channels->end(); it++)
-		names += getNames(it->second, com);
-
-	callCmdMsg(names, 353, com, com.sendBuffer);
+	{
+		prefix = it->second->getName();
+		names = prefix + ": " + getNames(it->second, com);
+		com.sendBuffer += "Animais presentes no canal #" + names + "\n";
+	}
 }
 
 static void	showChannel(s_commands& com, std::map<int, Channel*>* &channels)
