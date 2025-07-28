@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:22:05 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/25 17:50:19 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/28 12:38:18 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class	Client
 		std::string		nickname;
 		std::string		username;
 		std::string		realname;
+		bool			masterFlag;
 		std::string		sendHistory[1024];
 		std::string		bufferIn;
 		std::string		bufferOut;
@@ -81,6 +82,8 @@ class	Client
 		std::set<int>&	getChannels(void);
 		bool			hasNick(void) const;
 		bool			hasUser(void) const;
+		void	setMasterFlag(bool MasterFlag);
+		bool	getMasterFlag(void) const;
 };
 std::ostream& operator<<(std::ostream &out, const Client &other);
 #endif /* CLIENT_HPP */

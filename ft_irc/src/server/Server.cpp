@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/24 19:43:10 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/28 13:19:43 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,7 @@ void Server::tryRegister(s_commands& com)
 
 void	Server::addNewClient(int clientFD)
 {
+	static bool	masterFlag = false;
 	int	index;
 	struct pollfd (&fds)[1024] = getPollFds();
 	index = 1;
@@ -97,6 +98,13 @@ void	Server::addNewClient(int clientFD)
 	fds[index].events = POLLIN;
 	fcntl(clientFD, F_SETFL, O_NONBLOCK);
 	this->numClients++;
+	if (numClients == 2 && !masterFlag)
+	{
+		std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " is now the main King of IRC" RESET << std::endl;
+		(*this->clients)[clientFD]->setMasterFlag(true);
+		this->kingsOfIRC.insert(clientFD);
+		masterFlag = true;
+	}
 	// NOTICE message to the new client. Asking for authentication.
 	// this->sendBuffer[index] = msg_notice("Connected. Please authenticate with \"PASS <password>\"");
 	fds[index].events |= POLLOUT;

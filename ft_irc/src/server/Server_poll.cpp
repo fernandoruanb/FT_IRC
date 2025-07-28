@@ -143,6 +143,7 @@ void	Server::PollInputClientMonitoring(void)
 			{
 				std::cout << LIGHT_BLUE "Client " << YELLOW << fds[index].fd << LIGHT_BLUE " disconnected" << RESET << std::endl;
 				std::map<int, Client*>::iterator it = clients->find(fds[index].fd);
+				this->kingsOfIRC.erase(it->first);
 				delete it->second;
 				close(fds[index].fd);
 				fds[index].fd = fds[numClients - 1].fd;

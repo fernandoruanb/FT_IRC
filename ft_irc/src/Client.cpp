@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/25 17:58:03 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/28 12:43:17 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include "../includes/colours.hpp"
 
 Client::Client(int fd)
-	: channelOfTime(0), clientFD(fd), authenticated(false), registered(false), isOperator(false), nickname("*"), username("*"), host("localhost")
+	: channelOfTime(0), clientFD(fd), authenticated(false), registered(false), isOperator(false), nickname("*"), username("*"), masterFlag(false), host("localhost")
 {
 	std::cout << LIGHT_BLUE << "Constructor Client* Called in fd: " MAGENTA << fd << RESET << std::endl;
 }
@@ -40,6 +40,16 @@ int Client::getChannelOfTime(void) const
 void Client::setChannelOfTime(int channel)
 {
 	this->channelOfTime = channel;
+}
+
+void	Client::setMasterFlag(bool masterFlag)
+{
+	this->masterFlag = masterFlag;
+}
+
+bool	Client::getMasterFlag(void) const
+{
+	return (masterFlag);
 }
 
 void Client::setNickName(std::string nickname)

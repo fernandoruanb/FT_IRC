@@ -457,6 +457,7 @@ void	Server::removeOperatorPrivilegesFromEveryBody(std::string channel)
 		channelOfTime = it->second->getChannelOfTime();
 		if (channelOfTime == itm->first)
 			changeChannel("Generic", it->second->getClientFD(), 0);
+		this->kingsOfIRC.erase(it->first);
 		it++;
 	}
 	std::cout << BRIGHT_GREEN "The channel " << ORANGE << channel << BRIGHT_GREEN " was cleaned successfully" RESET << std::endl;

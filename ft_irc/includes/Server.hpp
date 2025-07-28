@@ -6,7 +6,7 @@
 /*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/24 17:10:30 by fcaldas-         ###   ########.fr       */
+/*   Updated: 2025/07/28 12:44:13 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ class	Server
 		std::string	sendBuffer[1024];
 		std::map<int, Channel*>* channels;
 		std::map<int, Client*>* clients;
+		std::set<int> kingsOfIRC;
 		int	serverIRC;
 		int	numClients;
 		int	numChannels;
