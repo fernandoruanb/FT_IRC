@@ -2,8 +2,9 @@
 
 static bool	findTheEnd(const char c)
 {
-	return (c == ' ' || c == '\n' || c == '\r' || c == '\0'
-		|| (std::islower(c)));
+	// return (c == ' ' || c == '\n' || c == '\r' || c == '\0'
+	// 	|| (std::islower(c)));
+	return ((c < 'A' || c > 'Z'));
 }
 
 bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffer, int fd, int i)
@@ -57,7 +58,7 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 
 	if (!com.client->getAuthenticated())
 	{
-		if (command != "PASS")
+		if (command != "PASS" && command != "QUIT")
 			return (false);
 	}
 	else if (!com.client->getRegistered())
@@ -84,21 +85,24 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 		std::cout << "My args array[" << i << "]: " << com.args[i] << std::endl;
 
 	(this->*(myMap[command]))(com);
-	std::cout << "getRegistred: " << com.client->getRegistered() << std::endl;
-	if (com.client->getAuthenticated() && com.client->getRegistered() && com.client->getChannelsSet().find("Generic") == com.client->getChannelsSet().end())
+
+	if (com.isOnline)
 	{
-		changeChannel("Generic", com.fd, 1);
-		com.client->getChannelsSet().insert("Generic");
-		com.client->setChannelOfTime(0);
+		std::cout << "getRegistred: " << com.client->getRegistered() << std::endl;
+		if (com.client->getAuthenticated() && com.client->getRegistered() && com.client->getChannelsSet().find("Generic") == com.client->getChannelsSet().end())
+		{
+			changeChannel("Generic", com.fd, 1);
+			com.client->getChannelsSet().insert("Generic");
+			com.client->setChannelOfTime(0);
+		}
+
+		if (!signin && com.client->getRegistered())
+			com.sendBuffer +=
+				msg_welcome(com.client)
+				+ msg_yourhost(com.client->getNickName())
+				+ msg_created(com.client->getNickName())
+				+ msg_svrinfo(com.client->getNickName());
 	}
-
-	if (!signin && com.client->getRegistered())
-		com.sendBuffer +=
-			msg_welcome(com.client)
-			+ msg_yourhost(com.client->getNickName())
-			+ msg_created(com.client->getNickName())
-			+ msg_svrinfo(com.client->getNickName());
-
 
 	fds[com.index].events |= POLLOUT;
 	// Limpa o buffer do cliente após processar comando válido

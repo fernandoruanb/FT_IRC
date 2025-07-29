@@ -32,11 +32,12 @@ void	Server::user(s_commands	&com)
 	if (len > 3)
 	{
 		std::string	name;
-
-		for (size_t i = 4; i < len; i++)
+	
+		for (size_t i = 3; i < len; i++)
 			name += " " + com.args[i];
 		
 		com.client->setRealName(name);
+		std::cout << "real name: " << com.client->getRealName() << std::endl;
 	}
 	if (com.client->getNickName() != "*")
 		com.client->setRegistered(true);

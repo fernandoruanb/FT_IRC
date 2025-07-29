@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/29 13:02:39 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/29 20:16:37 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ struct	s_commands
 	int							index;
 	std::vector<std::string>	args;
 	std::string					command;
+	bool		isOnline;
 
 	s_commands(std::string &l, std::map<int, Client*>* &c, int f, int i, std::string &a, std::string& com, std::string &buf);
 };
@@ -150,6 +151,8 @@ class	Server
 		void	pass(s_commands&);
 		void	privmsg(s_commands&);
 		void	quit(s_commands&);
+		void	messageToAllChannels(s_commands&, const std::string&);
+		void	desconect(s_commands&);
 		void	topic(s_commands&);
 	public:
 		Server(std::string portCheck, std::string password);
