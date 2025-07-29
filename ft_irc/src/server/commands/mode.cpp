@@ -79,6 +79,14 @@ static void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffe
 	if (com.args.size() != 2 || !isSigned(com.args[1][0]))
 		return;
 	
+	//vc so pode alterar o seu proprio mode c vc n for operador
+	std::string	myMode = com.client->getMode(com.client->getChannelOfTime());
+	bool	iAmOperator = findMode(myMode, 'o');
+	if (target != com.client && !iAmOperator)
+	{
+		com.sendBuffer += "N vai fazer isso n malandro\n";
+		return;
+	}
 	(void)channels;
 	std::string	currentMode = target->getMode(com.client->getChannelOfTime());
 	std::string	args = com.args[1].substr(1);
@@ -90,9 +98,15 @@ static void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffe
 		char	mode = args[i];
 		bool	isActive = findMode(currentMode, mode);
 
-		if (mode == 'o' && !findMode(com.client->getMode(com.client->getChannelOfTime()), 'o'))
+		if (mode != 'i' && mode != 'o')
 		{
-			std::cout << "achei? " << findMode(com.client->getMode(com.client->getChannelOfTime()), 'o') << std::endl;
+			std::cout << "Mode: " << mode << std::endl;
+			com.sendBuffer += "Faz denovo, faz direito. Esse modo n vale aqui\n";
+			return;
+		}
+		if (mode == 'o' && !iAmOperator)
+		{
+			std::cout << "achei? " << iAmOperator << std::endl;
 			std::cout << "meu modo: " + com.client->getMode(com.client->getChannelOfTime()) << std::endl;
 			callCmdMsg("You're not channel operator", 482, com, com.sendBuffer);
 			return;
@@ -242,9 +256,11 @@ static void	caseI(s_commands& com, s_mode& mode)
 
 static void	addChannelMode(s_commands &com, Channel* &target, int channelIndex)
 {
-	if (target->getName() == "Generic")
+	std::string	mode = com.client->getMode(channelIndex);
+
+	if (target->getName() == "Generic" || !findMode(mode, 'o'))
 	{
-		com.sendBuffer += "Ta ficando pichuru das ideias meu consagrado, pode fazer isso nao\n";
+		com.sendBuffer += "Pode nao man ;-;\n";
 		return;
 	}
 	size_t		len = com.args.size();

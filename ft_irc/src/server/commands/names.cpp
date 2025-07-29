@@ -32,9 +32,12 @@ static void	showAllNames(s_commands& com, std::map<int, Channel*>* &channels)
 	std::map<int, Channel*>::iterator it;
 	for (it = channels->begin(); it != channels->end(); it++)
 	{
-		prefix = it->second->getName();
-		names = prefix + ": " + getNames(it->second, com);
-		com.sendBuffer += "Animais presentes no canal #" + names + "\n";
+		if (!findMode(it->second->getMode(), 'i'))
+		{
+			prefix = it->second->getName();
+			names = prefix + ": " + getNames(it->second, com);
+			com.sendBuffer += "Animais presentes no canal #" + names + "\n";
+		}
 	}
 }
 
@@ -54,9 +57,13 @@ static void	showChannel(s_commands& com, std::map<int, Channel*>* &channels)
 	if (!channel)
 		return (callCmdMsg("No such channel", 401, com, com.sendBuffer));
 	
-	std::string	names = getNames(channel, com);
-
-	callCmdMsg(names, 353, com, com.sendBuffer);
+	if (!findMode(channel->getMode(), 'i'))
+	{
+		std::string	names = getNames(channel, com);
+		callCmdMsg(names, 353, com, com.sendBuffer);
+		return;
+	}
+	com.sendBuffer += "Esse canal ai eh privado irmao, pode ver n\n";
 }
 
 /*
