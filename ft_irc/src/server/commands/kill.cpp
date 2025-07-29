@@ -21,6 +21,24 @@ static std::string	getTheMessage(s_commands& com)
 	return (message);
 }
 
+void	Server::removeAllChannelsOfClient(int clientFD)
+{
+	std::map<int, Channel*>* channels = getChannelsMap();
+	std::map<int, Client*>* clients = getClientsMap();
+	std::map<int, Channel*>::iterator it = channels->begin();
+
+	this->kingsOfIRC.erase(clientFD);
+	while (it != channels->end())
+	{
+		(*clients)[clientFD]->getOperatorChannels().erase(it->second->getName());
+		(*clients)[clientFD]->getChannelsSet().erase(it->second->getName());
+		(*clients)[clientFD]->getInviteChannels().erase(it->second->getName());
+		it->second->getMembersSet().erase(clientFD);
+		it->second->getOperatorsSet().erase(clientFD);
+		++it;
+	}
+}
+
 void	Server::kill(s_commands& com)
 {
 	if (com.args.size() < 2)
@@ -55,6 +73,14 @@ void	Server::kill(s_commands& com)
 		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 481 " + com.client->getNickName() + " :Permission Denied- You're not an IRC Operator" + "\r\n";
 		return ;
 	}
+
+	removeAllChannelsOfClient(clientFD);
+	(*clients)[clientFD]->setAuthenticated(false);
+	(*clients)[clientFD]->setRegistered(false);
+	(*clients)[clientFD]->setNickName("*");
+	(*clients)[clientFD]->setUserName("*");
+	(*clients)[clientFD]->setHost("localhost");
+
 	std::cout << "The clientFD: " << clientFD << std::endl;
 	(*clients)[clientFD]->getBufferOut() += std::string("ERROR :You have been killed: ") + message + "\r\n";
 	std::cout << BRIGHT_GREEN "You killed the target" RESET << std::endl;
