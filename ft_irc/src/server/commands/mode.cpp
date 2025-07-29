@@ -124,6 +124,7 @@ static void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffe
 	target->setMode(currentMode, com.client->getChannelOfTime());
 	if (findMode(target->getMode(com.client->getChannelOfTime()), 'o'))
 	{
+		//tem q chamar a setOperator do canal aqui dps
 		target->setIsOperator(true);
 		// Channel*	channel = NULL;
 		// std::map<int, Channel*>::iterator	it = channels->find(com.client->getChannelOfTime());

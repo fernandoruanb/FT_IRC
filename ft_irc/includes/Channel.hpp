@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:26:36 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/28 17:03:12 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/29 16:10:38 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ class	Channel
 		void	setTimeStamp(std::string time);
 		void	setChannelIndex(int index);
 		int	getChannelIndex(void) const;
+		void	setMembersNum(int n);
 		void	setName(std::string name);
 		void	setTopic(std::string topic);
 		void	setPassWord(std::string password);
