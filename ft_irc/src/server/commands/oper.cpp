@@ -15,7 +15,7 @@ void	Server::oper(s_commands& com)
 
 	if (user == this->supremeUser && password == this->supremeKey)
 	{
-		std::cout << LIGHT_BLUE "The client " << YELLOW << com.client->getNickName() << LIGHT_BLUE " has been promoted to a new " << ORANGE << " KING " << LIGHT_BLUE " of our IRC Server" RESET << std::endl;
+		std::cout << LIGHT_BLUE "The client " << YELLOW << com.fd << LIGHT_BLUE " has been promoted to a new " << ORANGE << "KING" << LIGHT_BLUE " of our IRC Server" RESET << std::endl;
 		this->kingsOfIRC.insert(com.fd);
 		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 381 " + com.client->getNickName() + " :You are a new IRC operator" + "\r\n";
 	}

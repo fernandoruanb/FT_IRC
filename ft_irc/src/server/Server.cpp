@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/28 20:43:59 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/29 12:00:30 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,7 +210,6 @@ void	Server::handleSignal(int signal)
 		std::map<int, Channel*>::iterator it = channels->find(index);
 		while (it != channels->end())
 		{
-
 			if (it == channels->end())
 				break ;
 			delete it->second;
