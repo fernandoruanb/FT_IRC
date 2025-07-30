@@ -91,7 +91,7 @@ void	Server::privmsg(s_commands& com)
 		if (targetChannel == -1)
 		{
 			std::cerr << RED "Error: That channel doesn't exist" RESET << std::endl;
-			com.client->getBufferOut() += msg_err_nosuchchannel(com.client->getNickName(), com.args[0].substr(1));
+			com.client->getBufferOut() += msg_err_nosuchchannel(com.client->getNickName(), channelsVector[index]);
 			++index;
 			continue ;
 		}
@@ -100,7 +100,7 @@ void	Server::privmsg(s_commands& com)
 		if (this->kingsOfIRC.find(it->first) == this->kingsOfIRC.end() && it->second->getChannelsSet().find(targetChannelName) == it->second->getChannelsSet().end())
 		{
 			std::cerr << RED "Error: You are not on that channel" RESET << std::endl;
-			com.client->getBufferOut() += my_notonchannel(com.client->getNickName(), com.args[0].substr(1), "You are not on that channel");
+			com.client->getBufferOut() += my_notonchannel(com.client->getNickName(), channelsVector[index], "You are not on that channel");
 			++index;
 			continue ;
 		}
