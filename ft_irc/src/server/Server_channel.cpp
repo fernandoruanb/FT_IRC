@@ -591,6 +591,8 @@ void	Server::changeChannel(std::string channel, int clientFD, bool flag)
 			if (itc->second->getChannelOfTime() == channelIndex && flag != 1)
 			{
 				std::cerr << RED "Error: You are trying to change to the same channel that you are" RESET << std::endl;
+				itc->second->getBufferOut() += std::string(":") + SERVER_NAME + " 443 " + itc->second->getNickName() + " " + itc->second->getNickName() + " #" + channelName + " :is already on channel" + "\r\n";
+				fds[clientIndex].events |= POLLOUT;
 				return ;
 			}
 			last = channels->find(itc->second->getChannelOfTime());
