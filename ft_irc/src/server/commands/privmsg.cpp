@@ -122,7 +122,7 @@ void	Server::privmsg(s_commands& com)
 		if (targetFD == -1)
 		{
 			std::cerr << RED "Error: that client doesn't exist" RESET << std::endl;
-			com.client->getBufferOut() += my_nosuchnickchannel(com.client->getNickName(), com.args[0]);
+			com.client->getBufferOut() += my_nosuchnickchannel(com.client->getNickName(), clientsVector[index]);
 			++index;
 			continue ;
 		}
@@ -131,7 +131,7 @@ void	Server::privmsg(s_commands& com)
 		if (test == numClients || test == -1)
 		{
 			std::cerr << RED "Error: The client doesn't exist" RESET << std::endl;
-			com.client->getBufferOut() += my_nosuchnickchannel(com.client->getNickName(), com.args[0]);
+			com.client->getBufferOut() += my_nosuchnickchannel(com.client->getNickName(), clientsVector[index]);
 			++index;
 			continue ;
 		}
