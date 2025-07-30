@@ -8,7 +8,10 @@ static std::vector<std::string>	getAllChannels(s_commands& com)
 	while (index < com.args.size())
 	{
 		if (com.args[index][0] == '#')
-			channels.push_back(com.args[index].substr(1));
+		{
+			if (std::find(channels.begin(), channels.end(), com.args[index].substr(1)) == channels.end())
+				channels.push_back(com.args[index].substr(1));
+		}
 		if (com.args[index][0] == ':')
 			break ;
 		++index;
@@ -26,7 +29,10 @@ static std::vector<std::string>	getAllClients(s_commands& com)
 		if (com.args[index][0] == ':')
 			break ;
 		if (com.args[index][0] != '#')
-			clients.push_back(com.args[index]);
+		{
+			if (std::find(clients.begin(), clients.end(), com.args[index]) == clients.end())
+				clients.push_back(com.args[index]);
+		}
 		++index;
 	}
 	return (clients);

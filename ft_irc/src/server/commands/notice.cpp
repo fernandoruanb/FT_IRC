@@ -8,7 +8,11 @@ static std::vector<std::string>	getAllChannels(s_commands& com)
 	while (index < com.args.size())
 	{
 		if (com.args[index][0] == '#')
-			channels.push_back(com.args[index].substr(1));
+		{
+			if (std::find(channels.begin(), channels.end(), com.args[index].substr(1)) == channels.end())
+				channels.push_back(com.args[index].substr(1));
+		}
+
 		if (com.args[index][0] == ':')
 			break ;
 		++index;
@@ -26,7 +30,10 @@ static std::vector<std::string>	getAllClients(s_commands& com)
 		if (com.args[index][0] == ':')
 			break ;
 		if (com.args[index][0] != '#')
-			clients.push_back(com.args[index]);
+		{
+			if (std::find(clients.begin(), clients.end(), com.args[index]) == clients.end())
+				clients.push_back(com.args[index]);
+		}
 		++index;
 	}
 	return (clients);
@@ -72,7 +79,7 @@ static void	sendMessageToEveryone(s_commands& com, std::string channel, std::str
 		test = 1;
 		if (it->first != com.fd && it->second->getChannelsSet().find(channel) != it->second->getChannelsSet().end())
 		{
-			it->second->getBufferOut() += std::string(":") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " NOTICE " + "#" + channel + " :" + message + "\r\n";
+			it->second->getBufferOut() += std::string("\r\n:") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " NOTICE " + "#" + channel + " :" + message + "\r\n";
 			while (fds[test].fd != it->first)
 				++test;
 			fds[test].events |= POLLOUT;
@@ -81,7 +88,7 @@ static void	sendMessageToEveryone(s_commands& com, std::string channel, std::str
 	}
 }
 
-static void	sendMessageToClient(s_commands& com, int clientFD, int clientIndex, std::string message)
+static void	sendMessageToClient(s_commands& com, std::vector<std::string> channelsVector, int clientFD, int clientIndex, std::string message)
 {
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Client*>* clients = getClientsMap();
@@ -93,9 +100,18 @@ static void	sendMessageToClient(s_commands& com, int clientFD, int clientIndex, 
 		return ;
 	if (clientIndex == -1)
 		return ;
+	std::size_t	index = 0;
+
+	while (index < channelsVector.size() && index < 1024 && !channelsVector[index].empty())
+	{
+		if ((*clients)[clientFD]->getChannelsSet().find(channelsVector[index]) != (*clients)[clientFD]->getChannelsSet().end())
+			return ;
+		++index;
+	}
+
 	if ((*clients)[clientFD]->getChannelsSet().find(channelName) != (*clients)[clientFD]->getChannelsSet().end())
 	{
-		(*clients)[clientFD]->getBufferOut() += ":" + com.client->getNickName() + "!" + com.client->getUserName() + com.client->getHost() + " NOTICE " + (*clients)[clientFD]->getNickName() + " :" + message;
+		(*clients)[clientFD]->getBufferOut() += std::string("\r\n:") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " NOTICE " + (*clients)[clientFD]->getNickName() + " :" + message;
 		fds[clientIndex].events |= POLLOUT;
 	}
 }
@@ -127,7 +143,7 @@ void	Server::notice(s_commands& com)
 	{
 		int	clientFD = getClientsFdByName(clientsVector[index]);
 		int	clientIndex = getClientsIndex(clientFD);
-		sendMessageToClient(com, clientFD, clientIndex, message);
+		sendMessageToClient(com, channelsVector, clientFD, clientIndex, message);
 		++index;
 	}
 }
