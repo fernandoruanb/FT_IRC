@@ -74,8 +74,12 @@ void	Server::privmsg(s_commands& com)
 
 	if (channelsVector.empty() && clientsVector.empty())
 		return ;
-	if (message.empty())
+	if (message.empty() || message == " \r\n")
+	{
+		std::cerr << RED "Error: No text to send" RESET << std::endl;
+		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 412 " + com.client->getNickName() + " :no text to send" + "\r\n";
 		return ;
+	}
 	clientFD = fds[com.index].fd;
 
 	std::size_t	index = 0;

@@ -110,13 +110,11 @@ void	Server::notice(s_commands& com)
 	if (channelsVector.empty() && clientsVector.empty())
 	{
 		std::cerr << RED "Error: we don't have anyone to send a NOTICE" RESET << std::endl;
-		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 461 " + com.client->getNickName() + " NOTICE " + ":Not enough parameters" + "\r\n";
 		return ;
 	}
-	if (message.empty())
+	if (message.empty() || message == " \r\n")
 	{
 		std::cerr << RED "Error: you need to give a message to do it" RESET << std::endl;
-		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 461 " + com.client->getNickName() + " NOTICE " + ":Not enough parameters" + "\r\n";
 		return ;
 	}
 	while (index < channelsVector.size() && !channelsVector[index].empty())

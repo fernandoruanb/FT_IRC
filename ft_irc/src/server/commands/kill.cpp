@@ -59,6 +59,13 @@ void	Server::kill(s_commands& com)
 		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 461 " + com.client->getNickName() + " KILL " + ":Not enough parameters" + "\r\n";
 		return ;
 	}
+
+	if (message.empty() || message == " \r\n")
+	{
+		std::cerr << RED "Error: no text to send" RESET << std::endl;
+		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 412 " + com.client->getNickName() + " :no text to send" + "\r\n";
+		return ;
+	}
 	clientFD = getClientsFdByName(nick);
 	if (clientFD == -1)
 	{
