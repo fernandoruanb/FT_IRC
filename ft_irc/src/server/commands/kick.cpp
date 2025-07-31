@@ -96,6 +96,13 @@ void	Server::kick(s_commands& com)
 			++index;
 			continue ;
 		}
+		if (com.fd == targetFD)
+		{
+			std::cerr << RED "Error: You cannot kick yourself from the channel" RESET << std::endl;
+			com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 400 " + com.client->getNickName() + " KICK " + ":cannot kick yourself" + "\r\n";
+			++index;
+			continue ;
+		}
 		this->kickFromChannel(com.args[0].substr(1), com.fd, targetFD, message);
 		++index;
 	}

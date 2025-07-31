@@ -414,15 +414,21 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD, std::
 	user = own->second->getUserName();
 	host = own->second->getHost();
 	target = itch->second->getNickName();
-	itch->second->getOperatorChannels().erase(channel);
-	itch->second->getChannelsSet().erase(channel);
-	itch->second->getInviteChannels().erase(channel);
 	itm->second->removeMember(itch->first);
-	itm->second->getOperatorsSet().erase(itch->first);
-	itm->second->getMembersSet().erase(itch->first);
-	if (itch->second->getOperatorChannels().size() == 0)
-		itch->second->setIsOperator(false);
-	this->changeChannel("Generic", itch->first, 0);
+	std::cout << "kick " << itm->second->getMembersNum() << std::endl;
+	if (itm->second->getMembersNum() == 0)
+		deleteChannel(itm->second->getName(), itch->first);
+	else
+	{
+		itch->second->getOperatorChannels().erase(channel);
+		itch->second->getChannelsSet().erase(channel);
+		itch->second->getInviteChannels().erase(channel);
+		itm->second->getOperatorsSet().erase(itch->first);
+		itm->second->getMembersSet().erase(itch->first);
+		if (itch->second->getOperatorChannels().size() == 0)
+			itch->second->setIsOperator(false);
+		this->changeChannel("Generic", itch->first, 0);
+	}
 	std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE " has been kicked by " << YELLOW << owner << LIGHT_BLUE " and lost all privileges coming back to " << YELLOW "Generic" << LIGHT_BLUE " Channel" RESET << std::endl;
 	messageTarget = getClientsIndex(clientFD);
 	itch->second->getBufferOut() += my_kick_message(nick, user, host, message, target, channel);
