@@ -343,7 +343,7 @@ int	Server::getChannelsIndex(std::string channel)
 }
 
 
-void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
+void	Server::kickFromChannel(std::string channel, int owner, int clientFD, std::string message)
 {
 	std::map<int, Channel *>* channels = getChannelsMap();
 	std::map<int, Client*>* clients = getClientsMap();
@@ -414,18 +414,24 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
 	user = own->second->getUserName();
 	host = own->second->getHost();
 	target = itch->second->getNickName();
-	itch->second->getOperatorChannels().erase(channel);
-	itch->second->getChannelsSet().erase(channel);
-	itch->second->getInviteChannels().erase(channel);
 	itm->second->removeMember(itch->first);
-	itm->second->getOperatorsSet().erase(itch->first);
-	itm->second->getMembersSet().erase(itch->first);
-	if (itch->second->getOperatorChannels().size() == 0)
-		itch->second->setIsOperator(false);
-	this->changeChannel("Generic", itch->first, 0);
+	std::cout << "kick " << itm->second->getMembersNum() << std::endl;
+	if (itm->second->getMembersNum() == 0)
+		deleteChannel(itm->second->getName(), itch->first);
+	else
+	{
+		itch->second->getOperatorChannels().erase(channel);
+		itch->second->getChannelsSet().erase(channel);
+		itch->second->getInviteChannels().erase(channel);
+		itm->second->getOperatorsSet().erase(itch->first);
+		itm->second->getMembersSet().erase(itch->first);
+		if (itch->second->getOperatorChannels().size() == 0)
+			itch->second->setIsOperator(false);
+		this->changeChannel("Generic", itch->first, 0);
+	}
 	std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE " has been kicked by " << YELLOW << owner << LIGHT_BLUE " and lost all privileges coming back to " << YELLOW "Generic" << LIGHT_BLUE " Channel" RESET << std::endl;
 	messageTarget = getClientsIndex(clientFD);
-	itch->second->getBufferOut() += my_kick_message(nick, user, host, "You were kicked because you are not nice", target, channel);
+	itch->second->getBufferOut() += my_kick_message(nick, user, host, message, target, channel);
 	fds[messageTarget].events |= POLLOUT;
 }
 
@@ -591,6 +597,8 @@ void	Server::changeChannel(std::string channel, int clientFD, bool flag)
 			if (itc->second->getChannelOfTime() == channelIndex && flag != 1)
 			{
 				std::cerr << RED "Error: You are trying to change to the same channel that you are" RESET << std::endl;
+				itc->second->getBufferOut() += std::string(":") + SERVER_NAME + " 443 " + itc->second->getNickName() + " " + itc->second->getNickName() + " #" + channelName + " :is already on channel" + "\r\n";
+				fds[clientIndex].events |= POLLOUT;
 				return ;
 			}
 			last = channels->find(itc->second->getChannelOfTime());

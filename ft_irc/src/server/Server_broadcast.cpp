@@ -126,6 +126,6 @@ void    Server::privmsg(int index, int sender, std::string message)
                 }
 		return ;
 	}
-    client->getBufferOut() += std::string("\n:") + (*clients)[fds[sender].fd]->getNickName() + "!" + (*clients)[fds[sender].fd]->getUserName() + "@" + (*clients)[fds[sender].fd]->getHost() + " PRIVMSG :" + message;
+    client->getBufferOut() += std::string(":") + (*clients)[fds[sender].fd]->getNickName() + "!" + (*clients)[fds[sender].fd]->getUserName() + "@" + (*clients)[fds[sender].fd]->getHost() + " PRIVMSG :" + message;
     fds[index].events |= POLLOUT;
 }

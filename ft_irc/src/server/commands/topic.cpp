@@ -12,7 +12,11 @@ void	Server::topic(s_commands& com)
 	std::size_t	index;
 
 	if (com.args.size() < 1)
+	{
+		std::cerr << RED "Error: You need to give an argument" RESET << std::endl;
+		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 461 " + com.client->getNickName() + " TOPIC " + ":Not enough parameters\r\n";
 		return ;
+	}
 	if (com.args.size() == 1 && com.args[0][0] == '#')
 	{
 		channel = com.args[0].substr(1, com.args[0].size());

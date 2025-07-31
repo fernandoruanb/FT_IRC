@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:36:43 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/29 16:11:05 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/31 16:10:37 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,15 +111,22 @@ void	Channel::setOwnerTopic(std::string nick)
 
 void	Channel::addNewMember(int clientFD)
 {
+	std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " added to " << YELLOW << this->name << LIGHT_BLUE " Channel" << RESET << std::endl;
 	this->members.insert(clientFD);
-	++membersNum;
+	this->getOperatorsNames();
+	membersNum = this->getOperatorsSet().size() + this->getMembersSet().size();
+	std::cout << "AddNewMember " << membersNum << std::endl;
 }
 
 void	Channel::removeMember(int clientFD)
 {
 	std::cout << LIGHT_BLUE "Client " << YELLOW << clientFD << LIGHT_BLUE " removed from " << YELLOW << this->name << LIGHT_BLUE " Channel" RESET << std::endl;
 	this->members.erase(clientFD);
-	--membersNum;
+	this->getMembersSet().erase(clientFD);
+	this->getOperatorsSet().erase(clientFD);
+	this->getOperatorsNames();
+	membersNum = this->getOperatorsSet().size() + this->getMembersSet().size();
+	std::cout << "removeMember " << membersNum << std::endl;
 }
 
 Channel::Channel(std::string name): name(name), topic("We love IRC"), userLimit(1024), membersNum(0), inviteFlag(false), topicFlag(false)

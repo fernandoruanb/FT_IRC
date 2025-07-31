@@ -40,27 +40,21 @@ void	Server::part(s_commands& com)
 			std::cout << "client not member of channel: " << com.args[i] << std::endl; /// debug
 			continue ;
 		}
-		if (channel->isMemberOfChannel(com.fd)) {
-			com.client->getChannelsSet().erase(channelName);
+		if (channel->isMemberOfChannel(com.fd) || channel->isOperatorOfChannel(com.fd)) {
 			channel->removeMember(com.fd);
-			com.client->getOperatorChannels().erase(channelName);
-			com.client->getChannelsSet().erase(channelName);
-			com.client->getInviteChannels().erase(channelName);
-			channel->removeMember(com.fd);
-			channel->getOperatorsSet().erase(com.fd);
-        		channel->getMembersSet().erase(com.fd);
-			com.client->getSendHistory()[channelIndex].clear();
-			this->changeChannel("Generic", com.fd, 0);
-		}
-		if (channel->isOperatorOfChannel(com.fd)) {
-			com.client->getChannelsSet().erase(channelName);
-			com.client->getOperatorChannels().erase(channelName);
-			com.client->getInviteChannels().erase(channelName);
-			channel->removeMember(com.fd);
-			channel->getOperatorsSet().erase(com.fd);
-        		channel->getMembersSet().erase(com.fd);
-			com.client->getSendHistory()[channelIndex].clear();
-			this->changeChannel("Generic", com.fd, 0);
+			if (channel->getMembersNum() == 0)
+				deleteChannel(channel->getName(), com.fd);
+			else
+			{
+				com.client->getOperatorChannels().erase(channelName);
+				com.client->getChannelsSet().erase(channelName);
+				com.client->getInviteChannels().erase(channelName);
+				channel->removeMember(com.fd);
+				channel->getOperatorsSet().erase(com.fd);
+				channel->getMembersSet().erase(com.fd);
+				com.client->getSendHistory()[channelIndex].clear();
+				this->changeChannel("Generic", com.fd, 0);
+			}
 		}
         	if (com.client->getOperatorChannels().size() == 0)
                 	com.client->setIsOperator(false);
