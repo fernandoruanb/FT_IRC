@@ -90,7 +90,11 @@ void	Server::join(s_commands& com)
 				continue;
 			}
 		}
-
+		if (currentChannel->isMemberOfChannel(com.fd))
+		{
+			com.sendBuffer += my_useronchannel(com.client->getNickName(), com.client->getNickName(), currentChannel->getName(), "is already on channel");
+			return;
+		}
 		if (!create)
 			currentChannel->addNewMember(com.fd);
 

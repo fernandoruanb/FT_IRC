@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/31 19:14:57 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/31 20:26:35 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,7 +156,7 @@ Server::Server(std::string portCheck, std::string password): supremeKey("hunter4
 		this->fds = getMyFds();
 		this->clients = getClientsMap();
 		this->channels = getChannelsMap();
-		(*channels)[0] = new Channel("Generic");
+		(*channels)[0] = new Channel("generic");
 		numChannels++;
 		//isso eh um test
 		// this->createNewChannel("One", 5);

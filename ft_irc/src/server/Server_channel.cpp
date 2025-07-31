@@ -6,6 +6,7 @@
 
 bool	Server::checkName(std::string Name)
 {
+	Name = getLower(Name);
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Channel*>::iterator it = channels->find(0);
 	std::string	channelName;
@@ -41,6 +42,7 @@ int	Server::findGoodIndex(void)
 
 static bool	checkChannelName(std::string name)
 {
+	name = getLower(name);
 	const char	*temp = name.c_str();
 
 	while (*temp)
@@ -64,7 +66,8 @@ std::string	getLower(const std::string& str)
 
 void	Server::createNewChannel(std::string Name, int clientFD)
 {
-	Channel* channel = new Channel(getLower(Name));
+	Name = getLower(Name);
+	Channel* channel = new Channel(Name);
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Client*>::iterator it = clients->find(clientFD);
@@ -116,6 +119,7 @@ void	Server::createNewChannel(std::string Name, int clientFD)
 
 void	Server::promotionChannelOperator(std::string channel, int owner, int clientFD)
 {
+	channel = getLower(channel);
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Client*>::iterator itch;
 	std::map<int, Channel*>* channels = getChannelsMap();
@@ -160,6 +164,7 @@ void	Server::promotionChannelOperator(std::string channel, int owner, int client
 
 void	Server::inviteToChannel(std::string channelName, int operatorFD, int clientFD)
 {
+	channelName = getLower(channelName);
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Client*>* clients = getClientsMap();
 	struct pollfd (&fds)[1024] = *getMyFds();
@@ -241,6 +246,7 @@ void	Server::inviteToChannel(std::string channelName, int operatorFD, int client
 
 void	Server::changeTopic(std::string channelName, int clientFD, std::string topic)
 {
+	channelName = getLower(channelName);
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Channel*>::iterator it = channels->begin();
 	std::map<int, Client*>* clients = getClientsMap();
@@ -325,6 +331,7 @@ void	Server::changeTopic(std::string channelName, int clientFD, std::string topi
 
 void	Server::changeChannelInviteFlag(std::string channel, bool flag)
 {
+	channel = getLower(channel);
 	std::map<int, Channel*>* channels = getChannelsMap();
 	int	index;
 
@@ -340,6 +347,7 @@ void	Server::changeChannelInviteFlag(std::string channel, bool flag)
 
 int	Server::getChannelsIndex(std::string channel)
 {
+	channel = getLower(channel);
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Channel*>::iterator itch = channels->begin();
 
@@ -355,6 +363,7 @@ int	Server::getChannelsIndex(std::string channel)
 
 void	Server::kickFromChannel(std::string channel, int owner, int clientFD, std::string message)
 {
+	channel = getLower(channel);
 	std::map<int, Channel *>* channels = getChannelsMap();
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Client*>::iterator itch = clients->find(owner);
@@ -437,9 +446,9 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD, std::
 		itm->second->getMembersSet().erase(itch->first);
 		if (itch->second->getOperatorChannels().size() == 0)
 			itch->second->setIsOperator(false);
-		this->changeChannel("Generic", itch->first, 0);
+		this->changeChannel("generic", itch->first, 0);
 	}
-	std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE " has been kicked by " << YELLOW << owner << LIGHT_BLUE " and lost all privileges coming back to " << YELLOW "Generic" << LIGHT_BLUE " Channel" RESET << std::endl;
+	std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE " has been kicked by " << YELLOW << owner << LIGHT_BLUE " and lost all privileges coming back to " << YELLOW "generic" << LIGHT_BLUE " Channel" RESET << std::endl;
 	messageTarget = getClientsIndex(clientFD);
 	itch->second->getBufferOut() += my_kick_message(nick, user, host, message, target, channel);
 	fds[messageTarget].events |= POLLOUT;
@@ -447,6 +456,7 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD, std::
 
 void	Server::removeOperatorPrivilegesFromEveryBody(std::string channel)
 {
+	channel = getLower(channel);
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Client*>::iterator it = clients->begin();
@@ -476,7 +486,7 @@ void	Server::removeOperatorPrivilegesFromEveryBody(std::string channel)
 			it->second->setIsOperator(false);
 		channelOfTime = it->second->getChannelOfTime();
 		if (channelOfTime == itm->first)
-			changeChannel("Generic", it->second->getClientFD(), 0);
+			changeChannel("generic", it->second->getClientFD(), 0);
 		this->kingsOfIRC.erase(it->first);
 		it++;
 	}
@@ -499,6 +509,7 @@ bool	Server::AuthenticationKeyProcess(const std::string channel, const std::stri
 
 void	Server::deleteChannel(std::string channel, int clientFD)
 {
+	channel = getLower(channel);
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Client*>::iterator itch = clients->find(clientFD);
@@ -540,8 +551,8 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 			channelOfTime = itch->second->getChannelOfTime();
 			if (channelOfTime == index)
 			{
-				std::cout << LIGHT_BLUE "Changing to " << YELLOW << "Generic" << LIGHT_BLUE " Channel client " << YELLOW << clientFD << RESET << std::endl;
-				this->changeChannel("Generic", itch->second->getClientFD(), 0);
+				std::cout << LIGHT_BLUE "Changing to " << YELLOW << "generic" << LIGHT_BLUE " Channel client " << YELLOW << clientFD << RESET << std::endl;
+				this->changeChannel("generic", itch->second->getClientFD(), 0);
 			}
 			this->removeOperatorPrivilegesFromEveryBody(channelName);
 			delete itc->second;
@@ -565,6 +576,7 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 
 void	Server::changeChannel(std::string channel, int clientFD, bool flag)
 {
+	channel = getLower(channel);
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Client*>::iterator itc = clients->find(clientFD);
 	struct pollfd (&fds)[1024] = *getMyFds();
