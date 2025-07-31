@@ -343,7 +343,7 @@ int	Server::getChannelsIndex(std::string channel)
 }
 
 
-void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
+void	Server::kickFromChannel(std::string channel, int owner, int clientFD, std::string message)
 {
 	std::map<int, Channel *>* channels = getChannelsMap();
 	std::map<int, Client*>* clients = getClientsMap();
@@ -425,7 +425,7 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD)
 	this->changeChannel("Generic", itch->first, 0);
 	std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE " has been kicked by " << YELLOW << owner << LIGHT_BLUE " and lost all privileges coming back to " << YELLOW "Generic" << LIGHT_BLUE " Channel" RESET << std::endl;
 	messageTarget = getClientsIndex(clientFD);
-	itch->second->getBufferOut() += my_kick_message(nick, user, host, "You were kicked because you are not nice", target, channel);
+	itch->second->getBufferOut() += my_kick_message(nick, user, host, message, target, channel);
 	fds[messageTarget].events |= POLLOUT;
 }
 

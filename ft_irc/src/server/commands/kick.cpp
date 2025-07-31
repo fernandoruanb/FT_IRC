@@ -39,10 +39,38 @@ static std::vector<std::string>	getAllClients(s_commands& com)
 	return (clients);
 }
 
+static std::string	getTheMessage(s_commands& com)
+{
+	std::size_t	index = 0;
+	std::string	message;
+
+	while (index < com.args.size())
+	{
+		if (com.args[index][0] == ':')
+		{
+			message += com.args[index].substr(1);
+			message += " ";
+			++index;
+			while (index < com.args.size())
+			{
+				message += com.args[index];
+				if (index + 1 < com.args.size())
+					message += " ";
+				++index;
+			}
+			message += "\r\n";
+			return (message);
+		}
+		++index;
+	}
+	return (message);
+}
+
 void	Server::kick(s_commands& com)
 {
 	std::vector<std::string>	clientsVector = getAllClients(com);
 	int	targetFD = -1;
+	std::string	message = getTheMessage(com);
 	std::size_t	index;
 
 	if (com.args.size() < 2) {
@@ -51,8 +79,12 @@ void	Server::kick(s_commands& com)
 	}
 
 	if (clientsVector.empty())
+	{
+		this->sendBuffer[com.index] += std::string(":") + SERVER_NAME + " 461 " + com.client->getNickName() + " KICK " + ":Not enough parameters" + "\r\n";
 		return ;
-
+	}
+	if (message.empty() || message == " \r\n")
+		message = "You were kicked\r\n";
 	index = 0;
 	while (index < clientsVector.size() && index < 1024 && !clientsVector[index].empty())
 	{
@@ -64,7 +96,7 @@ void	Server::kick(s_commands& com)
 			++index;
 			continue ;
 		}
-		this->kickFromChannel(com.args[0].substr(1), com.fd, targetFD);
+		this->kickFromChannel(com.args[0].substr(1), com.fd, targetFD, message);
 		++index;
 	}
 }

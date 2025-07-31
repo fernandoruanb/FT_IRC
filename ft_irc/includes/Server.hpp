@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/29 13:02:39 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/30 21:23:59 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,7 @@ class	Server
 		void	deleteChannel(std::string Name, int clientFD);
 		void    removeOperatorPrivilegesFromEveryBody(std::string channel);
 		void    createNewChannel(std::string Name, int clientFD);
-		void    kickFromChannel(std::string channel, int owner, int clientFD);
+		void    kickFromChannel(std::string channel, int owner, int clientFD, std::string message);
 		void	addNewClient(int clientFD);
 		void    changeTopic(std::string channelName, int clientFD, std::string topic);
 		void	startIRCService(void);
