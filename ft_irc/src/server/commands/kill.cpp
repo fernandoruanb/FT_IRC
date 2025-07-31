@@ -69,8 +69,14 @@ void	Server::kill(s_commands& com)
 	clientFD = getClientsFdByName(nick);
 	if (clientFD == -1)
 	{
-		std::cerr << RED "The client doesn't exist to be KILL" RESET << std::endl;
+		std::cerr << RED "Error: The client doesn't exist to be KILL" RESET << std::endl;
 		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 401 " + com.client->getNickName() + " " + nick + " :No such nick/channel" + "\r\n";
+		return ;
+	}
+	if (com.fd == clientFD)
+	{
+		std::cerr << RED "Error: You are trying to KILL yourself" RESET << std::endl;
+		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 400 " + com.client->getNickName() + " KILL " + ":cannot kill yourself" + "\r\n";
 		return ;
 	}
 	clientIndex = getClientsIndex(clientFD);
