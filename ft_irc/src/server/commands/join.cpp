@@ -105,6 +105,6 @@ void	Server::join(s_commands& com)
 		return;
 	}
 	std::cout << "Membros do " + firstChannel->getName() + ": " + firstChannel->getClientsNames() << std::endl;
-	changeChannel(firstChannel->getName(), com.fd, 0);
+	// changeChannel(firstChannel->getName(), com.fd, 0);
 	std::cout << "Membros do " + firstChannel->getName() + ": " + firstChannel->getClientsNames() << std::endl;
 }
