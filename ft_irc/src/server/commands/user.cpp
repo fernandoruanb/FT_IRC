@@ -29,8 +29,9 @@ void	Server::user(s_commands	&com)
 
 		args[3] == ':';
 	*/
-	if (len > 3)
+	if (len > 3 && com.args[3][0] == ':')
 	{
+		com.args[3] = com.args[3].substr(1);
 		std::string	name;
 	
 		for (size_t i = 3; i < len; i++)

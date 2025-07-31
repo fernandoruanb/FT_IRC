@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/29 12:00:30 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/07/31 19:14:57 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -334,4 +334,9 @@ int	Server::getClientsFdByName(std::string nickname)
 		++it;
 	}
 	return (-1);
+}
+
+bool	Server::isKing(int fd) const
+{
+	return (this->kingsOfIRC.find(fd) != this->kingsOfIRC.end());
 }

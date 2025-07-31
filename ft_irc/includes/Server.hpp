@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/31 16:10:11 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/31 19:12:54 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,6 +163,7 @@ class	Server
 		void	setServerIRC(int serverFD);
 		int	getServerIRC(void) const;
 		std::string	getPassword(void) const;
+		bool	isKing(int fd) const;
 		int	getPort(void)	const;
 		int	getNumberOfClients(void) const;
 		struct pollfd	(&getPollFds(void))[1024];
