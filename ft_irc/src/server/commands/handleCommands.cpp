@@ -74,7 +74,11 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 			}
 		
 		if (!isValid)
+		{
+			com.sendBuffer += msg_err_notregistered();
+			fds[com.index].events |= POLLOUT;
 			return (false);
+		}
 	}
 	
 	//log for debug

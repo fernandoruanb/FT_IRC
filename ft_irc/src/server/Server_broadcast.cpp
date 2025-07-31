@@ -53,7 +53,7 @@ void    Server::broadcast(int sender, std::string line, int targetChannel)
 		if (client->getAuthenticated() && client->getNickName() != "*" && client->getRegistered() && clientCurrentChannel == ownerChannel)
 		{
 			this->sendBuffer[index] += this->sendBuffer[sender];
-			this->sendBuffer[index] += " " + it->second->getNickName() + " :" + line;
+			// this->sendBuffer[index] += " " + it->second->getNickName() + " :" + line;
 			fds[index].events |= POLLOUT;
 		}
 		if (client->getAuthenticated() && client->getNickName() != "*" && client->getRegistered() && clientCurrentChannel != ownerChannel)

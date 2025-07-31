@@ -20,10 +20,8 @@ bool	validNick(s_commands& com)
 */
 void	Server::nick(s_commands& com)
 {
-	// if (!com.client->getAuthenticated()) {
-	// 	this->sendBuffer[com.index] = my_notice_error(com.client->getNickName(), "You must authenticate first with the PASS command.");
-	// 	return;
-	// }
+	std::string	oldNick = com.client->getNickName();
+
 	if (!com.args.size())
 	{
 		this->sendBuffer[com.index].clear();
@@ -42,14 +40,22 @@ void	Server::nick(s_commands& com)
 		}
 		// com.sendBuffer.clear();
 		// com.sendBuffer = "Hello " + com.client->getNickName() + "\n";
-		this->tryRegister(com);
+		// this->tryRegister(com);
 	}
 	this->sendBuffer[com.index] = msg_notice("NICK " + com.client->getNickName());
+	// if (!com.client->getRegistered())
+	// 	com.sendBuffer += msg_err_notregistered();
 	if (!com.client->getRegistered() && com.client->getUserName() != "*")
-	{
-		// com.sendBuffer += msg_welcome(com.client);
 		com.client->setRegistered(true);
-	}
-	else
-		com.sendBuffer += msg_err_notregistered();
+	
+	std::string	message =	oldNick
+								+ "!"
+								+ com.client->getUserName()
+								+ "@"
+								+ com.client->getHost()
+								+ " NICK :"
+								+ com.client->getNickName()
+								+ "\n";
+	messageToAllChannels(com, message);
+	
 }
