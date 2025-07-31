@@ -143,6 +143,12 @@ void	Server::PollInputClientMonitoring(void)
 			{
 				std::cout << LIGHT_BLUE "Client " << YELLOW << fds[index].fd << LIGHT_BLUE " disconnected" << RESET << std::endl;
 				std::map<int, Client*>::iterator it = clients->find(fds[index].fd);
+				removeAllChannelsOfClient(it->first);
+				(*clients)[it->first]->setAuthenticated(false);
+				(*clients)[it->first]->setRegistered(false);
+				(*clients)[it->first]->setNickName("*");
+				(*clients)[it->first]->setUserName("*");
+				(*clients)[it->first]->setHost("localhost");
 				this->kingsOfIRC.erase(it->first);
 				delete it->second;
 				close(fds[index].fd);
