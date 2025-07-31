@@ -61,7 +61,7 @@ std::string msg_err_chanoprivsneeded(const std::string& nick, const std::string&
 }
 
 std::string msg_err_erroneusnickname(const std::string& nick) {
-    return ":" SERVER_NAME " 432 * " + nick + " :Erroneous nickname\r\n";
+    return ":" SERVER_NAME " 432 " + nick + " :Erroneous nickname\r\n";
 }
 
 std::string msg_err_alreadyregistered(const std::string& nick) {

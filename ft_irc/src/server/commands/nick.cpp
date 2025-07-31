@@ -1,6 +1,34 @@
 #include "../includes/Server.hpp"
 #include "../includes/messages.hpp"
 
+static bool	checkChar(char c)
+{
+	bool	isLetter = std::isalpha(static_cast<unsigned char>(c));
+	bool	isDigit = std::isdigit(static_cast<unsigned char>(c));
+	bool	isSpecial = c == '-'
+			|| c == '['
+			|| c == ']'
+			|| c == '\\'
+			|| c == '^'
+			|| c == '{'
+			|| c == '}'
+			|| c == '`';
+
+	return (isLetter || isDigit || isSpecial);
+}
+
+static bool	validChar(const std::string& name)
+{
+	if (name.empty()
+		|| !std::isalpha(static_cast<unsigned char>(name[0])))
+		return (false);
+	for (size_t i = 0; i < name.size(); i++)
+		if (!checkChar(name[i]))
+			return (false);
+
+	return(true);
+}
+
 bool	validNick(s_commands& com)
 {
 	if (com.args[0] == "*" || com.args[0] == "system")
@@ -30,6 +58,11 @@ void	Server::nick(s_commands& com)
 	}
 	if (com.args.size() == 1)
 	{
+		if (!validChar(com.args[0]))
+		{
+			com.sendBuffer += msg_err_erroneusnickname(com.args[0]);
+			return;
+		}
 		if (validNick(com))
 			com.client->setNickName(com.args[0]);
 		else
