@@ -79,7 +79,7 @@ static void	sendMessageToEveryone(s_commands& com, std::string channel, std::str
 		test = 1;
 		if (it->first != com.fd && it->second->getChannelsSet().find(channel) != it->second->getChannelsSet().end())
 		{
-			it->second->getBufferOut() += std::string("\r\n:") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " NOTICE " + "#" + channel + " :" + message + "\r\n";
+			it->second->getBufferOut() += std::string(":") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " NOTICE " + "#" + channel + " :" + message + "\r\n";
 			while (fds[test].fd != it->first)
 				++test;
 			fds[test].events |= POLLOUT;
@@ -111,7 +111,7 @@ static void	sendMessageToClient(s_commands& com, std::vector<std::string> channe
 
 	if ((*clients)[clientFD]->getChannelsSet().find(channelName) != (*clients)[clientFD]->getChannelsSet().end())
 	{
-		(*clients)[clientFD]->getBufferOut() += std::string("\r\n:") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " NOTICE " + (*clients)[clientFD]->getNickName() + " :" + message;
+		(*clients)[clientFD]->getBufferOut() += std::string(":") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " NOTICE " + (*clients)[clientFD]->getNickName() + " :" + message;
 		fds[clientIndex].events |= POLLOUT;
 	}
 }

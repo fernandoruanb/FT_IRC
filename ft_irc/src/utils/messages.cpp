@@ -116,7 +116,7 @@ std::string	my_privmsg_message(const std::string& nickname, const std::string& u
 
 std::string	my_join_message(const std::string& nickname, const std::string& username, const std::string& hostname, const std::string& channel)
 {
-	return (":" + nickname + "!" + username + "@" + hostname + " JOIN " + " #" + channel + "\r\n");
+	return (":" + nickname + "!" + username + "@" + hostname + " JOIN " + "#" + channel + "\r\n");
 }
 
 std::string	my_join_rpl_topic(const std::string& nickname, const std::string& channel, const std::string& topic)

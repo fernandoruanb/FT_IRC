@@ -110,7 +110,7 @@ void	Server::privmsg(s_commands& com)
 			++index;
 			continue ;
 		}
-		sendBuffer[com.index] += std::string("\n:") + (*clients)[fds[com.index].fd]->getNickName() + "!" + (*clients)[fds[com.index].fd]->getUserName() + "@" + (*clients)[fds[com.index].fd]->getHost() + " PRIVMSG";
+		sendBuffer[com.index] += std::string(":") + (*clients)[fds[com.index].fd]->getNickName() + "!" + (*clients)[fds[com.index].fd]->getUserName() + "@" + (*clients)[fds[com.index].fd]->getHost() + " PRIVMSG";
 		broadcast(com.index, message, targetChannel);
 		fds[com.index].events |= POLLOUT;
 		++index;
