@@ -63,6 +63,7 @@ void	Server::join(s_commands& com)
 	for (size_t i = 0; i < channelsArgs.size(); i++)
 	{
 		std::string	name = channelsArgs[i].substr(1);
+		name = getLower(name);
 
 		currentChannel = getChannel(name, this->channels);
 		if (!currentChannel)

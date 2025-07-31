@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/31 19:12:54 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/31 20:06:41 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,5 +177,6 @@ struct pollfd(*getMyFds(void))[1024];
 bool	*getRunning(void);
 bool	findMode(const std::string& myModes, const char mode);
 bool	validNick(s_commands& com);
+std::string	getLower(const std::string& str);
 
 #endif /* SERVER_HPP */

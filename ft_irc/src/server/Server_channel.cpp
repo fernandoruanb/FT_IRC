@@ -52,9 +52,19 @@ static bool	checkChannelName(std::string name)
 	return (true);
 }
 
+std::string	getLower(const std::string& str)
+{
+	std::string lower;
+
+	for (size_t i = 0; i < str.size(); i++)
+		lower += std::tolower(static_cast<unsigned char>(str[i]));
+
+	return (lower);
+}
+
 void	Server::createNewChannel(std::string Name, int clientFD)
 {
-	Channel* channel = new Channel(Name);
+	Channel* channel = new Channel(getLower(Name));
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Client*>::iterator it = clients->find(clientFD);
