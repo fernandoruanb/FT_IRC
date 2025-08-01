@@ -41,7 +41,11 @@ void	Server::user(s_commands	&com)
 		std::cout << "real name: " << com.client->getRealName() << std::endl;
 	}
 	if (com.client->getNickName() != "*")
+	{
 		com.client->setRegistered(true);
+		// Chamar tryRegister para garantir que as mensagens de boas-vindas sejam enviadas
+		this->tryRegister(com);
+	}
 	// if (com.client->getNickName() != "*")
 	// 	com.sendBuffer += msg_welcome(com.client);
 	// this->sendBuffer[com.index] = "Hello " + com.client->getUserName() + "@" + com.client->getHost() + " " + com.client->getServerName() + " " + com.client->getRealName() + "\n";

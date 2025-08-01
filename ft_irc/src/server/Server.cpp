@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/31 20:26:35 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/07/31 21:32:19 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,13 @@ void Server::tryRegister(s_commands& com)
 		com.sendBuffer += msg_yourhost(com.client->getNickName());
 		com.sendBuffer += msg_created(com.client->getNickName());
 		com.sendBuffer += msg_svrinfo(com.client->getNickName());
+		// Adicionar mensagens IRC essenciais
+		com.sendBuffer += ":" SERVER_NAME " 005 " + com.client->getNickName() + " CHANTYPES=# PREFIX=(o)@ CHANMODES=,,,itkl MODES=3 :are supported by this server\r\n";
+		// MOTD messages
+		com.sendBuffer += ":" SERVER_NAME " 375 " + com.client->getNickName() + " :- Message of the day -\r\n";
+		com.sendBuffer += ":" SERVER_NAME " 372 " + com.client->getNickName() + " :- Welcome to our IRC server!\r\n";
+		com.sendBuffer += ":" SERVER_NAME " 372 " + com.client->getNickName() + " :- Respect the rules.\r\n";
+		com.sendBuffer += ":" SERVER_NAME " 376 " + com.client->getNickName() + " :End of /MOTD command.\r\n";
     }
 }
 

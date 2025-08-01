@@ -101,11 +101,18 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 		}
 
 		if (!signin && com.client->getRegistered())
+		{
 			com.sendBuffer +=
 				msg_welcome(com.client)
 				+ msg_yourhost(com.client->getNickName())
 				+ msg_created(com.client->getNickName())
-				+ msg_svrinfo(com.client->getNickName());
+				+ msg_svrinfo(com.client->getNickName())
+				+ ":" SERVER_NAME " 005 " + com.client->getNickName() + " CHANTYPES=# PREFIX=(o)@ CHANMODES=,,,itkl MODES=3 :are supported by this server\r\n"
+				+ ":" SERVER_NAME " 375 " + com.client->getNickName() + " :- Message of the day -\r\n"
+				+ ":" SERVER_NAME " 372 " + com.client->getNickName() + " :- Welcome to our IRC server!\r\n"
+				+ ":" SERVER_NAME " 372 " + com.client->getNickName() + " :- Respect the rules.\r\n"
+				+ ":" SERVER_NAME " 376 " + com.client->getNickName() + " :End of /MOTD command.\r\n";
+		}
 	}
 
 	fds[com.index].events |= POLLOUT;

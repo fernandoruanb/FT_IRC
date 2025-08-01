@@ -2,346 +2,395 @@
 #include <sstream>
 
 s_mode::s_mode(char s, char f, bool ff, Channel* &t, std::string& c, size_t l, int i)
-	: sign(s), flag(f), flagFound(ff), target(t), currentMode(c), len(l), channelIndex(i)
+    : sign(s), flag(f), flagFound(ff), target(t), currentMode(c), len(l), channelIndex(i)
 {}
 
 static bool	isSigned(const char c)
 {
-	return (c == '+' || c == '-');
+    return (c == '+' || c == '-');
 }
 
 static	Client	*getTargetClient(s_commands &com, const std::string& name, std::string &sendBuffer)
 {
-	std::map<int, Client*>::iterator	it;
+    std::map<int, Client*>::iterator	it;
 
-	for (it = com.clients->begin(); it != com.clients->end(); it++)
-		if (it->second->getNickName() == name)
-			return (it->second);
-	
-	callCmdMsg("No such nick/channel", 401, com, sendBuffer);
-	return (NULL);
+    for (it = com.clients->begin(); it != com.clients->end(); it++)
+        if (it->second->getNickName() == name)
+            return (it->second);
+    
+    // Usar código de erro correto para nick não encontrado
+    sendBuffer += ":" SERVER_NAME " 401 " + com.client->getNickName() + " " + name + " :No such nick/channel\r\n";
+    return (NULL);
 }
 
 static Channel*	getTargetChannel(s_commands &com, std::map<int, Channel*>* &channels, std::string &sendBuffer)
 {
-	std::map<int, Channel*>::iterator	it;
-	//	Removing # from #<chanelName>
-	std::string	name = com.args[0].substr(1);
+    std::map<int, Channel*>::iterator	it;
+    //	Removing # from #<chanelName>
+    std::string	name = com.args[0].substr(1);
 
-	for (it = channels->begin(); it != channels->end(); it++)
-		if (it->second->getName() == name)
-			return (it->second);
-	
-	callCmdMsg("No such nick/channel", 401, com, sendBuffer);
-	return (NULL);
+    for (it = channels->begin(); it != channels->end(); it++)
+        if (it->second->getName() == name)
+            return (it->second);
+    
+    // Usar código de erro correto para canal não encontrado
+    sendBuffer += ":" SERVER_NAME " 403 " + com.client->getNickName() + " " + com.args[0] + " :No such channel\r\n";
+    return (NULL);
 }
 
 static void	showModes(s_commands& com, std::string &sendBuffer, std::map<int, Channel*>* &channels, bool isUser)
 {
-	if (com.args.size() != 1)
-		return;
+    if (com.args.size() != 1)
+        return;
 
-	if (isUser)
-	{
-		Client*	target = getTargetClient(com, com.args[0], sendBuffer);
-		if (target)
-			callCmdMsg("+" + target->getMode(com.client->getChannelOfTime()), 221, com, sendBuffer);
-		return;
-	}
+    if (isUser)
+    {
+        Client*	target = getTargetClient(com, com.args[0], sendBuffer);
+        if (target)
+        {
+            // Formato correto para resposta de modo de usuário
+            std::string userModes = target->getMode(com.client->getChannelOfTime());
+            if (userModes.empty())
+                userModes = "";
+            sendBuffer += ":" SERVER_NAME " 221 " + target->getNickName() + " +" + userModes + "\r\n";
+        }
+        return;
+    }
 
-	Channel*	target = getTargetChannel(com, channels, sendBuffer);
-	if (target)
-		callCmdMsg("+" + target->getMode(), 221, com, sendBuffer);
-
+    Channel*	target = getTargetChannel(com, channels, sendBuffer);
+    if (target)
+    {
+        // Formato correto para resposta de modo de canal
+        std::string channelModes = target->getMode();
+        if (channelModes.empty())
+            channelModes = "";
+        sendBuffer += ":" SERVER_NAME " 324 " + com.client->getNickName() + " " + com.args[0] + " +" + channelModes + "\r\n";
+    }
 }
 
 /*
-	Check if (char)mode is in myModes
+    Check if (char)mode is in myModes
 
-	how to use
+    how to use
 
-		findMode(getMode(), 'o');
+        findMode(getMode(), 'o');
 */
 bool	findMode(const std::string& myModes, const char mode)
 {
-	if (myModes.empty())
-		return (false);
+    if (myModes.empty())
+        return (false);
 
-	for (size_t i = 0; i < myModes.size(); i++)
-		if (myModes[i] == mode)
-			return (true);
-	
-	return (false);
+    for (size_t i = 0; i < myModes.size(); i++)
+        if (myModes[i] == mode)
+            return (true);
+    
+    return (false);
 }
 
 static void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffer, std::map<int, Channel*>* &channels)
 {
-	if (com.args.size() != 2 || !isSigned(com.args[1][0]))
-		return;
-	
-	//vc so pode alterar o seu proprio mode c vc n for operador
-	std::string	myMode = com.client->getMode(com.client->getChannelOfTime());
-	bool	iAmOperator = findMode(myMode, 'o');
-	if (target != com.client && !iAmOperator)
-	{
-		com.sendBuffer += "N vai fazer isso n malandro\n";
-		return;
-	}
-	(void)channels;
-	std::string	currentMode = target->getMode(com.client->getChannelOfTime());
-	std::string	args = com.args[1].substr(1);
-	char		sign = com.args[1][0];
+    if (com.args.size() < 2 || !isSigned(com.args[1][0]))
+        return;
+    
+    // Apenas o próprio usuário pode alterar seus modos (exceto operadores)
+    if (target != com.client && !com.client->getIsOperator())
+    {
+        sendBuffer += ":" SERVER_NAME " 502 " + com.client->getNickName() + " :Can't change mode for other users\r\n";
+        return;
+    }
+    
+    (void)channels;
+    std::string	currentMode = target->getMode(com.client->getChannelOfTime());
+    std::string	args = com.args[1].substr(1);
+    char		sign = com.args[1][0];
+    std::string	modeChanges = "";
 
-	//	Check the target modes
-	for (size_t i = 0; i < args.size(); i++)
-	{
-		char	mode = args[i];
-		bool	isActive = findMode(currentMode, mode);
+    //	Check the target modes
+    for (size_t i = 0; i < args.size(); i++)
+    {
+        char	mode = args[i];
+        bool	isActive = findMode(currentMode, mode);
 
-		if (mode != 'i' && mode != 'o')
-		{
-			std::cout << "Mode: " << mode << std::endl;
-			com.sendBuffer += "Faz denovo, faz direito. Esse modo n vale aqui\n";
-			return;
-		}
-		if (mode == 'o' && !iAmOperator)
-		{
-			std::cout << "achei? " << iAmOperator << std::endl;
-			std::cout << "meu modo: " + com.client->getMode(com.client->getChannelOfTime()) << std::endl;
-			callCmdMsg("You're not channel operator", 482, com, com.sendBuffer);
-			return;
-		}
+        // Validar modos de usuário válidos
+        if (mode != 'i' && mode != 'o')
+        {
+            sendBuffer += ":" SERVER_NAME " 472 " + com.client->getNickName() + " " + mode + " :is unknown mode char to me\r\n";
+            continue;
+        }
 
-		if (sign == '+' && !isActive)
-			currentMode += mode;
-		if (sign == '-' && isActive)
-		{
-			size_t	pos = currentMode.find(mode);
-			currentMode.erase(pos, 1);
-		}
-	}
+        // Apenas operadores IRC podem dar/tirar privilégios de operador
+        if (mode == 'o' && !com.client->getIsOperator())
+        {
+            sendBuffer += ":" SERVER_NAME " 481 " + com.client->getNickName() + " :Permission Denied- You're not an IRC operator\r\n";
+            continue;
+        }
 
-	target->setMode(currentMode, com.client->getChannelOfTime());
-	if (findMode(target->getMode(com.client->getChannelOfTime()), 'o'))
-	{
-		//tem q chamar a setOperator do canal aqui dps
-		target->setIsOperator(true);
-		// Channel*	channel = NULL;
-		// std::map<int, Channel*>::iterator	it = channels->find(com.client->getChannelOfTime());
-		
-	}
-	sendBuffer.clear();
-	sendBuffer = msg_notice("MODE " + target->getNickName() + " " + com.args[1]);
-	// std::cout << target->getNickName() << " Is operator: " << target->getIsOperator() << std::endl;
+        if (sign == '+' && !isActive)
+        {
+            currentMode += mode;
+            modeChanges += std::string(1, sign) + std::string(1, mode);
+        }
+        else if (sign == '-' && isActive)
+        {
+            size_t	pos = currentMode.find(mode);
+            currentMode.erase(pos, 1);
+            modeChanges += std::string(1, sign) + std::string(1, mode);
+        }
+    }
+
+    if (!modeChanges.empty())
+    {
+        target->setMode(currentMode, com.client->getChannelOfTime());
+        if (findMode(target->getMode(com.client->getChannelOfTime()), 'o'))
+        {
+            target->setIsOperator(true);
+        }
+        // Resposta no formato correto
+        sendBuffer += ":" + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + 
+                      " MODE " + target->getNickName() + " " + modeChanges + "\r\n";
+    }
 }
 
 static void	caseT(s_commands& com, s_mode& mode)
 {
-	(void)com;
-	if (mode.sign == '+' && !mode.flagFound)
-	{
-		mode.currentMode += mode.flag;
-		mode.target->setTopicFlag(true);
-		return;
-	}
-	if (mode.sign == '-' && mode.flagFound)
-	{
-		size_t	pos = mode.currentMode.find(mode.flag);
-		mode.currentMode.erase(pos, 1);
-	}
+    (void)com; // Suppress unused parameter warning
+    if (mode.sign == '+' && !mode.flagFound)
+    {
+        mode.currentMode += mode.flag;
+        mode.target->setTopicFlag(true);
+        return;
+    }
+    if (mode.sign == '-' && mode.flagFound)
+    {
+        size_t	pos = mode.currentMode.find(mode.flag);
+        mode.currentMode.erase(pos, 1);
+        mode.target->setTopicFlag(false);
+    }
 }
+
 static void	caseK(s_commands& com, s_mode& mode)
 {
-	bool	hasPermition = findMode(com.client->getMode(mode.channelIndex), 'o');
+    bool	hasPermission = findMode(com.client->getMode(mode.channelIndex), 'o') || com.client->getIsOperator();
 
-	if (mode.sign == '+')
-	{
-		if (mode.len != 3)
-		{
-			com.sendBuffer += "Invalid num of arguments\n";
-			return;
-		}
-		std::cout << "indice do canal: " << mode.channelIndex << std::endl;
-		if (hasPermition)
-		{
-			if (!mode.flagFound)
-				mode.currentMode += mode.flag;
-			mode.target->setPassWord(com.args[2]);
-			return;
-		}
-		com.sendBuffer += "vc n tem permissao pra isso aqui n amigo'-'\n";
-		return;
-	}
-	if (mode.sign == '-' && mode.flagFound)
-	{
-		if (hasPermition)
-		{
-			size_t	pos = mode.currentMode.find(mode.flag);
-			mode.currentMode.erase(pos, 1);
-			mode.target->getPassWord().clear();
-			return;
-		}
-		com.sendBuffer += "vc n tem permissao pra isso aqui n amigo'-'\n";
-		return;
-	}
+    if (mode.sign == '+')
+    {
+        if (mode.len < 3)
+        {
+            com.sendBuffer += ":" SERVER_NAME " 461 " + com.client->getNickName() + " MODE :Not enough parameters\r\n";
+            return;
+        }
+        if (hasPermission)
+        {
+            if (!mode.flagFound)
+                mode.currentMode += mode.flag;
+            mode.target->setPassWord(com.args[2]);
+            return;
+        }
+        com.sendBuffer += ":" SERVER_NAME " 482 " + com.client->getNickName() + " " + com.args[0] + " :You're not channel operator\r\n";
+        return;
+    }
+    if (mode.sign == '-' && mode.flagFound)
+    {
+        if (hasPermission)
+        {
+            size_t	pos = mode.currentMode.find(mode.flag);
+            mode.currentMode.erase(pos, 1);
+            mode.target->getPassWord().clear();
+            return;
+        }
+        com.sendBuffer += ":" SERVER_NAME " 482 " + com.client->getNickName() + " " + com.args[0] + " :You're not channel operator\r\n";
+    }
 }
+
 static void	caseL(s_commands& com, s_mode& mode)
 {
-	if (mode.sign == '+' && !mode.flagFound)
-	{
-		if (mode.len != 3)
-		{
-			com.sendBuffer += "Invalid num of arguments\n";
-			return;
-		}
-		int	limit;
-		std::istringstream	ss(com.args[2]);
+    if (mode.sign == '+' && !mode.flagFound)
+    {
+        if (mode.len < 3)
+        {
+            com.sendBuffer += ":" SERVER_NAME " 461 " + com.client->getNickName() + " MODE :Not enough parameters\r\n";
+            return;
+        }
+        int	limit;
+        std::istringstream	ss(com.args[2]);
 
-		ss >> limit;
-		if (ss.fail())
-		{
-			com.sendBuffer += "Tem coisa errada no numero de clientes q vc pos\n";
-			return;
-		}
-		mode.currentMode += mode.flag;
-		mode.target->setUserLimit(limit);
-		return;
-	}
-	if (mode.sign == '-' && mode.flagFound)
-	{
-		if (mode.len != 2)
-		{
-			com.sendBuffer += "Invalid num of arguments\n";
-			return;
-		}
-		size_t	pos = mode.currentMode.find(mode.flag);
-		mode.currentMode.erase(pos, 1);
-		mode.target->setUserLimit(1024);
-	}
+        ss >> limit;
+        if (ss.fail() || limit <= 0)
+        {
+            com.sendBuffer += ":" SERVER_NAME " 461 " + com.client->getNickName() + " MODE :Invalid limit value\r\n";
+            return;
+        }
+        mode.currentMode += mode.flag;
+        mode.target->setUserLimit(limit);
+        return;
+    }
+    if (mode.sign == '-' && mode.flagFound)
+    {
+        size_t	pos = mode.currentMode.find(mode.flag);
+        mode.currentMode.erase(pos, 1);
+        mode.target->setUserLimit(1024);
+    }
 }
+
 static void	caseO(s_commands& com, s_mode& mode)
 {
-	if (mode.len != 3)
-	{
-		com.sendBuffer += "Invalid num of arguments\n";
-		return;
-	}
-	Client*	client = getTargetClient(com, com.args[2], com.sendBuffer);
-	if (!client)
-		return;
-	client->setIsOperator(true);
-	client->addMode(mode.flag, mode.channelIndex);
-	mode.target->setOperator(client->getClientFD());
+    if (mode.len < 3)
+    {
+        com.sendBuffer += ":" SERVER_NAME " 461 " + com.client->getNickName() + " MODE :Not enough parameters\r\n";
+        return;
+    }
+    
+    Client*	client = getTargetClient(com, com.args[2], com.sendBuffer);
+    if (!client)
+        return;
+    
+    // Verificar se o cliente está no canal
+    if (!mode.target->isMemberOfChannel(client->getClientFD()) && !mode.target->isOperatorOfChannel(client->getClientFD()))
+    {
+        com.sendBuffer += ":" SERVER_NAME " 441 " + com.client->getNickName() + " " + com.args[2] + " " + com.args[0] + " :They aren't on that channel\r\n";
+        return;
+    }
+    
+    if (mode.sign == '+')
+    {
+        client->setIsOperator(true);
+        client->addMode(mode.flag, mode.channelIndex);
+        mode.target->setOperator(client->getClientFD());
+        if (!mode.flagFound)
+            mode.currentMode += mode.flag;
+    }
+    else if (mode.sign == '-')
+    {
+        client->setIsOperator(false);
+        mode.target->getOperatorsSet().erase(client->getClientFD());
+        if (mode.flagFound)
+        {
+            size_t pos = mode.currentMode.find(mode.flag);
+            mode.currentMode.erase(pos, 1);
+        }
+    }
 }
 
 static void	caseI(s_commands& com, s_mode& mode)
 {
-	if (mode.len != 2)
-	{
-		com.sendBuffer += "Invalid num of arguments\n";
-		return;
-	}
-	if (mode.sign == '+' && !mode.flagFound)
-	{
-		mode.currentMode += mode.flag;
-		mode.target->setInviteFlag(true);
-		return;
-	}
-	if (mode.sign == '-' && mode.flagFound)
-	{
-		size_t	pos = mode.currentMode.find(mode.flag);
-		mode.currentMode.erase(pos, 1);
-		mode.target->setInviteFlag(false);
-	}
+    (void)com; // Suppress unused parameter warning
+    if (mode.sign == '+' && !mode.flagFound)
+    {
+        mode.currentMode += mode.flag;
+        mode.target->setInviteFlag(true);
+        return;
+    }
+    if (mode.sign == '-' && mode.flagFound)
+    {
+        size_t	pos = mode.currentMode.find(mode.flag);
+        mode.currentMode.erase(pos, 1);
+        mode.target->setInviteFlag(false);
+    }
 }
 
 static void	addChannelMode(s_commands &com, Channel* &target, int channelIndex)
 {
-	std::string	mode = com.client->getMode(channelIndex);
+    // Verificar se o usuário é operador do canal
+    std::string	userMode = com.client->getMode(channelIndex);
+    bool isChannelOp = findMode(userMode, 'o') || target->isOperatorOfChannel(com.client->getClientFD());
+    
+    if (target->getName() == "generic" || (!isChannelOp && !com.client->getIsOperator()))
+    {
+        com.sendBuffer += ":" SERVER_NAME " 482 " + com.client->getNickName() + " " + com.args[0] + " :You're not channel operator\r\n";
+        return;
+    }
+    
+    size_t		len = com.args.size();
+    if (len < 2)
+        return;
 
-	if (target->getName() == "Generic" || !findMode(mode, 'o'))
-	{
-		com.sendBuffer += "Pode nao man ;-;\n";
-		return;
-	}
-	size_t		len = com.args.size();
-	if (len < 2)
-		return;
+    std::string	currentMode = target->getMode();
+    char		sign = com.args[1][0];
+    std::string	flags = com.args[1].substr(1);
+    std::string	modeResponse = "";
+    std::string	modeParams = "";
+    
+    std::map<char, void (*)(s_commands&, s_mode&)>	myMap;
+    myMap['i'] = &caseI;
+    myMap['o'] = &caseO;
+    myMap['k'] = &caseK;
+    myMap['l'] = &caseL;
+    myMap['t'] = &caseT;
 
-	std::string	currentMode = target->getMode();
-	char		sign = com.args[1][0];
-	std::string	flags = com.args[1].substr(1);
-	std::string	Channel = com.args[0];
-	size_t		i;
-	std::map<char, void (*)(s_commands&, s_mode&)>	myMap;
-	myMap['i'] = &caseI;
-	myMap['o'] = &caseO;
-	myMap['k'] = &caseK;
-	myMap['l'] = &caseL;
-	myMap['t'] = &caseT;
+    for (size_t i = 0; i < flags.size(); i++)
+    {
+        char	flag = flags[i];
+        bool	flagFound = findMode(currentMode, flag);
 
+        if (myMap.find(flag) == myMap.end())
+        {
+            com.sendBuffer += ":" SERVER_NAME " 472 " + com.client->getNickName() + " " + flag + " :is unknown mode char to me for " + com.args[0] + "\r\n";
+            continue;
+        }
+        
+        std::string oldMode = currentMode;
+        s_mode	modeStruct(sign, flag, flagFound, target, currentMode, len, channelIndex);	
+        myMap[flag](com, modeStruct);
+        
+        // Se o modo foi alterado, adicionar à resposta
+        if (oldMode != currentMode)
+        {
+            modeResponse += std::string(1, sign) + std::string(1, flag);
+            
+            // Adicionar parâmetros se necessário
+            if ((flag == 'k' && sign == '+') || (flag == 'l' && sign == '+') || flag == 'o')
+            {
+                if (flag == 'o' && len > 2)
+                    modeParams += " " + com.args[2];
+                else if (flag == 'k' && len > 2)
+                    modeParams += " " + com.args[2];
+                else if (flag == 'l' && len > 2)
+                    modeParams += " " + com.args[2];
+            }
+        }
+    }
 
-	std::cout << "Meu target eh o canal: " << target->getName() << std::endl;
-
-	for (i = 0; i < flags.size(); i++)
-	{
-		char	flag = flags[i];
-		bool	flagFound = findMode(currentMode, flag);
-
-		if (myMap.find(flag) == myMap.end())
-			continue;
-		
-		s_mode	mode(sign, flag, flagFound, target, currentMode, len, channelIndex);	
-		myMap[flag](com, mode);
-	}
-
-	target->setMode(currentMode);
-	com.sendBuffer += msg_notice("MODE " + target->getName() + " " + com.args[1]);
-	std::cout << "senha do canal: " << target->getPassWord() << std::endl;
+    target->setMode(currentMode);
+    
+    // Enviar resposta apenas se houve mudanças
+    if (!modeResponse.empty())
+    {
+        com.sendBuffer += ":" + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + 
+                          " MODE " + com.args[0] + " " + modeResponse + modeParams + "\r\n";
+    }
 }
+
 /*
-	Handle user modes
-
-	221 - default code for mode
-	mode var default value = "+"
-
-	//	Show channel/user modes
-	MODE <nick/#channel> || MODE <target> i(no sign flag)
-	output:
-		- No modes
-			:irc.example.com 221 Miku +
-		-With modes
-			:irc.example.com 221 Miku +i
-
-	MODE <nick/#channel> +/- io
-	channel must have the # before name
-
-	flags
-	i(user) - invisible to WHO and NAMES						-	MODE <nick> +/-i
-	i(channel) - only invite channel
-	o - OPERATOR privilege to one user of the channel	-	MODE #channel +/-o <nick> || MODE <nick> +/-o
-	t - only operators can change the topic				-	MODE #channel +/-t
-	k - asks for password to enter the channel			-	MODE #channel +/-k <passwd>
-	l - limit the users amount in the channel			-	MODE #channel +/-l <amount>
+    Handle user modes according to IRC RFC standards
 */
 void	Server::mode(s_commands &com)
 {
-	if (!com.args.size())
-		return (callCmdMsg("Not enough parameters", 461, com, this->sendBuffer[com.index]));
+    if (!com.args.size())
+    {
+        com.sendBuffer += ":" SERVER_NAME " 461 " + com.client->getNickName() + " MODE :Not enough parameters\r\n";
+        return;
+    }
 
-	bool	isUser = com.args[0][0] != '#';
+    bool	isUser = com.args[0][0] != '#';
 
-	showModes(com, this->sendBuffer[com.index], this->channels, isUser);
-	if (isUser)
-	{
-		Client*	target = getTargetClient(com, com.args[0], this->sendBuffer[com.index]);
-		if (!target)
-			return;
-		addUserMode(target, com, this->sendBuffer[com.index], this->channels);
-		return;
-	}
-	Channel*	target = getTargetChannel(com, this->channels, com.sendBuffer);
-	if (!target)
-		return;
-	addChannelMode(com, target, getChannelsIndex(target->getName()));
+    // Se só tem 1 argumento, mostrar modos atuais
+    if (com.args.size() == 1)
+    {
+        showModes(com, com.sendBuffer, this->channels, isUser);
+        return;
+    }
+
+    if (isUser)
+    {
+        Client*	target = getTargetClient(com, com.args[0], com.sendBuffer);
+        if (!target)
+            return;
+        addUserMode(target, com, com.sendBuffer, this->channels);
+        return;
+    }
+    
+    Channel*	target = getTargetChannel(com, this->channels, com.sendBuffer);
+    if (!target)
+        return;
+    addChannelMode(com, target, getChannelsIndex(target->getName()));
 }

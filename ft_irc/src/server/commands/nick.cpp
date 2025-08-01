@@ -76,10 +76,12 @@ void	Server::nick(s_commands& com)
 		// this->tryRegister(com);
 	}
 	this->sendBuffer[com.index] = msg_notice("NICK " + com.client->getNickName());
-	// if (!com.client->getRegistered())
-	// 	com.sendBuffer += msg_err_notregistered();
 	if (!com.client->getRegistered() && com.client->getUserName() != "*")
+	{
 		com.client->setRegistered(true);
+		// Chamar tryRegister para garantir que as mensagens de boas-vindas sejam enviadas
+		this->tryRegister(com);
+	}
 	
 	std::string	message =	oldNick
 								+ "!"
