@@ -8,7 +8,7 @@ std::string msg_welcome(Client* &target);
 std::string msg_yourhost(const std::string& nick);
 std::string msg_created(const std::string& nick);
 std::string msg_svrinfo(const std::string& nick);
-std::string msg_err_needmoreparams(const std::string& cmd);
+std::string msg_err_needmoreparams(const std::string& nick, std::string& cmd);
 std::string msg_err_passwdmismatch();
 std::string msg_err_nicknameinuse(const std::string& nick);
 std::string msg_err_notregistered();
@@ -40,3 +40,10 @@ std::string     my_useronchannel(const std::string& owner, const std::string& ni
 std::string     my_notonchannel(const std::string& nick, const std::string& channel, const std::string& message);
 std::string     my_nosuchnickchannel(const std::string& nick, const std::string& forget);
 std::string     my_usernotinchannel(std::string& nick, const std::string& target, const std::string& channel, const std::string& message);
+std::string 	msg_err_usersdontmatch(s_commands& com);
+std::string 	msg_err_noprivileges(s_commands& com);
+std::string		msg_err_unknownmode(s_commands&com, char mode);
+std::string	msg_mode_userwelldone(s_commands& com, Client* &target);
+std::string	msg_showchannelmodes(s_commands& com, Channel* &target);
+std::string	msg_showusermodes(s_commands& com, Client* &target);
+

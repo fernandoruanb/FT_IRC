@@ -18,7 +18,7 @@ static	Client	*getTargetClient(s_commands &com, const std::string& name, std::st
 		if (it->second->getNickName() == name)
 			return (it->second);
 	
-	callCmdMsg("No such nick/channel", 401, com, sendBuffer);
+	com.sendBuffer += my_nosuchnickchannel(com.client->getNickName(), name);
 	return (NULL);
 }
 
@@ -32,7 +32,7 @@ static Channel*	getTargetChannel(s_commands &com, std::map<int, Channel*>* &chan
 		if (it->second->getName() == name)
 			return (it->second);
 	
-	callCmdMsg("No such nick/channel", 401, com, sendBuffer);
+	com.sendBuffer += my_nosuchnickchannel(com.client->getNickName(), name);
 	return (NULL);
 }
 
@@ -45,14 +45,13 @@ static void	showModes(s_commands& com, std::string &sendBuffer, std::map<int, Ch
 	{
 		Client*	target = getTargetClient(com, com.args[0], sendBuffer);
 		if (target)
-			callCmdMsg("+" + target->getMode(com.client->getChannelOfTime()), 221, com, sendBuffer);
+			com.sendBuffer += msg_showusermodes(com, target);
 		return;
 	}
 
 	Channel*	target = getTargetChannel(com, channels, sendBuffer);
 	if (target)
-		callCmdMsg("+" + target->getMode(), 221, com, sendBuffer);
-
+		com.sendBuffer += msg_showchannelmodes(com, target);
 }
 
 /*
@@ -79,19 +78,26 @@ static void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffe
 	if (com.args.size() != 2 || !isSigned(com.args[1][0]))
 		return;
 	
-	//vc so pode alterar o seu proprio mode c vc n for operador
+	// //vc so pode alterar o seu proprio mode c vc n for operador
 	std::string	myMode = com.client->getMode(com.client->getChannelOfTime());
+	int		currentChannel = com.client->getChannelOfTime();
 	bool	iAmOperator = findMode(myMode, 'o');
 	if (target != com.client && !iAmOperator)
 	{
-		com.sendBuffer += "N vai fazer isso n malandro\n";
+		com.sendBuffer += msg_err_usersdontmatch(com);
 		return;
 	}
-	(void)channels;
-	std::string	currentMode = target->getMode(com.client->getChannelOfTime());
+	if (findMode(com.args[1], 'o') && !iAmOperator)
+	{
+		com.sendBuffer += msg_err_noprivileges(com);
+		return;
+	}
+	std::string	currentMode = target->getMode(currentChannel);
 	std::string	args = com.args[1].substr(1);
 	char		sign = com.args[1][0];
-
+	Channel*	channel = NULL;
+	std::map<int, Channel*>::iterator	it = channels->find(currentChannel);
+	channel = it->second;
 	//	Check the target modes
 	for (size_t i = 0; i < args.size(); i++)
 	{
@@ -100,15 +106,15 @@ static void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffe
 
 		if (mode != 'i' && mode != 'o')
 		{
-			std::cout << "Mode: " << mode << std::endl;
-			com.sendBuffer += "Faz denovo, faz direito. Esse modo n vale aqui\n";
+			// std::cout << "Mode: " << mode << std::endl;
+			com.sendBuffer += msg_err_unknownmode(com, mode);
 			return;
 		}
 		if (mode == 'o' && !iAmOperator)
 		{
-			std::cout << "achei? " << iAmOperator << std::endl;
-			std::cout << "meu modo: " + com.client->getMode(com.client->getChannelOfTime()) << std::endl;
-			callCmdMsg("You're not channel operator", 482, com, com.sendBuffer);
+			// std::cout << "achei? " << iAmOperator << std::endl;
+			// std::cout << "meu modo: " + com.client->getMode(currentChannel) << std::endl;
+			com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), channel->getName(), "You're not channel operator");
 			return;
 		}
 
@@ -121,23 +127,19 @@ static void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffe
 		}
 	}
 
-	target->setMode(currentMode, com.client->getChannelOfTime());
-	if (findMode(target->getMode(com.client->getChannelOfTime()), 'o'))
+	target->setMode(currentMode, currentChannel);
+	if (findMode(target->getMode(currentChannel), 'o'))
 	{
-		//tem q chamar a setOperator do canal aqui dps
 		target->setIsOperator(true);
-		// Channel*	channel = NULL;
-		// std::map<int, Channel*>::iterator	it = channels->find(com.client->getChannelOfTime());
-		
+		channel->setOperator(target->getClientFD());
 	}
 	sendBuffer.clear();
-	sendBuffer = msg_notice("MODE " + target->getNickName() + " " + com.args[1]);
+	sendBuffer = msg_mode_userwelldone(com, target);
 	// std::cout << target->getNickName() << " Is operator: " << target->getIsOperator() << std::endl;
 }
 
 static void	caseT(s_commands& com, s_mode& mode)
 {
-	(void)com;
 	if (mode.sign == '+' && !mode.flagFound)
 	{
 		mode.currentMode += mode.flag;
@@ -158,10 +160,10 @@ static void	caseK(s_commands& com, s_mode& mode)
 	{
 		if (mode.len != 3)
 		{
-			com.sendBuffer += "Invalid num of arguments\n";
+			com.sendBuffer += msg_err_needmoreparams(com.client->getNickName(), "MODE");
 			return;
 		}
-		std::cout << "indice do canal: " << mode.channelIndex << std::endl;
+		// std::cout << "indice do canal: " << mode.channelIndex << std::endl;
 		if (hasPermition)
 		{
 			if (!mode.flagFound)
@@ -191,7 +193,7 @@ static void	caseL(s_commands& com, s_mode& mode)
 	{
 		if (mode.len != 3)
 		{
-			com.sendBuffer += "Invalid num of arguments\n";
+			com.sendBuffer += msg_err_needmoreparams(com.client->getNickName(), "MODE");
 			return;
 		}
 		int	limit;
@@ -223,7 +225,7 @@ static void	caseO(s_commands& com, s_mode& mode)
 {
 	if (mode.len != 3)
 	{
-		com.sendBuffer += "Invalid num of arguments\n";
+		com.sendBuffer += msg_err_needmoreparams(com.client->getNickName(), "MODE");
 		return;
 	}
 	Client*	client = getTargetClient(com, com.args[2], com.sendBuffer);
@@ -238,7 +240,7 @@ static void	caseI(s_commands& com, s_mode& mode)
 {
 	if (mode.len != 2)
 	{
-		com.sendBuffer += "Invalid num of arguments\n";
+		com.sendBuffer += msg_err_needmoreparams(com.client->getNickName(), "MODE");
 		return;
 	}
 	if (mode.sign == '+' && !mode.flagFound)
