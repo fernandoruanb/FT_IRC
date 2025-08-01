@@ -70,11 +70,10 @@ void	Server::sendNoticeMessageToEveryone(s_commands& com, std::string channel, s
 {
 	struct pollfd (&fds)[1024] = *getMyFds();
 	std::map<int, Client*>* clients = getClientsMap();
-	std::map<int, Client*>::iterator it = clients->begin();
-	bool	theChannelTest = com.client->getChannelsSet().find(channel) != com.client->getChannelsSet().end();
+	std::map<int, Client*>::iterator it = clients->begin();	
 	int	test;
 
-	while (theChannelTest && it != clients->end())
+	while (it != clients->end())
 	{
 		test = 1;
 		if (checkCompatibility(com.fd, it->first, channel))
