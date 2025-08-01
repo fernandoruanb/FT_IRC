@@ -117,8 +117,6 @@ void	Server::privmsg(s_commands& com)
 	}
 	index = 0;
 	int	test = 1;
-	std::string	targetChannelName;
-	int	targetChannelOfTime;
 
 	while (index < clientsVector.size() && !clientsVector[index].empty())
 	{
@@ -138,13 +136,6 @@ void	Server::privmsg(s_commands& com)
 		{
 			std::cerr << RED "Error: The client doesn't exist" RESET << std::endl;
 			com.client->getBufferOut() += my_nosuchnickchannel(com.client->getNickName(), clientsVector[index]);
-			++index;
-			continue ;
-		}
-		targetChannelOfTime = (*clients)[targetFD]->getChannelOfTime();
-		targetChannelName = (*channels)[targetChannelOfTime]->getName();
-		if (std::find(channelsVector.begin(), channelsVector.end(), targetChannelName) != channelsVector.end())
-		{
 			++index;
 			continue ;
 		}

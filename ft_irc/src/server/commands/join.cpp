@@ -96,7 +96,7 @@ void	Server::join(s_commands& com)
 			return;
 		}
 		if (!create)
-			currentChannel->addNewMember(com.fd);
+			changeChannel(currentChannel->getName(), com.fd, 1);
 
 		std::cout << "Membros do " + currentChannel->getName() + ": " + currentChannel->getClientsNames() << std::endl;
 	}

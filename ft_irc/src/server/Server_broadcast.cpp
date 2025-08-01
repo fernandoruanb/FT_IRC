@@ -52,25 +52,41 @@ void    Server::broadcast(int sender, std::string line, int targetChannel)
 	   }
 		if (client->getAuthenticated() && client->getNickName() != "*" && client->getRegistered() && clientCurrentChannel == ownerChannel)
 		{
-			this->sendBuffer[index] += this->sendBuffer[sender] + " " + it->second->getNickName() + " :" + line + "\r\n";
+			targetChannelName = (*channels)[targetChannel]->getName();
+			this->sendBuffer[index] += this->sendBuffer[sender] + " " + it->second->getNickName() + " #" + targetChannelName + " :" + line;
 			// this->sendBuffer[index] += " " + it->second->getNickName() + " :" + line;
 			fds[index].events |= POLLOUT;
 		}
 		if (client->getAuthenticated() && client->getNickName() != "*" && client->getRegistered() && clientCurrentChannel != ownerChannel)
 		{
-			if ((*clients)[fds[sender].fd]->getChannelsSet().find(clientChannelName) != (*clients)[fds[sender].fd]->getChannelsSet().end())
+			targetChannelName = (*channels)[targetChannel]->getName();
+			if (checkCompatibility(fds[sender].fd, fds[index].fd, targetChannelName))
 			{
 				std::cout << "A mensagem do owner: " << line << std::endl;
-				(*clients)[fds[index].fd]->getBufferOut() += this->sendBuffer[sender] + " " + it->second->getNickName() + " :" + line + "\r\n";
+				(*clients)[fds[index].fd]->getBufferOut() += this->sendBuffer[sender] + " " + it->second->getNickName() + " #" + targetChannelName + " :" + line;
 				std::cout << ORANGE "ownerChannelName: " << ownerChannelName << std::endl;
 				std::cout << BRIGHT_GREEN "clientChannelName: " << clientChannelName << RESET << std::endl;
 				std::cout << "The History: " << (*clients)[fds[index].fd]->getSendHistory()[ownerChannel] << std::endl;
+				fds[index].events |= POLLOUT;
 			}
 		}
 		index++;
         }
         this->sendBuffer[sender].clear();
     }
+}
+
+bool	Server::checkCompatibility(int ownerFD, int clientFD, std::string targetChannel)
+{
+	std::map<int, Client*>* clients = getClientsMap();
+	std::map<int, Client*>::iterator it = clients->find(ownerFD);
+	std::map<int, Client*>::iterator its = clients->find(clientFD);
+
+	if (it == clients->end() || its == clients->end())
+		return (false);
+	if (it->second->getChannelsSet().find(targetChannel) != it->second->getChannelsSet().end() && its->second->getChannelsSet().find(targetChannel) != its->second->getChannelsSet().end())
+		return (true);
+	return (false);
 }
 
 void    Server::privmsg(int index, int sender, std::string message)
@@ -118,9 +134,9 @@ void    Server::privmsg(int index, int sender, std::string message)
 	{
 		if (client->getAuthenticated() && client->getNickName() != "*" && client->getRegistered() && clientCurrentChannel != ownerChannel)
                 {
-                        if ((*clients)[fds[sender].fd]->getChannelsSet().find(clientChannelName) != (*clients)[fds[sender].fd]->getChannelsSet().end())
+                        if (checkCompatibility(fds[sender].fd, fds[index].fd, "generic"))
 			{
-				(*clients)[fds[index].fd]->getBufferOut() += std::string(":") + (*clients)[fds[sender].fd]->getNickName() + "!" + (*clients)[fds[sender].fd]->getUserName() + "@" + (*clients)[fds[sender].fd]->getHost() + " PRIVMSG :" + message + "\r\n";
+				(*clients)[fds[index].fd]->getBufferOut() += std::string(":") + (*clients)[fds[sender].fd]->getNickName() + "!" + (*clients)[fds[sender].fd]->getUserName() + "@" + (*clients)[fds[sender].fd]->getHost() + " PRIVMSG :" + message;
 				fds[index].events |= POLLOUT;
 			}
                 }
