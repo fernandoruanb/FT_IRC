@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/01 11:31:27 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/08/01 15:04:17 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,6 +117,8 @@ class	Server
 		void	startIRCService(void);
 		void	manageBuffers(int index);
 		void	shutdownService(void);
+		void    sendNoticeMessageToClient(s_commands& com, int clientFD, int clientIndex, std::string message);
+		void    sendNoticeMessageToEveryone(s_commands& com, std::string channel, std::string message);
 		void	broadcast(int index, std::string line, int targetChannel = -1);
 		void	chargePrivileges(int target);
 		void	startPollFds(void);

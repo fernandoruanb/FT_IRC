@@ -66,7 +66,7 @@ static std::string	getTheMessage(s_commands& com)
 	return (message);
 }
 
-static void	sendMessageToEveryone(s_commands& com, std::string channel, std::string message)
+void	Server::sendNoticeMessageToEveryone(s_commands& com, std::string channel, std::string message)
 {
 	struct pollfd (&fds)[1024] = *getMyFds();
 	std::map<int, Client*>* clients = getClientsMap();
@@ -77,9 +77,14 @@ static void	sendMessageToEveryone(s_commands& com, std::string channel, std::str
 	while (theChannelTest && it != clients->end())
 	{
 		test = 1;
-		if (it->first != com.fd && it->second->getChannelsSet().find(channel) != it->second->getChannelsSet().end())
+		if (checkCompatibility(com.fd, it->first, channel))
 		{
-			it->second->getBufferOut() += std::string(":") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " NOTICE " + "#" + channel + " :" + message + "\r\n";
+			if (it->first == com.fd)
+			{
+				++it;
+				continue ;
+			}
+			it->second->getBufferOut() += std::string(":") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " NOTICE " + "#" + channel + " :" + message;
 			while (fds[test].fd != it->first)
 				++test;
 			fds[test].events |= POLLOUT;
@@ -88,7 +93,7 @@ static void	sendMessageToEveryone(s_commands& com, std::string channel, std::str
 	}
 }
 
-static void	sendMessageToClient(s_commands& com, std::vector<std::string> channelsVector, int clientFD, int clientIndex, std::string message)
+void	Server::sendNoticeMessageToClient(s_commands& com, int clientFD, int clientIndex, std::string message)
 {
 	std::map<int, Channel*>* channels = getChannelsMap();
 	std::map<int, Client*>* clients = getClientsMap();
@@ -100,16 +105,8 @@ static void	sendMessageToClient(s_commands& com, std::vector<std::string> channe
 		return ;
 	if (clientIndex == -1)
 		return ;
-	std::size_t	index = 0;
 
-	while (index < channelsVector.size() && index < 1024 && !channelsVector[index].empty())
-	{
-		if ((*clients)[clientFD]->getChannelsSet().find(channelsVector[index]) != (*clients)[clientFD]->getChannelsSet().end())
-			return ;
-		++index;
-	}
-
-	if ((*clients)[clientFD]->getChannelsSet().find(channelName) != (*clients)[clientFD]->getChannelsSet().end())
+	if (checkCompatibility(com.fd, clientFD, "generic"))
 	{
 		(*clients)[clientFD]->getBufferOut() += std::string(":") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " NOTICE " + (*clients)[clientFD]->getNickName() + " :" + message;
 		fds[clientIndex].events |= POLLOUT;
@@ -135,7 +132,7 @@ void	Server::notice(s_commands& com)
 	}
 	while (index < channelsVector.size() && !channelsVector[index].empty())
 	{
-		sendMessageToEveryone(com, channelsVector[index], message);
+		sendNoticeMessageToEveryone(com, channelsVector[index], message);
 		++index;
 	}
 	index = 0;
@@ -143,7 +140,7 @@ void	Server::notice(s_commands& com)
 	{
 		int	clientFD = getClientsFdByName(clientsVector[index]);
 		int	clientIndex = getClientsIndex(clientFD);
-		sendMessageToClient(com, channelsVector, clientFD, clientIndex, message);
+		sendNoticeMessageToClient(com, clientFD, clientIndex, message);
 		++index;
 	}
 }
