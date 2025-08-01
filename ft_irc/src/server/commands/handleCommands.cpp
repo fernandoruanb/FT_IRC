@@ -41,6 +41,7 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 		if (findTheEnd(buffer[j]))
 			break;
 	
+	struct	pollfd	(&fds)[1024] = *getMyFds();
 	std::string	command = buffer.substr(0, j);
 
 	//log for debug
@@ -48,8 +49,7 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	
 	if (myMap.find(command) == myMap.end())
 		return (false);
-	
-	struct	pollfd	(&fds)[1024] = *getMyFds();
+
 	while (buffer[j] == ' ')
 		j++;
 	std::string	arguments = buffer.substr(j);
