@@ -13,7 +13,7 @@ void	Server::startPollFds(void)
 		fds[index].fd = -1;
 		index++;
 	}
-}	
+}
 
 void	Server::PollServerRoom(void)
 {
@@ -50,6 +50,34 @@ void	Server::PollServerRoom(void)
 // 	return (true);
 // }
 
+static void	cleanEnd(std::string& line)
+{
+	while (!line.empty())
+	{
+		char	lastChar = line[line.size() - 1];
+
+		if (lastChar == '\r' || lastChar == '\n' || lastChar == ' ')
+		 	line.resize(line.size() - 1);
+		else
+			break;
+	}
+}
+
+static std::string	getFirstArg(std::string &line)
+{
+	line.erase(0, line.find_first_not_of(" \t\r\n"));
+	if (line.empty())
+		return ("");
+
+	size_t	pos = line.find(' ');
+	std::string	result = line.substr(0, pos);
+
+	for (size_t i = 0; i < result.size(); i++)
+		if (!std::isprint(result[i]))
+			return ("");
+
+	return (result);
+}
 
 void	Server::PollInputClientMonitoring(void)
 {
@@ -132,10 +160,15 @@ void	Server::PollInputClientMonitoring(void)
 						|| client->getRegistered() == false)
 						continue;
 
-					this->sendBuffer[index].clear();
-					if (!isEmptyInput(line))
-					this->sendBuffer[index] += std::string("\n:") + (*clients)[fds[index].fd]->getNickName() + "!" + (*clients)[fds[index].fd]->getUserName() + "@" + (*clients)[fds[index].fd]->getHost() + " PRIVMSG";
-					this->broadcast(index, line);
+					// this->sendBuffer[index].clear();
+					// if (!isEmptyInput(line))
+					// this->sendBuffer[index] += std::string("\n:") + (*clients)[fds[index].fd]->getNickName() + "!" + (*clients)[fds[index].fd]->getUserName() + "@" + (*clients)[fds[index].fd]->getHost() + " PRIVMSG";
+					// this->broadcast(index, line);
+					cleanEnd(line);
+					std::string	firstArg = getFirstArg(line);
+					std::cout << "Line content: " << firstArg << std::endl;
+					if (!firstArg.empty())
+						this->sendBuffer[index] += msg_err_unknowncommand(firstArg);
 					fds[index].events |= POLLOUT;
 				}
 			}
