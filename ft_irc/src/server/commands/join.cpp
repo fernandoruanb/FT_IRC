@@ -91,12 +91,14 @@ void	Server::join(s_commands& com)
 			}
 		}
 		if (currentChannel->isMemberOfChannel(com.fd))
-		{
-			com.sendBuffer += my_useronchannel(com.client->getNickName(), com.client->getNickName(), currentChannel->getName(), "is already on channel");
 			return;
-		}
 		if (!create)
-			changeChannel(currentChannel->getName(), com.fd, 1);
+		{
+			if (com.client->getChannelsSet().find(currentChannel->getName()) != com.client->getChannelsSet().end())
+				changeChannel(currentChannel->getName(), com.fd, 2);
+			else
+				changeChannel(currentChannel->getName(), com.fd, 1);
+		}
 
 		std::cout << "Membros do " + currentChannel->getName() + ": " + currentChannel->getClientsNames() << std::endl;
 	}

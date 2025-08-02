@@ -306,13 +306,6 @@ void	Server::changeTopic(std::string channelName, int clientFD, std::string topi
 			return ;
 		}
 	}
-	if (!theKing && it->first != itc->second->getChannelOfTime())
-	{
-		itc->second->getBufferOut() += msg_err_notonchannel(nick, channelName);
-		std::cerr << RED "Error: You can't change a topic in another channel" RESET << std::endl;
-		fds[clientIndex].events |= POLLOUT;
-		return ;
-	}
 	oss << timestamp;
 	it->second->setTopic(topic);
 	time = oss.str();
@@ -403,11 +396,6 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD, std::
 		std::cerr << RED "Error: It's impossible to kick someone from a ghost channel" RESET << std::endl;
 		itch->second->getBufferOut() += msg_err_nosuchchannel(nick, channel);
 		fds[clientIndex].events |= POLLOUT;
-		return ;
-	}
-	if (!theKing && channel != itm->second->getName())
-	{
-		std::cerr << RED "Error: Your current channel isn't the target channel dear owner" RESET << std::endl;
 		return ;
 	}
 	if (!theKing && itch->second->getOperatorChannels().find(channel) == itch->second->getOperatorChannels().end())
@@ -614,7 +602,6 @@ void	Server::changeChannel(std::string channel, int clientFD, int flag)
 			channelIndex = getChannelsIndex(channel);
 			if (itc->second->getChannelOfTime() == channelIndex && flag != 1)
 			{
-				std::cerr << RED "Error: You are trying to change to the same channel that you are" RESET << std::endl;
 				itc->second->getBufferOut() += std::string(":") + SERVER_NAME + " 443 " + itc->second->getNickName() + " " + itc->second->getNickName() + " #" + channelName + " :is already on channel" + "\r\n";
 				fds[clientIndex].events |= POLLOUT;
 				return ;
