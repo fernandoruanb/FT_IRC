@@ -486,7 +486,7 @@ void	Server::removeOperatorPrivilegesFromEveryBody(std::string channel)
 			it->second->setIsOperator(false);
 		channelOfTime = it->second->getChannelOfTime();
 		if (channelOfTime == itm->first)
-			changeChannel("generic", it->second->getClientFD(), 0);
+			changeChannel("generic", it->second->getClientFD(), 1);
 		this->kingsOfIRC.erase(it->first);
 		it++;
 	}
@@ -518,7 +518,6 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 	int	channelOfTime;
 	bool	isOperator;
 	std::string	nick;
-	int	index;
 
 	if (itch == clients->end())
 	{

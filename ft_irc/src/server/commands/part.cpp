@@ -7,13 +7,15 @@ static std::vector<std::string>	getAllChannels(s_commands& com)
 
 	while (index < com.args.size())
 	{
-		if (com.args[index][0] == '#')
-		{
-			if (std::find(channels.begin(), channels.end(), com.args[index].substr(1)) == channels.end())
-				channels.push_back(com.args[index].substr(1));
-		}
 		if (com.args[index][0] == ':')
 			break ;
+		if (std::find(channels.begin(), channels.end(), com.args[index].substr(1)) == channels.end())
+		{
+			if (com.args[index][0] == '#')
+				channels.push_back(com.args[index].substr(1));
+			else
+				channels.push_back(com.args[index]);
+		}
 		++index;
 	}
 	return (channels);
