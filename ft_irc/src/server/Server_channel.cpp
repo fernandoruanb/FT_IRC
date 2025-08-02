@@ -3,7 +3,6 @@
 #include "../includes/messages.hpp"
 #include <cstring>
 
-
 bool	Server::checkName(std::string Name)
 {
 	Name = getLower(Name);
@@ -486,7 +485,7 @@ void	Server::removeOperatorPrivilegesFromEveryBody(std::string channel)
 			it->second->setIsOperator(false);
 		channelOfTime = it->second->getChannelOfTime();
 		if (channelOfTime == itm->first)
-			changeChannel("generic", it->second->getClientFD(), 1);
+			changeChannel("generic", it->second->getClientFD(), 2);
 		this->kingsOfIRC.erase(it->first);
 		it++;
 	}
@@ -550,7 +549,7 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 			if (channelOfTime == itch->first)
 			{
 				std::cout << LIGHT_BLUE "Changing to " << YELLOW << "generic" << LIGHT_BLUE " Channel client " << YELLOW << clientFD << RESET << std::endl;
-				this->changeChannel("generic", itch->second->getClientFD(), 1);
+				this->changeChannel("generic", itch->second->getClientFD(), 2);
 			}
 			this->removeOperatorPrivilegesFromEveryBody(channelName);
 			delete itc->second;
@@ -571,7 +570,7 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 	std::cerr << RED "Error: The channel " << YELLOW << channel << RED " doesn't exist" RESET << std::endl;
 }
 
-void	Server::changeChannel(std::string channel, int clientFD, bool flag)
+void	Server::changeChannel(std::string channel, int clientFD, int flag)
 {
 	channel = getLower(channel);
 	std::map<int, Client*>* clients = getClientsMap();
@@ -651,25 +650,28 @@ void	Server::changeChannel(std::string channel, int clientFD, bool flag)
 			time = itm->second->getTimeStamp();
 			topic = itm->second->getTopic();
 			message = "You left the channel";
-			if (flag != 1)
+			if (flag != 1 && flag != 2)
 				client->getBufferOut() += my_part_message(nick, user, host, last->second->getName(), message);
-			client->getBufferOut() += my_join_message(nick, user, host, channel);
-			client->getBufferOut() += my_join_rpl_topic(nick, channel, topic);
-			if (!time.empty())
+			if (flag != 2)
 			{
-				if (nick == "system")
+				client->getBufferOut() += my_join_message(nick, user, host, channel);
+				client->getBufferOut() += my_join_rpl_topic(nick, channel, topic);
+				if (!time.empty())
 				{
-					ownerTopic = "*";
-					user = "*";
-					host = "localhost";
+					if (nick == "system")
+					{
+						ownerTopic = "*";
+						user = "*";
+						host = "localhost";
+					}
+					client->getBufferOut() += my_join_rpl_topic_whotime(nick, ownerTopic, user, host, channel, time);
 				}
-				client->getBufferOut() += my_join_rpl_topic_whotime(nick, ownerTopic, user, host, channel, time);
+				client->getBufferOut() += my_join_rpl_namreply(nick, channel);
+				client->getBufferOut()  += itm->second->getOperatorsNames();
+				client->getBufferOut() += itm->second->getClientsNames() + "\r\n";
+				client->getBufferOut() += my_join_rpl_endofnames(nick, channel);
+				fds[messageTarget].events |= POLLOUT;
 			}
-			client->getBufferOut() += my_join_rpl_namreply(nick, channel);
-			client->getBufferOut()  += itm->second->getOperatorsNames();
-			client->getBufferOut() += itm->second->getClientsNames() + "\r\n";
-			client->getBufferOut() += my_join_rpl_endofnames(nick, channel);
-			fds[messageTarget].events |= POLLOUT;
 			return ;
 		}
 		itm++;

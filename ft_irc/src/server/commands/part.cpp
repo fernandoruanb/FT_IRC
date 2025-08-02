@@ -48,6 +48,37 @@ static std::string	getTheMessage(s_commands& com)
 	return (message);
 }
 
+void	Server::newBroadcast(s_commands& com, std::string msg, std::string channelName, bool flag)
+{
+	struct pollfd	(&fds)[1024] = *getMyFds();
+	std::map<int, Client*>*	clients = getClientsMap();
+	std::map<int, Client*>::iterator it = clients->begin();
+	int	clientsIndex;
+	int	channelIndex = getChannelsIndex(channelName);
+
+	if (channelIndex == -1)
+	{
+		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 403 " + com.client->getNickName() + " " + channelName + " :No such channel\r\n";
+		return ;
+	}
+	while (it != clients->end())
+	{
+		if (it->first == com.fd && flag == true)
+		{
+			++it;
+			continue ;
+		}
+		if (it->second->getChannelsSet().find(channelName) != it->second->getChannelsSet().end())
+		{
+			clientsIndex = getClientsIndex(it->first);
+			it->second->getBufferOut() += my_part_message(com.client->getNickName(), com.client->getUserName(), com.client->getHost(), channelName, msg);
+			fds[clientsIndex].events |= POLLOUT;
+		}
+
+		++it;
+	}
+}
+
 void	Server::part(s_commands& com)
 {
 	if (com.args.size() < 1) {
@@ -64,7 +95,7 @@ void	Server::part(s_commands& com)
 	std::size_t	index = 0;
 
 	if (msg.empty() || msg == " \r\n")
-		msg = "You left the channel";
+		msg = "I left the channel";
 
 	while (index < channelsVector.size() && !channelsVector[index].empty())
 	{
@@ -87,7 +118,7 @@ void	Server::part(s_commands& com)
 				++index;
 				continue ;
 			}
-			com.client->getBufferOut() += my_part_message(com.client->getNickName(), com.client->getUserName(), com.client->getHost(), channelName, msg);
+			newBroadcast(com, msg, channelName, false);
 			com.client->getOperatorChannels().erase(channelName);
 			com.client->getChannelsSet().erase(channelName);
 			com.client->getInviteChannels().erase(channelName);
