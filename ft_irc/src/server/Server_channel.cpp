@@ -541,18 +541,17 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 		fds[itch->first].events |= POLLOUT;
 		return ;
 	}
-	index = 1;
-	std::map<int, Channel*>::iterator itc = channels->find(index);
-	while (index < numChannels && itc != channels->end())
+	std::map<int, Channel*>::iterator itc = channels->begin();
+	while (itc != channels->end())
 	{
 		channelName = itc->second->getName();
 		if (channelName == channel)
 		{
 			channelOfTime = itch->second->getChannelOfTime();
-			if (channelOfTime == index)
+			if (channelOfTime == itch->first)
 			{
 				std::cout << LIGHT_BLUE "Changing to " << YELLOW << "generic" << LIGHT_BLUE " Channel client " << YELLOW << clientFD << RESET << std::endl;
-				this->changeChannel("generic", itch->second->getClientFD(), 0);
+				this->changeChannel("generic", itch->second->getClientFD(), 1);
 			}
 			this->removeOperatorPrivilegesFromEveryBody(channelName);
 			delete itc->second;
@@ -569,7 +568,6 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 			return ;
 		}
 		itc++;
-		index++;
 	}
 	std::cerr << RED "Error: The channel " << YELLOW << channel << RED " doesn't exist" RESET << std::endl;
 }
