@@ -109,7 +109,7 @@ class	Server
 		int	getClientsIndex(int clientFD);
 		void    promotionChannelOperator(std::string channel, int owner, int clientFD);
 		void	changeChannel(std::string Name, int clientFD, int flag);
-		void	deleteChannel(std::string Name, int clientFD);
+		void	deleteChannel(std::string Name, int clientFD, bool flag = false);
 		void    removeOperatorPrivilegesFromEveryBody(std::string channel);
 		void    createNewChannel(std::string Name, int clientFD);
 		void    kickFromChannel(std::string channel, int owner, int clientFD, std::string message);

@@ -90,10 +90,12 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 
 	(this->*(myMap[command]))(com);
 
+	if (com.client->getAuthenticated() && com.client->getRegistered())
+		com.isOnline = true;
 	if (com.isOnline)
 	{
 		std::cout << "getRegistred: " << com.client->getRegistered() << std::endl;
-		if (com.client->getAuthenticated() && com.client->getRegistered() && com.client->getChannelsSet().find("Generic") == com.client->getChannelsSet().end())
+		if (com.client->getAuthenticated() && com.client->getRegistered() && com.client->getChannelsSet().find("generic") == com.client->getChannelsSet().end())
 		{
 			changeChannel("Generic", com.fd, 1);
 			com.client->getChannelsSet().insert("Generic");

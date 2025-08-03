@@ -30,11 +30,19 @@ void	Server::removeAllChannelsOfClient(int clientFD)
 	this->kingsOfIRC.erase(clientFD);
 	while (it != channels->end())
 	{
+		it->second->removeMember(clientFD);
 		(*clients)[clientFD]->getOperatorChannels().erase(it->second->getName());
 		(*clients)[clientFD]->getChannelsSet().erase(it->second->getName());
 		(*clients)[clientFD]->getInviteChannels().erase(it->second->getName());
 		it->second->getMembersSet().erase(clientFD);
 		it->second->getOperatorsSet().erase(clientFD);
+		if (it->second->getMembersNum() == 0)
+		{
+			std::map<int,Channel*>::iterator toErase = it++;
+			delete toErase->second;
+			channels->erase(toErase);
+			continue ;
+		}
 		++it;
 	}
 }

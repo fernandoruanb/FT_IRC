@@ -494,7 +494,7 @@ bool	Server::AuthenticationKeyProcess(const std::string channel, const std::stri
 	return (false);
 }
 
-void	Server::deleteChannel(std::string channel, int clientFD)
+void	Server::deleteChannel(std::string channel, int clientFD, bool flag)
 {
 	channel = getLower(channel);
 	std::map<int, Channel*>* channels = getChannelsMap();
@@ -513,14 +513,14 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 	}
 	nick = itch->second->getNickName();
 	isOperator = itch->second->getIsOperator();
-	if (!isOperator)
+	if (flag == false && !isOperator)
 	{
 		std::cerr << RED "Error: The client " << YELLOW << clientFD << RED " isn't an operator" RESET << std::endl;
 		itch->second->getBufferOut() += msg_err_chanoprivsneeded(nick, channel, "You are not an operator");
 		fds[itch->first].events |= POLLOUT;
 		return ;
 	}
-	if (itch->second->getOperatorChannels().find(channel) == itch->second->getOperatorChannels().end())
+	if (flag == false && itch->second->getOperatorChannels().find(channel) == itch->second->getOperatorChannels().end())
 	{
 		std::cerr << RED "Error: The client isn't a valid operator of the channel " << YELLOW << channel << RESET << std::endl;
 		itch->second->getBufferOut() += msg_err_chanoprivsneeded(nick, channel, "You are not an operator of that channel");

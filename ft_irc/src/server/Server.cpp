@@ -80,6 +80,10 @@ void	Server::addNewClient(int clientFD)
 {
 	int	index;
 	struct pollfd (&fds)[1024] = getPollFds();
+	std::map<int,Channel*>* channels = getChannelsMap();
+
+	if (channels->find(0) == channels->end())
+		((*channels)[0] = new Channel("generic"));
 	index = 1;
 	while (index < 1024)
 	{
