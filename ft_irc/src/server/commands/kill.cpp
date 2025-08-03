@@ -105,16 +105,16 @@ void	Server::kill(s_commands& com)
 	(*clients)[clientFD]->setHost("localhost");
 	this->kingsOfIRC.erase(com.fd);
 	removeAllChannelsOfClient(clientFD);
-	/*(*clients)[clientFD]->getBufferOut().clear();
+	(*clients)[clientFD]->getBufferOut().clear();
 	sendBuffer[clientsIndex].clear();
-	delete com.client;
+	delete (*clients)[clientFD];
 	close(fds[clientsIndex].fd);
 	fds[clientsIndex].fd = fds[numClients - 1].fd;
 	fds[numClients - 1].fd = -1;
 	fds[clientsIndex].events = 0;
 	this->manageBuffers(clientsIndex);
 	this->numClients--;
-	clients->erase(clientFD);*/
+	clients->erase(clientFD);
 	com.isOnline = false;
 
 	std::cout << "The clientFD: " << clientFD << std::endl;
