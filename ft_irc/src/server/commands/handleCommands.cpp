@@ -88,10 +88,11 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	for (size_t i = 0;  i < com.args.size(); i++)
 		std::cout << "My args array[" << i << "]: " << com.args[i] << std::endl;
 
-	(this->*(myMap[command]))(com);
-
 	if (com.client->getAuthenticated() && com.client->getRegistered())
 		com.isOnline = true;
+
+	(this->*(myMap[command]))(com);
+
 	if (com.isOnline)
 	{
 		std::cout << "getRegistred: " << com.client->getRegistered() << std::endl;

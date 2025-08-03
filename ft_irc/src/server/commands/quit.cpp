@@ -3,14 +3,24 @@
 void	Server::desconect(s_commands& com)
 {
 	struct pollfd (&fds)[1024] = *getMyFds();
+	std::map<int,Client*>* clients = getClientsMap();
 
+	removeAllChannelsOfClient(com.fd);
+	(*clients)[com.fd]->setAuthenticated(false);
+	(*clients)[com.fd]->setRegistered(false);
+	(*clients)[com.fd]->setNickName("*");
+	(*clients)[com.fd]->setUserName("*");
+	(*clients)[com.fd]->setHost("localhost");	
+	com.isOnline = false;
+	this->kingsOfIRC.erase(com.fd);
 	delete com.client;
 	close(fds[com.index].fd);
-	fds[com.index].fd = fds[this->numClients - 1].fd;
-	fds[this->numClients - 1].fd = -1;
-	fds[this->numClients - 1].events = 0;
-	--this->numClients;
-	com.isOnline = false;
+	clients->erase(com.fd);
+	fds[com.index].fd = fds[numClients - 1].fd;
+	fds[numClients - 1].fd = -1;
+	fds[numClients - 1].events = 0;
+	this->manageBuffers(com.index);
+	this->numClients--;
 }
 
 void	Server::messageToAllChannels(s_commands& com, const std::string& message)

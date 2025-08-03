@@ -57,9 +57,8 @@ void	Server::kill(s_commands& com)
 	struct pollfd (&fds)[1024] = *getMyFds();
 	std::map<int, Client*>* clients = getClientsMap();
 	std::string	nick = com.args[0];
-	std::string	message = getTheMessage(com);
+	std::string	message = "ERROR: You have been killed by " + com.client->getNickName() + " : ";
 	int	clientFD;
-	int	clientIndex;
 
 	if (com.args[1][0] != ':')
 	{
@@ -67,6 +66,8 @@ void	Server::kill(s_commands& com)
 		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 461 " + com.client->getNickName() + " KILL " + ":Not enough parameters" + "\r\n";
 		return ;
 	}
+
+	message += getTheMessage(com) + "\r\n";
 
 	if (message.empty() || message == " \r\n")
 	{
@@ -87,7 +88,6 @@ void	Server::kill(s_commands& com)
 		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 400 " + com.client->getNickName() + " KILL " + ":cannot kill yourself" + "\r\n";
 		return ;
 	}
-	clientIndex = getClientsIndex(clientFD);
 	if (this->kingsOfIRC.find(com.fd) == this->kingsOfIRC.end())
 	{
 		std::cerr << RED "Error: You are not an IRC Operator" RESET << std::endl;
@@ -95,15 +95,28 @@ void	Server::kill(s_commands& com)
 		return ;
 	}
 
-	removeAllChannelsOfClient(clientFD);
+	int	clientsIndex = getClientsIndex(clientFD);
+
+	send(fds[clientsIndex].fd, message.c_str(), message.size(), 0);
 	(*clients)[clientFD]->setAuthenticated(false);
 	(*clients)[clientFD]->setRegistered(false);
 	(*clients)[clientFD]->setNickName("*");
 	(*clients)[clientFD]->setUserName("*");
 	(*clients)[clientFD]->setHost("localhost");
+	this->kingsOfIRC.erase(com.fd);
+	removeAllChannelsOfClient(clientFD);
+	/*(*clients)[clientFD]->getBufferOut().clear();
+	sendBuffer[clientsIndex].clear();
+	delete com.client;
+	close(fds[clientsIndex].fd);
+	fds[clientsIndex].fd = fds[numClients - 1].fd;
+	fds[numClients - 1].fd = -1;
+	fds[clientsIndex].events = 0;
+	this->manageBuffers(clientsIndex);
+	this->numClients--;
+	clients->erase(clientFD);*/
+	com.isOnline = false;
 
 	std::cout << "The clientFD: " << clientFD << std::endl;
-	(*clients)[clientFD]->getBufferOut() += std::string("ERROR :You have been killed: ") + message + "\r\n";
 	std::cout << BRIGHT_GREEN "You killed the target" RESET << std::endl;
-	fds[clientIndex].events |= POLLOUT;
 }
