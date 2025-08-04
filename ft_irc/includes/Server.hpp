@@ -6,7 +6,7 @@
 /*   By: jonas <jonas@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/04 17:47:29 by jonas            ###   ########.fr       */
+/*   Updated: 2025/08/04 17:54:48 by jonas            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,7 +160,7 @@ class	Server
 		void	messageToAllChannels(s_commands&, std::string&);
 		void	desconect(s_commands&);
 		void	topic(s_commands&);
-		void	newBroadcastAllChannels(s_commands& com, std::string msg, std::string channelName, bool flag)
+		void	newBroadcastAllChannels(s_commands& com, std::string msg, std::string channelName, bool flag);
 	public:
 		Server(std::string portCheck, std::string password);
 		~Server(void);
