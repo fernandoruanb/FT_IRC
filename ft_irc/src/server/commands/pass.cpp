@@ -25,7 +25,7 @@ void	Server::pass(s_commands& com)
 					return ;
 				}
 			} else {
-				this->sendBuffer[com.index] += msg_err_needmoreparams("PASS");
+				this->sendBuffer[com.index] += msg_err_needmoreparams(com.client->getNickName(), "PASS");
 				return ;
 			}
 		}

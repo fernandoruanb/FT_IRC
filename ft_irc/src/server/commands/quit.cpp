@@ -23,7 +23,17 @@ void	Server::desconect(s_commands& com)
 	this->numClients--;
 }
 
-void	Server::messageToAllChannels(s_commands& com, const std::string& message)
+std::string	trim(std::string& str)
+{
+	size_t	start = str.find_first_not_of(' ');
+	if (start == std::string::npos)
+		return (str);
+	size_t	end = str.find_last_not_of(' ');
+
+	return (str.substr(start, end - start + 1));
+}
+
+void	Server::messageToAllChannels(s_commands& com, std::string& message)
 {
 	/*
 		Vms mandar a mensagem para tds os canais do com.client
@@ -36,6 +46,7 @@ void	Server::messageToAllChannels(s_commands& com, const std::string& message)
 
 	std::map<int, Channel*>::iterator	it;
 	std::set<std::string>&	myChannels = com.client->getChannelsSet();
+	message = trim(message) + "\r\n";
 
 	for (it = this->channels->begin(); it != this->channels->end(); it++)
 	{
@@ -55,15 +66,16 @@ void	Server::messageToAllChannels(s_commands& com, const std::string& message)
 
 void	Server::quit(s_commands& com)
 {
-	if (com.args.size())
+	if (com.args[0][0] == ':')
 	{
 		std::string line;
-		std::string	message = ":" + com.client->getNickName() + " ";
+		std::string	message;
+		com.args[0] = com.args[0].substr(1);
 
 		for (size_t i = 0; i < com.args.size(); i++)
 			message += com.args[i] + ' ';
 		
-		message += '\n';
+		message = msg_quit(com, message);
 		messageToAllChannels(com, message);
 	}
 	desconect(com);

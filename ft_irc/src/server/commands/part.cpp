@@ -83,7 +83,7 @@ void	Server::part(s_commands& com)
 {
 	if (com.args.size() < 1) {
 		this->sendBuffer[com.index].clear();
-		this->sendBuffer[com.index] += msg_err_needmoreparams("PART");
+		this->sendBuffer[com.index] += msg_err_needmoreparams(com.client->getNickName(), "PART");
 		return ;
 	}
 	std::vector<std::string> channelsVector = getAllChannels(com);
