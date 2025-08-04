@@ -41,6 +41,7 @@ bool	validNick(s_commands& com)
 	return (true);
 }
 
+
 /*
 	ainda falta
 		-mensagem para tds os canais q esse user esta
@@ -87,8 +88,7 @@ void	Server::nick(s_commands& com)
 								+ "@"
 								+ com.client->getHost()
 								+ " NICK :"
-								+ com.client->getNickName()
-								+ "\n";
+								+ com.client->getNickName();
 	messageToAllChannels(com, message);
 	
 }

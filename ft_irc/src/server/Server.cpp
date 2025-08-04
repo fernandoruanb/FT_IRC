@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jonas <jonas@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/31 20:26:35 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/08/04 16:49:18 by jonas            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,11 @@
 // 	com.sendBuffer += msg_yourhost(com.client->getNickName());
 // 	com.sendBuffer += msg_created(com.client->getNickName());
 // 	com.sendBuffer += msg_svrinfo(com.client->getNickName());
+// }
+
+// const Channel*&	Server::getChannel(int fd) const
+// {
+	
 // }
 
 void Server::tryRegister(s_commands& com)

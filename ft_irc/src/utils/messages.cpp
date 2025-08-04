@@ -20,8 +20,8 @@ std::string msg_svrinfo(const std::string& nick) {
     return ":" SERVER_NAME " 004 " + nick + " :" SERVER_NAME " " VERSION " o o\r\n";
 }
 
-std::string msg_err_needmoreparams(const std::string& cmd) {
-    return (CYAN ":" SERVER_NAME " 461 " + cmd + YELLOW " :Not enough parameters\r\n" RESET);
+std::string msg_err_needmoreparams(const std::string& nick, const std::string& cmd) {
+    return (":" SERVER_NAME " 461 " + nick + " " + cmd + " :Not enough parameters\r\n" );
 }
 
 std::string msg_err_passwdmismatch() {
@@ -162,4 +162,70 @@ std::string	my_nosuchnickchannel(const std::string& nick, const std::string& tar
 std::string	my_usernotinchannel(std::string& nick, const std::string& target, const std::string& channel, const std::string& message)
 {
 	return (":" SERVER_NAME " 441 " + nick + " " + target + " #" + channel + " :" + message + "\r\n");
+}
+
+std::string msg_err_usersdontmatch(s_commands& com)
+{
+	return (
+		":" SERVER_NAME " 502 "
+		+ com.client->getNickName()
+		+ " :Cannot change mode for other users\r\n"
+	);
+}
+
+std::string msg_err_noprivileges(s_commands& com)
+{
+	return (
+		":" SERVER_NAME " 481 "
+		+ com.client->getNickName()
+		+ " :Permission Denied - You're not an IRC operator\r\n"
+	);
+}
+
+std::string	msg_err_unknownmode(s_commands&com, char mode)
+{
+	return (
+		":" SERVER_NAME " 472 "
+		+ com.client->getNickName()
+		+ " "
+		+ std::string(1, mode)
+		+ " :is unknown mode char to me\r\n"
+	);
+}
+
+std::string	msg_mode_userwelldone(s_commands& com, Client* &target)
+{
+	return (
+		":"
+		+ com.client->getNickName()
+		+ " MODE "
+		+ target->getNickName()
+		+ " "
+		+ com.args[1]
+		+ "\r\n"
+	);
+}
+
+std::string	msg_showusermodes(s_commands& com, Client* &target)
+{
+	return (
+		":" SERVER_NAME " 221 "
+		+ com.client->getNickName()
+		+ " +"
+		+ target->getMode(com.client->getChannelOfTime())
+		+ "\r\n"
+	);
+}
+
+std::string	msg_showchannelmodes(s_commands& com, Channel* &target)
+{
+	return (
+		":" SERVER_NAME " 324 "
+		+ com.client->getNickName()
+		+ " #"
+		+ target->getName()
+		+ " +"
+		+ target->getMode()
+		+ "\r\n"
+	);
 }
