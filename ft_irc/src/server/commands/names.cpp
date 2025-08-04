@@ -1,6 +1,6 @@
 #include "../includes/Server.hpp"
 
-static std::string	getNames(Channel* channel, s_commands& com)
+static std::string	getNames(Channel* channel, s_commands& com, bool canSee)
 {
 	std::set<int>	members = channel->getMembersSet();
 	std::string		result;
@@ -15,7 +15,7 @@ static std::string	getNames(Channel* channel, s_commands& com)
 		if (cit != com.clients->end())
 			client = cit->second;
 		
-		if (client && !findMode(client->getMode(com.client->getChannelOfTime()), 'i'))
+		if (client && (canSee || !findMode(client->getMode(com.client->getChannelOfTime()), 'i')))
 			result += client->getNickName() + " ";
 	}
 
@@ -24,7 +24,7 @@ static std::string	getNames(Channel* channel, s_commands& com)
 	return (result);
 }
 
-static void	showAllNames(s_commands& com, std::map<int, Channel*>* &channels)
+static void	showAllNames(s_commands& com, std::map<int, Channel*>* &channels, bool canSee)
 {
 	std::string	names;
 	std::string	prefix;
@@ -32,16 +32,13 @@ static void	showAllNames(s_commands& com, std::map<int, Channel*>* &channels)
 	std::map<int, Channel*>::iterator it;
 	for (it = channels->begin(); it != channels->end(); it++)
 	{
-		if (!findMode(it->second->getMode(), 'i'))
-		{
 			prefix = it->second->getName();
-			names = prefix + ": " + getNames(it->second, com);
+			names = prefix + ": " + getNames(it->second, com, canSee);
 			com.sendBuffer += "Animais presentes no canal #" + names + "\n";
-		}
 	}
 }
 
-static void	showChannel(s_commands& com, std::map<int, Channel*>* &channels)
+static void	showChannel(s_commands& com, std::map<int, Channel*>* &channels, bool canSee)
 {
 	std::string	channelName = com.args[0].substr(1);
 	Channel	*channel = NULL;
@@ -57,13 +54,8 @@ static void	showChannel(s_commands& com, std::map<int, Channel*>* &channels)
 	if (!channel)
 		return (callCmdMsg("No such channel", 401, com, com.sendBuffer));
 	
-	if (!findMode(channel->getMode(), 'i'))
-	{
-		std::string	names = getNames(channel, com);
-		callCmdMsg(names, 353, com, com.sendBuffer);
-		return;
-	}
-	com.sendBuffer += "Esse canal ai eh privado irmao, pode ver n\n";
+	std::string	names = getNames(channel, com, canSee);
+	callCmdMsg(names, 353, com, com.sendBuffer);
 }
 
 /*
@@ -80,8 +72,13 @@ static void	showChannel(s_commands& com, std::map<int, Channel*>* &channels)
 */
 void	Server::names(s_commands& com)
 {
+	bool	canSee = (
+		this->isKing(com.client->getClientFD())
+		|| findMode(com.client->getMode(com.client->getChannelOfTime()), 'o')
+	);
+
 	if (com.args.empty())
-		return (showAllNames(com, this->channels));
-	showChannel(com, this->channels);
+		return (showAllNames(com, this->channels, canSee));
+	showChannel(com, this->channels, canSee);
 
 }

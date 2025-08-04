@@ -6,7 +6,7 @@
 /*   By: jonas <jonas@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/04 17:54:48 by jonas            ###   ########.fr       */
+/*   Updated: 2025/08/04 18:07:31 by jonas            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,8 +71,9 @@ struct	s_mode
 	std::string	&currentMode;
 	size_t		len;
 	id_t		channelIndex;
+	bool		isKing;
 
-	s_mode(char s, char f, bool ff, Channel* &t, std::string& c, size_t l, int i);
+	s_mode(char s, char f, bool ff, Channel* &t, std::string& c, size_t l, int i, bool k);
 };
 
 class	Server
@@ -159,7 +160,9 @@ class	Server
 		void	quit(s_commands&);
 		void	messageToAllChannels(s_commands&, std::string&);
 		void	desconect(s_commands&);
+		void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffer, std::map<int, Channel*>* &channels);
 		void	topic(s_commands&);
+		void	addChannelMode(s_commands &com, Channel* &target, int channelIndex);
 		void	newBroadcastAllChannels(s_commands& com, std::string msg, std::string channelName, bool flag);
 	public:
 		Server(std::string portCheck, std::string password);

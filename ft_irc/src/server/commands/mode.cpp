@@ -1,8 +1,8 @@
 #include "../includes/Server.hpp"
 #include <sstream>
 
-s_mode::s_mode(char s, char f, bool ff, Channel* &t, std::string& c, size_t l, int i)
-	: sign(s), flag(f), flagFound(ff), target(t), currentMode(c), len(l), channelIndex(i)
+s_mode::s_mode(char s, char f, bool ff, Channel* &t, std::string& c, size_t l, int i, bool k)
+	: sign(s), flag(f), flagFound(ff), target(t), currentMode(c), len(l), channelIndex(i), isKing(k)
 {}
 
 static bool	isSigned(const char c)
@@ -73,7 +73,7 @@ bool	findMode(const std::string& myModes, const char mode)
 	return (false);
 }
 
-static void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffer, std::map<int, Channel*>* &channels)
+void	Server::addUserMode(Client* &target, s_commands &com, std::string &sendBuffer, std::map<int, Channel*>* &channels)
 {
 	if (com.args.size() != 2 || !isSigned(com.args[1][0]))
 		return;
@@ -81,7 +81,7 @@ static void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffe
 	// //vc so pode alterar o seu proprio mode c vc n for operador
 	std::string	myMode = com.client->getMode(com.client->getChannelOfTime());
 	int		currentChannel = com.client->getChannelOfTime();
-	bool	iAmOperator = findMode(myMode, 'o');
+	bool	iAmOperator = this->isKing(com.client->getClientFD()) || findMode(myMode, 'o');
 	if (target != com.client && !iAmOperator)
 	{
 		com.sendBuffer += msg_err_usersdontmatch(com);
@@ -140,7 +140,11 @@ static void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffe
 
 static void	caseT(s_commands& com, s_mode& mode)
 {
-	(void)com;
+	if (!mode.isKing)
+	{
+		com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), mode.target->getName(), "You're not channel operator");
+		return;
+	}
 	if (mode.sign == '+' && !mode.flagFound)
 	{
 		mode.currentMode += mode.flag;
@@ -155,6 +159,12 @@ static void	caseT(s_commands& com, s_mode& mode)
 }
 static void	caseK(s_commands& com, s_mode& mode)
 {
+	if (!mode.isKing)
+	{
+		com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), mode.target->getName(), "You're not channel operator");
+		return;
+	}
+
 	bool	hasPermition = findMode(com.client->getMode(mode.channelIndex), 'o');
 
 	if (mode.sign == '+')
@@ -190,6 +200,11 @@ static void	caseK(s_commands& com, s_mode& mode)
 }
 static void	caseL(s_commands& com, s_mode& mode)
 {
+	if (!mode.isKing)
+	{
+		com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), mode.target->getName(), "You're not channel operator");
+		return;
+	}
 	if (mode.sign == '+' && !mode.flagFound)
 	{
 		if (mode.len != 3)
@@ -224,6 +239,11 @@ static void	caseL(s_commands& com, s_mode& mode)
 }
 static void	caseO(s_commands& com, s_mode& mode)
 {
+	if (!mode.isKing)
+	{
+		com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), mode.target->getName(), "You're not channel operator");
+		return;
+	}
 	if (mode.len != 3)
 	{
 		com.sendBuffer += msg_err_needmoreparams(com.client->getNickName(), "MODE");
@@ -239,6 +259,11 @@ static void	caseO(s_commands& com, s_mode& mode)
 
 static void	caseI(s_commands& com, s_mode& mode)
 {
+	if (!mode.isKing)
+	{
+		com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), mode.target->getName(), "You're not channel operator");
+		return;
+	}
 	if (mode.len != 2)
 	{
 		com.sendBuffer += msg_err_needmoreparams(com.client->getNickName(), "MODE");
@@ -258,7 +283,7 @@ static void	caseI(s_commands& com, s_mode& mode)
 	}
 }
 
-static void	addChannelMode(s_commands &com, Channel* &target, int channelIndex)
+void	Server::addChannelMode(s_commands &com, Channel* &target, int channelIndex)
 {
 	std::string	mode = com.client->getMode(channelIndex);
 
@@ -293,8 +318,11 @@ static void	addChannelMode(s_commands &com, Channel* &target, int channelIndex)
 
 		if (myMap.find(flag) == myMap.end())
 			continue;
-		
-		s_mode	mode(sign, flag, flagFound, target, currentMode, len, channelIndex);	
+		bool	k = (
+			this->isKing(com.client->getClientFD())
+			|| findMode(com.client->getMode(this->getChannelsIndex(target->getName())), 'o')
+		);
+		s_mode	mode(sign, flag, flagFound, target, currentMode, len, channelIndex, k);	
 		myMap[flag](com, mode);
 	}
 
