@@ -96,6 +96,7 @@ class	Server
 		Server&	operator=(const Server &other);
 		Server(const Server &other);
 
+		void    newBroadcastKill(s_commands& com, std::string msg, std::string complement, std::string channelName, bool flag);
 		void    newBroadcast(s_commands& com, std::string msg, std::string channelName, bool flag);
 		bool    checkCompatibility(int ownerFD, int clientFD, std::string targetChannel);
 		void    removeAllChannelsOfClient(int clientFD);

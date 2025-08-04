@@ -47,6 +47,36 @@ void	Server::removeAllChannelsOfClient(int clientFD)
 	}
 }
 
+void	Server::newBroadcastKill(s_commands& com, std::string msg, std::string complement, std::string channelName, bool flag)
+{
+	struct pollfd	(&fds)[1024] = *getMyFds();
+	std::map<int, Client*>*	clients = getClientsMap();
+	std::map<int, Client*>::iterator it = clients->begin();
+	int	clientsIndex;
+	int	channelIndex = getChannelsIndex(channelName);
+
+	if (channelIndex == -1)
+	{
+		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 403 " + com.client->getNickName() + " " + channelName + " :No such channel\r\n";
+		return ;
+	}
+	while (it != clients->end())
+	{
+		if (it->first == com.fd && flag == true)
+		{
+			++it;
+			continue ;
+		}
+		if (it->second->getChannelsSet().find(channelName) != it->second->getChannelsSet().end())
+		{
+			clientsIndex = getClientsIndex(it->first);
+			it->second->getBufferOut() += msg + " #" + channelName + " :" + complement;
+			fds[clientsIndex].events |= POLLOUT;
+		}
+		++it;
+	}
+}
+
 void	Server::kill(s_commands& com)
 {
 	if (com.args.size() < 2)
@@ -67,6 +97,7 @@ void	Server::kill(s_commands& com)
 		return ;
 	}
 
+	std::string complement = getTheMessage(com) + "\r\n";
 	message += getTheMessage(com) + "\r\n";
 
 	if (message.empty() || message == " \r\n")
@@ -97,6 +128,7 @@ void	Server::kill(s_commands& com)
 
 	int	clientsIndex = getClientsIndex(clientFD);
 
+	std::string all = std::string(":") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " KILL " + (*clients)[clientFD]->getNickName();
 	send(fds[clientsIndex].fd, message.c_str(), message.size(), 0);
 	(*clients)[clientFD]->setAuthenticated(false);
 	(*clients)[clientFD]->setRegistered(false);
@@ -104,6 +136,12 @@ void	Server::kill(s_commands& com)
 	(*clients)[clientFD]->setUserName("*");
 	(*clients)[clientFD]->setHost("localhost");
 	this->kingsOfIRC.erase(com.fd);
+	std::set<std::string>::iterator it = (*clients)[clientFD]->getChannelsSet().begin();
+	while (it != (*clients)[clientFD]->getChannelsSet().end())
+	{
+		newBroadcastKill(com, all, complement, *it, false);
+		++it;
+	}
 	removeAllChannelsOfClient(clientFD);
 	(*clients)[clientFD]->getBufferOut().clear();
 	sendBuffer[clientsIndex].clear();
