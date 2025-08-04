@@ -3,6 +3,7 @@
 static std::vector<std::string>	getAllChannels(s_commands& com)
 {
 	std::vector<std::string>	channels;
+	std::string	temp;
 	std::size_t	index = 0;
 
 	while (index < com.args.size())
@@ -10,7 +11,11 @@ static std::vector<std::string>	getAllChannels(s_commands& com)
 		if (com.args[index][0] == '#')
 		{
 			if (std::find(channels.begin(), channels.end(), com.args[index].substr(1)) == channels.end())
-				channels.push_back(com.args[index].substr(1));
+			{
+				temp = com.args[index].substr(1);
+				std::transform(temp.begin(),temp.end(),temp.begin(), ::tolower);
+				channels.push_back(temp);
+			}
 		}
 
 		if (com.args[index][0] == ':')
