@@ -13,7 +13,17 @@ void	Server::desconect(s_commands& com)
 	com.isOnline = false;
 }
 
-void	Server::messageToAllChannels(s_commands& com, const std::string& message)
+std::string	trim(std::string& str)
+{
+	size_t	start = str.find_first_not_of(' ');
+	if (start == std::string::npos)
+		return (str);
+	size_t	end = str.find_last_not_of(' ');
+
+	return (str.substr(start, end - start + 1));
+}
+
+void	Server::messageToAllChannels(s_commands& com, std::string& message)
 {
 	/*
 		Vms mandar a mensagem para tds os canais do com.client
@@ -26,6 +36,7 @@ void	Server::messageToAllChannels(s_commands& com, const std::string& message)
 
 	std::map<int, Channel*>::iterator	it;
 	std::set<std::string>&	myChannels = com.client->getChannelsSet();
+	message = trim(message) + "\r\n";
 
 	for (it = this->channels->begin(); it != this->channels->end(); it++)
 	{

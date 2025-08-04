@@ -3,12 +3,13 @@
 
 struct	s_commands;
 class	Client;
+class	Channel;
 
 std::string msg_welcome(Client* &target);
 std::string msg_yourhost(const std::string& nick);
 std::string msg_created(const std::string& nick);
 std::string msg_svrinfo(const std::string& nick);
-std::string msg_err_needmoreparams(const std::string& nick, std::string& cmd);
+std::string msg_err_needmoreparams(const std::string& nick, const std::string& cmd);
 std::string msg_err_passwdmismatch();
 std::string msg_err_nicknameinuse(const std::string& nick);
 std::string msg_err_notregistered();

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jonas <jonas@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/01 15:04:17 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/08/04 16:57:01 by jonas            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,9 +154,10 @@ class	Server
 		void	pass(s_commands&);
 		void	privmsg(s_commands&);
 		void	quit(s_commands&);
-		void	messageToAllChannels(s_commands&, const std::string&);
+		void	messageToAllChannels(s_commands&, std::string&);
 		void	desconect(s_commands&);
 		void	topic(s_commands&);
+		// const Channel*	&getChannel(int fd) const;
 	public:
 		Server(std::string portCheck, std::string password);
 		~Server(void);

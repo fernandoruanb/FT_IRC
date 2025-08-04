@@ -74,7 +74,7 @@ void	Server::kick(s_commands& com)
 	std::size_t	index;
 
 	if (com.args.size() < 2) {
-		this->sendBuffer[com.index] += msg_err_needmoreparams("KICK");
+		this->sendBuffer[com.index] += msg_err_needmoreparams(com.client->getNickName(), "KICK");
 		return ;
 	}
 

@@ -10,7 +10,7 @@ static bool	isSigned(const char c)
 	return (c == '+' || c == '-');
 }
 
-static	Client	*getTargetClient(s_commands &com, const std::string& name, std::string &sendBuffer)
+static	Client	*getTargetClient(s_commands &com, const std::string& name)
 {
 	std::map<int, Client*>::iterator	it;
 
@@ -22,7 +22,7 @@ static	Client	*getTargetClient(s_commands &com, const std::string& name, std::st
 	return (NULL);
 }
 
-static Channel*	getTargetChannel(s_commands &com, std::map<int, Channel*>* &channels, std::string &sendBuffer)
+static Channel*	getTargetChannel(s_commands &com, std::map<int, Channel*>* &channels)
 {
 	std::map<int, Channel*>::iterator	it;
 	//	Removing # from #<chanelName>
@@ -36,20 +36,20 @@ static Channel*	getTargetChannel(s_commands &com, std::map<int, Channel*>* &chan
 	return (NULL);
 }
 
-static void	showModes(s_commands& com, std::string &sendBuffer, std::map<int, Channel*>* &channels, bool isUser)
+static void	showModes(s_commands& com, std::map<int, Channel*>* &channels, bool isUser)
 {
 	if (com.args.size() != 1)
 		return;
 
 	if (isUser)
 	{
-		Client*	target = getTargetClient(com, com.args[0], sendBuffer);
+		Client*	target = getTargetClient(com, com.args[0]);
 		if (target)
 			com.sendBuffer += msg_showusermodes(com, target);
 		return;
 	}
 
-	Channel*	target = getTargetChannel(com, channels, sendBuffer);
+	Channel*	target = getTargetChannel(com, channels);
 	if (target)
 		com.sendBuffer += msg_showchannelmodes(com, target);
 }
@@ -140,6 +140,7 @@ static void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffe
 
 static void	caseT(s_commands& com, s_mode& mode)
 {
+	(void)com;
 	if (mode.sign == '+' && !mode.flagFound)
 	{
 		mode.currentMode += mode.flag;
@@ -228,7 +229,7 @@ static void	caseO(s_commands& com, s_mode& mode)
 		com.sendBuffer += msg_err_needmoreparams(com.client->getNickName(), "MODE");
 		return;
 	}
-	Client*	client = getTargetClient(com, com.args[2], com.sendBuffer);
+	Client*	client = getTargetClient(com, com.args[2]);
 	if (!client)
 		return;
 	client->setIsOperator(true);
@@ -333,16 +334,16 @@ void	Server::mode(s_commands &com)
 
 	bool	isUser = com.args[0][0] != '#';
 
-	showModes(com, this->sendBuffer[com.index], this->channels, isUser);
+	showModes(com, this->channels, isUser);
 	if (isUser)
 	{
-		Client*	target = getTargetClient(com, com.args[0], this->sendBuffer[com.index]);
+		Client*	target = getTargetClient(com, com.args[0]);
 		if (!target)
 			return;
 		addUserMode(target, com, this->sendBuffer[com.index], this->channels);
 		return;
 	}
-	Channel*	target = getTargetChannel(com, this->channels, com.sendBuffer);
+	Channel*	target = getTargetChannel(com, this->channels);
 	if (!target)
 		return;
 	addChannelMode(com, target, getChannelsIndex(target->getName()));
