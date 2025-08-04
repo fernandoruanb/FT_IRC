@@ -47,4 +47,5 @@ std::string		msg_err_unknownmode(s_commands&com, char mode);
 std::string	msg_mode_userwelldone(s_commands& com, Client* &target);
 std::string	msg_showchannelmodes(s_commands& com, Channel* &target);
 std::string	msg_showusermodes(s_commands& com, Client* &target);
-
+std::string	msg_quit(s_commands& com, const std::string &message);
+std::string	msg_err_invalidparameter(s_commands& com, Channel*& channel);

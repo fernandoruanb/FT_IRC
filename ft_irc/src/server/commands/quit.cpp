@@ -32,6 +32,35 @@ std::string	trim(std::string& str)
 
 	return (str.substr(start, end - start + 1));
 }
+void	Server::newBroadcastAllChannels(s_commands& com, std::string msg, std::string channelName, bool flag)
+{
+	struct pollfd	(&fds)[1024] = *getMyFds();
+	std::map<int, Client*>*	clients = getClientsMap();
+	std::map<int, Client*>::iterator it = clients->begin();
+	int	clientsIndex;
+	int	channelIndex = getChannelsIndex(channelName);
+
+	if (channelIndex == -1)
+	{
+		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 403 " + com.client->getNickName() + " " + channelName + " :No such channel\r\n";
+		return ;
+	}
+	while (it != clients->end())
+	{
+		if (it->first == com.fd && flag == true)
+		{
+			++it;
+			continue ;
+		}
+		if (it->second->getChannelsSet().find(channelName) != it->second->getChannelsSet().end())
+		{
+			clientsIndex = getClientsIndex(it->first);
+			it->second->getBufferOut() += msg;
+			fds[clientsIndex].events |= POLLOUT;
+		}
+		++it;
+	}
+}
 
 void	Server::messageToAllChannels(s_commands& com, std::string& message)
 {
@@ -56,9 +85,9 @@ void	Server::messageToAllChannels(s_commands& com, std::string& message)
 		for (sit = myChannels.begin(); sit != myChannels.end(); sit++)
 			if (*sit == channel->getName())
 			{
-				int	index = this->getChannelsIndex(channel->getName());
+				// int	index = this->getChannelsIndex(channel->getName());
 				com.sendBuffer = message;
-				this->broadcast(com.index, message, index);
+				this->newBroadcastAllChannels(com, message, channel->getName(), false);
 				break;
 			}
 	}
@@ -66,15 +95,16 @@ void	Server::messageToAllChannels(s_commands& com, std::string& message)
 
 void	Server::quit(s_commands& com)
 {
-	if (com.args.size())
+	if (com.args[0][0] == ':')
 	{
 		std::string line;
-		std::string	message = ":" + com.client->getNickName() + " ";
+		std::string	message;
+		com.args[0] = com.args[0].substr(1);
 
 		for (size_t i = 0; i < com.args.size(); i++)
 			message += com.args[i] + ' ';
 		
-		message += '\n';
+		message = msg_quit(com, message);
 		messageToAllChannels(com, message);
 	}
 	desconect(com);
