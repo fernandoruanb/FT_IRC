@@ -327,7 +327,7 @@ void	Server::addChannelMode(s_commands &com, Channel* &target, int channelIndex)
 	}
 
 	target->setMode(currentMode);
-	com.sendBuffer += msg_notice("MODE " + target->getName() + " " + com.args[1]);
+	com.sendBuffer += msg_showchannelmodes(com, target);
 	std::cout << "senha do canal: " << target->getPassWord() << std::endl;
 }
 /*
