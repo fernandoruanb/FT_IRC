@@ -244,3 +244,14 @@ std::string	msg_quit(s_commands& com, const std::string &message)
 		+ "\r\n"
 	);
 }
+
+std::string	msg_err_invalidparameter(s_commands& com, Channel*& channel)
+{
+	return (
+		":" SERVER_NAME "696 "
+		+ com.client->getNickName()
+		+ " "
+		+ channel->getName()
+		+ " :Invalid user limit\r\n"
+	);
+}

@@ -172,7 +172,7 @@ static void	caseK(s_commands& com, s_mode& mode)
 			mode.target->setPassWord(com.args[2]);
 			return;
 		}
-		com.sendBuffer += "vc n tem permissao pra isso aqui n amigo'-'\n";
+		com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), mode.target->getName(), "You're not channel operator");
 		return;
 	}
 	if (mode.sign == '-' && mode.flagFound)
@@ -184,7 +184,7 @@ static void	caseK(s_commands& com, s_mode& mode)
 			mode.target->getPassWord().clear();
 			return;
 		}
-		com.sendBuffer += "vc n tem permissao pra isso aqui n amigo'-'\n";
+		com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), mode.target->getName(), "You're not channel operator");
 		return;
 	}
 }
@@ -203,7 +203,7 @@ static void	caseL(s_commands& com, s_mode& mode)
 		ss >> limit;
 		if (ss.fail())
 		{
-			com.sendBuffer += "Tem coisa errada no numero de clientes q vc pos\n";
+			com.sendBuffer += msg_err_invalidparameter(com, mode.target);
 			return;
 		}
 		mode.currentMode += mode.flag;
@@ -214,7 +214,7 @@ static void	caseL(s_commands& com, s_mode& mode)
 	{
 		if (mode.len != 2)
 		{
-			com.sendBuffer += "Invalid num of arguments\n";
+			com.sendBuffer += msg_err_needmoreparams(com.client->getNickName(), "MODE");
 			return;
 		}
 		size_t	pos = mode.currentMode.find(mode.flag);
@@ -264,7 +264,7 @@ static void	addChannelMode(s_commands &com, Channel* &target, int channelIndex)
 
 	if (target->getName() == "Generic" || !findMode(mode, 'o'))
 	{
-		com.sendBuffer += "Pode nao man ;-;\n";
+		com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), "Generic", "You're not channel operator");
 		return;
 	}
 	size_t		len = com.args.size();
