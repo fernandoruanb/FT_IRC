@@ -140,6 +140,7 @@ class	Server
 		//Commands
 		void	user(s_commands&);
 		bool	handleCommands(std::map<int, Client*>* &clients, std::string& buffer, int fd, int i);
+		void    cap(s_commands& com);
 		void	mode(s_commands&);
 		void	nick(s_commands&);
 		void	handlePing(s_commands &);

@@ -7,6 +7,8 @@ static std::string	getTheMessage(s_commands& com)
 
 	while (index < com.args.size() && com.args[index][0] != ':')
 		++index;
+	if (index >= com.args.size())
+		return (message);
 	message += com.args[index].substr(1);
 	if (index + 1 < com.args.size())
 		message += " ";

@@ -34,7 +34,7 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	myMap["PRIVMSG"] = &Server::privmsg;
 	myMap["QUIT"] = &Server::quit;
 	myMap["TOPIC"] = &Server::topic;
-
+	myMap["CAP"] = &Server::cap;
 
 	size_t	j;
 	for (j = 0; j < buffer.size(); j++)
