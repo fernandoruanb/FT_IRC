@@ -53,7 +53,7 @@ void    Server::broadcast(int sender, std::string line, int targetChannel)
 		if (client->getAuthenticated() && client->getNickName() != "*" && client->getRegistered() && clientCurrentChannel == ownerChannel)
 		{
 			targetChannelName = (*channels)[targetChannel]->getName();
-			this->sendBuffer[index] += this->sendBuffer[sender] + " " + it->second->getNickName() + " #" + targetChannelName + " :" + line;
+			this->sendBuffer[index] += this->sendBuffer[sender] + " #" + targetChannelName + " :" + line;
 			//this->sendBuffer[index] += " " + it->second->getNickName() + " :" + line;
 			fds[index].events |= POLLOUT;
 		}
@@ -136,12 +136,12 @@ void    Server::privmsg(int index, int sender, std::string message)
                 {
                         if (checkCompatibility(fds[sender].fd, fds[index].fd, "generic"))
 			{
-				(*clients)[fds[index].fd]->getBufferOut() += std::string(":") + (*clients)[fds[sender].fd]->getNickName() + "!" + (*clients)[fds[sender].fd]->getUserName() + "@" + (*clients)[fds[sender].fd]->getHost() + " PRIVMSG :" + message;
+				(*clients)[fds[index].fd]->getBufferOut() += std::string(":") + (*clients)[fds[sender].fd]->getNickName() + "!" + (*clients)[fds[sender].fd]->getUserName() + "@" + (*clients)[fds[sender].fd]->getHost() + " PRIVMSG " + (*clients)[fds[index].fd]->getNickName() + " :" + message;
 				fds[index].events |= POLLOUT;
 			}
                 }
 		return ;
 	}
-    client->getBufferOut() += std::string(":") + (*clients)[fds[sender].fd]->getNickName() + "!" + (*clients)[fds[sender].fd]->getUserName() + "@" + (*clients)[fds[sender].fd]->getHost() + " PRIVMSG :" + message;
+    client->getBufferOut() += std::string(":") + (*clients)[fds[sender].fd]->getNickName() + "!" + (*clients)[fds[sender].fd]->getUserName() + "@" + (*clients)[fds[sender].fd]->getHost() + " PRIVMSG " + (*clients)[fds[index].fd]->getNickName() + " :" + message;
     fds[index].events |= POLLOUT;
 }
