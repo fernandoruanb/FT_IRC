@@ -50,7 +50,7 @@ void	Server::cap(s_commands& com)
 	{
 		if (com.args.size() > 1 && com.args[1] == "302")
 		{
-			com.client->getBufferOut() += std::string(":") + SERVER_NAME + " CAP " + com.client->getNickName() + " LS * :\r\n";
+			//com.client->getBufferOut() += std::string(":") + SERVER_NAME + " CAP " + com.client->getNickName() + " LS * :\r\n";
 			com.client->getBufferOut() += std::string(":") + SERVER_NAME + " CAP " + com.client->getNickName() + " LS :\r\n";
 			return ;
 		}
