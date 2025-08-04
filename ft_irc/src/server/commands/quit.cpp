@@ -95,7 +95,7 @@ void	Server::messageToAllChannels(s_commands& com, std::string& message)
 
 void	Server::quit(s_commands& com)
 {
-	if (com.args[0][0] == ':')
+	if (com.args.size() && com.args[0][0] == ':')
 	{
 		std::string line;
 		std::string	message;
