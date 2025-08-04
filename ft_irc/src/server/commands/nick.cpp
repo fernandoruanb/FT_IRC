@@ -1,6 +1,35 @@
 #include "../includes/Server.hpp"
 #include "../includes/messages.hpp"
 
+static std::string generateUniqueNick(const std::string& originalNick, std::map<int, Client*>* clients) {
+    std::string newNick = originalNick;
+    int suffix = 0;
+    bool found = true;
+    
+    while (found) {
+		found = false;
+		for (std::map<int, Client*>::iterator it = clients->begin(); it != clients->end(); ++it) {
+			if (it->second && it->second->getNickName() == newNick) {
+				found = true;
+				break;
+			}
+		}
+		
+		if (found) {
+			if (suffix == 0) {
+				newNick = originalNick + "_";
+				suffix = 1;
+			} else {
+				std::stringstream ss;
+				ss << originalNick << suffix;
+				newNick = ss.str();
+				suffix++;
+			}
+		}
+	}
+	return newNick;
+}
+
 static bool	checkChar(char c)
 {
 	bool	isLetter = std::isalpha(static_cast<unsigned char>(c));
@@ -50,6 +79,8 @@ bool	validNick(s_commands& com)
 void	Server::nick(s_commands& com)
 {
 	std::string	oldNick = com.client->getNickName();
+	std::string requestedNick = com.args[0];
+	std::string finalNick;
 
 	if (!com.args.size())
 	{
@@ -59,18 +90,30 @@ void	Server::nick(s_commands& com)
 	}
 	if (com.args.size() == 1)
 	{
-		if (!validChar(com.args[0]))
+		if (!validChar(requestedNick))
 		{
 			com.sendBuffer += msg_err_erroneusnickname(com.args[0]);
 			return;
 		}
-		if (validNick(com))
-			com.client->setNickName(com.args[0]);
+		if (oldNick == "*")
+		{
+			finalNick = generateUniqueNick(requestedNick, clients);
+			com.client->setNickName(finalNick);
+			if (finalNick != requestedNick) {
+				// nao consegui enviar mensagem, se alguem quiser tentar ...
+			}
+		}
 		else
 		{
-			this->sendBuffer[com.index].clear();
-			this->sendBuffer[com.index] = msg_error("Nickname is already in use", 433, com);
-			return;
+			finalNick = requestedNick;
+			if (validNick(com))
+				com.client->setNickName(com.args[0]);
+			else
+			{
+				this->sendBuffer[com.index].clear();
+				this->sendBuffer[com.index] = msg_error("Nickname is already in use", 433, com);
+				return;
+			}
 		}
 		// com.sendBuffer.clear();
 		// com.sendBuffer = "Hello " + com.client->getNickName() + "\n";

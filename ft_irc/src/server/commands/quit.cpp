@@ -97,7 +97,7 @@ void	Server::messageToAllChannels(s_commands& com, std::string& message)
 			if (*sit == channel->getName())
 			{
 				// int	index = this->getChannelsIndex(channel->getName());
-				com.sendBuffer = message;
+				com.sendBuffer += message;
 				this->newBroadcastAllChannels(com, message, channel->getName(), true);
 				break;
 			}

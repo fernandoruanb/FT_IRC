@@ -20,6 +20,7 @@ std::string msg_err_usernotinchannel(const std::string nick, const std::string& 
 std::string msg_err_channelisfull(const std::string& nick, const std::string& channel);
 std::string msg_err_chanoprivsneeded(const std::string& nick, const std::string& channel, const std::string& message);
 std::string msg_err_erroneusnickname(const std::string& nick);
+std::string msg_nick_changed(const std::string& nick, const std::string& requestedNick, const std::string& finalNick);
 std::string msg_err_alreadyregistered(const std::string& nick);
 std::string msg_notice(const std::string& text);
 std::string	msg_error(const std::string &message, int error_code, s_commands& com);
