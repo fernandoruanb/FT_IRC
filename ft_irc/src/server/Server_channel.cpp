@@ -3,7 +3,6 @@
 #include "../includes/messages.hpp"
 #include <cstring>
 
-
 bool	Server::checkName(std::string Name)
 {
 	Name = getLower(Name);
@@ -307,13 +306,6 @@ void	Server::changeTopic(std::string channelName, int clientFD, std::string topi
 			return ;
 		}
 	}
-	if (!theKing && it->first != itc->second->getChannelOfTime())
-	{
-		itc->second->getBufferOut() += msg_err_notonchannel(nick, channelName);
-		std::cerr << RED "Error: You can't change a topic in another channel" RESET << std::endl;
-		fds[clientIndex].events |= POLLOUT;
-		return ;
-	}
 	oss << timestamp;
 	it->second->setTopic(topic);
 	time = oss.str();
@@ -406,11 +398,6 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD, std::
 		fds[clientIndex].events |= POLLOUT;
 		return ;
 	}
-	if (!theKing && channel != itm->second->getName())
-	{
-		std::cerr << RED "Error: Your current channel isn't the target channel dear owner" RESET << std::endl;
-		return ;
-	}
 	if (!theKing && itch->second->getOperatorChannels().find(channel) == itch->second->getOperatorChannels().end())
 	{
 		std::cerr << RED "Error: You are an operator but not from the target channel" RESET << std::endl;
@@ -486,7 +473,7 @@ void	Server::removeOperatorPrivilegesFromEveryBody(std::string channel)
 			it->second->setIsOperator(false);
 		channelOfTime = it->second->getChannelOfTime();
 		if (channelOfTime == itm->first)
-			changeChannel("generic", it->second->getClientFD(), 0);
+			changeChannel("generic", it->second->getClientFD(), 2);
 		this->kingsOfIRC.erase(it->first);
 		it++;
 	}
@@ -507,7 +494,7 @@ bool	Server::AuthenticationKeyProcess(const std::string channel, const std::stri
 	return (false);
 }
 
-void	Server::deleteChannel(std::string channel, int clientFD)
+void	Server::deleteChannel(std::string channel, int clientFD, bool flag)
 {
 	channel = getLower(channel);
 	std::map<int, Channel*>* channels = getChannelsMap();
@@ -518,7 +505,6 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 	int	channelOfTime;
 	bool	isOperator;
 	std::string	nick;
-	int	index;
 
 	if (itch == clients->end())
 	{
@@ -527,32 +513,31 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 	}
 	nick = itch->second->getNickName();
 	isOperator = itch->second->getIsOperator();
-	if (!isOperator)
+	if (flag == false && !isOperator)
 	{
 		std::cerr << RED "Error: The client " << YELLOW << clientFD << RED " isn't an operator" RESET << std::endl;
 		itch->second->getBufferOut() += msg_err_chanoprivsneeded(nick, channel, "You are not an operator");
 		fds[itch->first].events |= POLLOUT;
 		return ;
 	}
-	if (itch->second->getOperatorChannels().find(channel) == itch->second->getOperatorChannels().end())
+	if (flag == false && itch->second->getOperatorChannels().find(channel) == itch->second->getOperatorChannels().end())
 	{
 		std::cerr << RED "Error: The client isn't a valid operator of the channel " << YELLOW << channel << RESET << std::endl;
 		itch->second->getBufferOut() += msg_err_chanoprivsneeded(nick, channel, "You are not an operator of that channel");
 		fds[itch->first].events |= POLLOUT;
 		return ;
 	}
-	index = 1;
-	std::map<int, Channel*>::iterator itc = channels->find(index);
-	while (index < numChannels && itc != channels->end())
+	std::map<int, Channel*>::iterator itc = channels->begin();
+	while (itc != channels->end())
 	{
 		channelName = itc->second->getName();
 		if (channelName == channel)
 		{
 			channelOfTime = itch->second->getChannelOfTime();
-			if (channelOfTime == index)
+			if (channelOfTime == itch->first)
 			{
 				std::cout << LIGHT_BLUE "Changing to " << YELLOW << "generic" << LIGHT_BLUE " Channel client " << YELLOW << clientFD << RESET << std::endl;
-				this->changeChannel("generic", itch->second->getClientFD(), 0);
+				this->changeChannel("generic", itch->second->getClientFD(), 2);
 			}
 			this->removeOperatorPrivilegesFromEveryBody(channelName);
 			delete itc->second;
@@ -569,12 +554,11 @@ void	Server::deleteChannel(std::string channel, int clientFD)
 			return ;
 		}
 		itc++;
-		index++;
 	}
 	std::cerr << RED "Error: The channel " << YELLOW << channel << RED " doesn't exist" RESET << std::endl;
 }
 
-void	Server::changeChannel(std::string channel, int clientFD, bool flag)
+void	Server::changeChannel(std::string channel, int clientFD, int flag)
 {
 	channel = getLower(channel);
 	std::map<int, Client*>* clients = getClientsMap();
@@ -618,7 +602,6 @@ void	Server::changeChannel(std::string channel, int clientFD, bool flag)
 			channelIndex = getChannelsIndex(channel);
 			if (itc->second->getChannelOfTime() == channelIndex && flag != 1)
 			{
-				std::cerr << RED "Error: You are trying to change to the same channel that you are" RESET << std::endl;
 				itc->second->getBufferOut() += std::string(":") + SERVER_NAME + " 443 " + itc->second->getNickName() + " " + itc->second->getNickName() + " #" + channelName + " :is already on channel" + "\r\n";
 				fds[clientIndex].events |= POLLOUT;
 				return ;
@@ -654,25 +637,28 @@ void	Server::changeChannel(std::string channel, int clientFD, bool flag)
 			time = itm->second->getTimeStamp();
 			topic = itm->second->getTopic();
 			message = "You left the channel";
-			if (flag != 1)
+			if (flag != 1 && flag != 2)
 				client->getBufferOut() += my_part_message(nick, user, host, last->second->getName(), message);
-			client->getBufferOut() += my_join_message(nick, user, host, channel);
-			client->getBufferOut() += my_join_rpl_topic(nick, channel, topic);
-			if (!time.empty())
+			if (flag != 2)
 			{
-				if (nick == "system")
+				client->getBufferOut() += my_join_message(nick, user, host, channel);
+				client->getBufferOut() += my_join_rpl_topic(nick, channel, topic);
+				if (!time.empty())
 				{
-					ownerTopic = "*";
-					user = "*";
-					host = "localhost";
+					if (nick == "system")
+					{
+						ownerTopic = "*";
+						user = "*";
+						host = "localhost";
+					}
+					client->getBufferOut() += my_join_rpl_topic_whotime(nick, ownerTopic, user, host, channel, time);
 				}
-				client->getBufferOut() += my_join_rpl_topic_whotime(nick, ownerTopic, user, host, channel, time);
+				client->getBufferOut() += my_join_rpl_namreply(nick, channel);
+				client->getBufferOut()  += itm->second->getOperatorsNames();
+				client->getBufferOut() += itm->second->getClientsNames() + "\r\n";
+				client->getBufferOut() += my_join_rpl_endofnames(nick, channel);
+				fds[messageTarget].events |= POLLOUT;
 			}
-			client->getBufferOut() += my_join_rpl_namreply(nick, channel);
-			client->getBufferOut()  += itm->second->getOperatorsNames();
-			client->getBufferOut() += itm->second->getClientsNames() + "\r\n";
-			client->getBufferOut() += my_join_rpl_endofnames(nick, channel);
-			fds[messageTarget].events |= POLLOUT;
 			return ;
 		}
 		itm++;

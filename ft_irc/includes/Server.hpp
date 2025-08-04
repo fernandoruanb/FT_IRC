@@ -96,6 +96,8 @@ class	Server
 		Server&	operator=(const Server &other);
 		Server(const Server &other);
 
+		void    newBroadcastKill(s_commands& com, std::string msg, std::string complement, std::string channelName, bool flag);
+		void    newBroadcast(s_commands& com, std::string msg, std::string channelName, bool flag);
 		bool    checkCompatibility(int ownerFD, int clientFD, std::string targetChannel);
 		void    removeAllChannelsOfClient(int clientFD);
 		int	getClientFDByNick(std::string nickname, int numClients);
@@ -107,8 +109,8 @@ class	Server
 		bool    AuthenticationKeyProcess(const std::string channel, const std::string key);
 		int	getClientsIndex(int clientFD);
 		void    promotionChannelOperator(std::string channel, int owner, int clientFD);
-		void	changeChannel(std::string Name, int clientFD, bool flag);
-		void	deleteChannel(std::string Name, int clientFD);
+		void	changeChannel(std::string Name, int clientFD, int flag);
+		void	deleteChannel(std::string Name, int clientFD, bool flag = false);
 		void    removeOperatorPrivilegesFromEveryBody(std::string channel);
 		void    createNewChannel(std::string Name, int clientFD);
 		void    kickFromChannel(std::string channel, int owner, int clientFD, std::string message);
@@ -138,6 +140,7 @@ class	Server
 		//Commands
 		void	user(s_commands&);
 		bool	handleCommands(std::map<int, Client*>* &clients, std::string& buffer, int fd, int i);
+		void    cap(s_commands& com);
 		void	mode(s_commands&);
 		void	nick(s_commands&);
 		void	handlePing(s_commands &);

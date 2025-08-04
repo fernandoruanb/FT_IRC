@@ -34,7 +34,7 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	myMap["PRIVMSG"] = &Server::privmsg;
 	myMap["QUIT"] = &Server::quit;
 	myMap["TOPIC"] = &Server::topic;
-
+	myMap["CAP"] = &Server::cap;
 
 	size_t	j;
 	for (j = 0; j < buffer.size(); j++)
@@ -58,12 +58,16 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 
 	if (!com.client->getAuthenticated())
 	{
-		if (command != "PASS" && command != "QUIT")
+		if (command != "CAP" && command != "PASS" && command != "QUIT")
+		{
+			com.client->getBufferOut() += msg_err_notregistered();
+			fds[com.index].events |= POLLOUT;
 			return (false);
+		}
 	}
 	else if (!com.client->getRegistered())
 	{
-		const std::string	allowed[3] = {"USER", "NICK", "QUIT"};
+		const std::string	allowed[4] = {"CAP", "USER", "NICK", "QUIT"};
 		bool	isValid = false;
 
 		for (size_t i = 0; i < allowed->size(); i++)
@@ -75,7 +79,7 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 		
 		if (!isValid)
 		{
-			com.sendBuffer += msg_err_notregistered();
+			com.client->getBufferOut() += msg_err_notregistered();
 			fds[com.index].events |= POLLOUT;
 			return (false);
 		}
@@ -88,15 +92,18 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	for (size_t i = 0;  i < com.args.size(); i++)
 		std::cout << "My args array[" << i << "]: " << com.args[i] << std::endl;
 
+	if (com.client->getAuthenticated() && com.client->getRegistered())
+		com.isOnline = true;
+
 	(this->*(myMap[command]))(com);
 
 	if (com.isOnline)
 	{
 		std::cout << "getRegistred: " << com.client->getRegistered() << std::endl;
-		if (com.client->getAuthenticated() && com.client->getRegistered() && com.client->getChannelsSet().find("Generic") == com.client->getChannelsSet().end())
+		if (com.client->getAuthenticated() && com.client->getRegistered() && com.client->getChannelsSet().find("generic") == com.client->getChannelsSet().end())
 		{
-			changeChannel("Generic", com.fd, 1);
-			com.client->getChannelsSet().insert("Generic");
+			changeChannel("generic", com.fd, 1);
+			com.client->getChannelsSet().insert("generic");
 			com.client->setChannelOfTime(0);
 		}
 

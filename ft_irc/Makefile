@@ -24,6 +24,7 @@ SRCS =	utils/messages.cpp \
 		server/commands/nick.cpp \
 		server/commands/handleCommands.cpp \
 		server/commands/invite.cpp \
+		server/commands/cap.cpp \
 		server/commands/join.cpp \
 		server/commands/kick.cpp \
 		server/commands/kill.cpp \

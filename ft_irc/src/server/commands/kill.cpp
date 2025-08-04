@@ -7,6 +7,8 @@ static std::string	getTheMessage(s_commands& com)
 
 	while (index < com.args.size() && com.args[index][0] != ':')
 		++index;
+	if (index >= com.args.size())
+		return (message);
 	message += com.args[index].substr(1);
 	if (index + 1 < com.args.size())
 		message += " ";
@@ -30,11 +32,49 @@ void	Server::removeAllChannelsOfClient(int clientFD)
 	this->kingsOfIRC.erase(clientFD);
 	while (it != channels->end())
 	{
+		it->second->removeMember(clientFD);
 		(*clients)[clientFD]->getOperatorChannels().erase(it->second->getName());
 		(*clients)[clientFD]->getChannelsSet().erase(it->second->getName());
 		(*clients)[clientFD]->getInviteChannels().erase(it->second->getName());
 		it->second->getMembersSet().erase(clientFD);
 		it->second->getOperatorsSet().erase(clientFD);
+		if (it->second->getMembersNum() == 0)
+		{
+			std::map<int,Channel*>::iterator toErase = it++;
+			delete toErase->second;
+			channels->erase(toErase);
+			continue ;
+		}
+		++it;
+	}
+}
+
+void	Server::newBroadcastKill(s_commands& com, std::string msg, std::string complement, std::string channelName, bool flag)
+{
+	struct pollfd	(&fds)[1024] = *getMyFds();
+	std::map<int, Client*>*	clients = getClientsMap();
+	std::map<int, Client*>::iterator it = clients->begin();
+	int	clientsIndex;
+	int	channelIndex = getChannelsIndex(channelName);
+
+	if (channelIndex == -1)
+	{
+		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 403 " + com.client->getNickName() + " " + channelName + " :No such channel\r\n";
+		return ;
+	}
+	while (it != clients->end())
+	{
+		if (it->first == com.fd && flag == true)
+		{
+			++it;
+			continue ;
+		}
+		if (it->second->getChannelsSet().find(channelName) != it->second->getChannelsSet().end())
+		{
+			clientsIndex = getClientsIndex(it->first);
+			it->second->getBufferOut() += msg + " #" + channelName + " :" + complement;
+			fds[clientsIndex].events |= POLLOUT;
+		}
 		++it;
 	}
 }
@@ -49,9 +89,8 @@ void	Server::kill(s_commands& com)
 	struct pollfd (&fds)[1024] = *getMyFds();
 	std::map<int, Client*>* clients = getClientsMap();
 	std::string	nick = com.args[0];
-	std::string	message = getTheMessage(com);
+	std::string	message = "ERROR: You have been killed by " + com.client->getNickName() + " : ";
 	int	clientFD;
-	int	clientIndex;
 
 	if (com.args[1][0] != ':')
 	{
@@ -59,6 +98,9 @@ void	Server::kill(s_commands& com)
 		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 461 " + com.client->getNickName() + " KILL " + ":Not enough parameters" + "\r\n";
 		return ;
 	}
+
+	std::string complement = getTheMessage(com) + "\r\n";
+	message += getTheMessage(com) + "\r\n";
 
 	if (message.empty() || message == " \r\n")
 	{
@@ -79,7 +121,6 @@ void	Server::kill(s_commands& com)
 		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 400 " + com.client->getNickName() + " KILL " + ":cannot kill yourself" + "\r\n";
 		return ;
 	}
-	clientIndex = getClientsIndex(clientFD);
 	if (this->kingsOfIRC.find(com.fd) == this->kingsOfIRC.end())
 	{
 		std::cerr << RED "Error: You are not an IRC Operator" RESET << std::endl;
@@ -87,15 +128,35 @@ void	Server::kill(s_commands& com)
 		return ;
 	}
 
-	removeAllChannelsOfClient(clientFD);
+	int	clientsIndex = getClientsIndex(clientFD);
+
+	std::string all = std::string(":") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " KILL " + (*clients)[clientFD]->getNickName();
+	send(fds[clientsIndex].fd, message.c_str(), message.size(), 0);
 	(*clients)[clientFD]->setAuthenticated(false);
 	(*clients)[clientFD]->setRegistered(false);
 	(*clients)[clientFD]->setNickName("*");
 	(*clients)[clientFD]->setUserName("*");
 	(*clients)[clientFD]->setHost("localhost");
+	this->kingsOfIRC.erase(com.fd);
+	std::set<std::string>::iterator it = (*clients)[clientFD]->getChannelsSet().begin();
+	while (it != (*clients)[clientFD]->getChannelsSet().end())
+	{
+		newBroadcastKill(com, all, complement, *it, false);
+		++it;
+	}
+	removeAllChannelsOfClient(clientFD);
+	(*clients)[clientFD]->getBufferOut().clear();
+	sendBuffer[clientsIndex].clear();
+	delete (*clients)[clientFD];
+	close(fds[clientsIndex].fd);
+	fds[clientsIndex].fd = fds[numClients - 1].fd;
+	fds[numClients - 1].fd = -1;
+	fds[clientsIndex].events = 0;
+	this->manageBuffers(clientsIndex);
+	this->numClients--;
+	clients->erase(clientFD);
+	com.isOnline = false;
 
 	std::cout << "The clientFD: " << clientFD << std::endl;
-	(*clients)[clientFD]->getBufferOut() += std::string("ERROR :You have been killed: ") + message + "\r\n";
 	std::cout << BRIGHT_GREEN "You killed the target" RESET << std::endl;
-	fds[clientIndex].events |= POLLOUT;
 }
