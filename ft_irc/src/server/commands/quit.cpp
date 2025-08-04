@@ -15,6 +15,7 @@ void	Server::desconect(s_commands& com)
 	this->kingsOfIRC.erase(com.fd);
 	delete com.client;
 	close(fds[com.index].fd);
+	com.client = NULL;
 	clients->erase(com.fd);
 	fds[com.index].fd = fds[numClients - 1].fd;
 	fds[numClients - 1].fd = -1;
@@ -42,22 +43,30 @@ void	Server::newBroadcastAllChannels(s_commands& com, std::string msg, std::stri
 
 	if (channelIndex == -1)
 	{
+        if (!com.client || clients->find(com.fd) == clients->end())
+            return;
 		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 403 " + com.client->getNickName() + " " + channelName + " :No such channel\r\n";
 		return ;
 	}
 	while (it != clients->end())
 	{
+        if (!it->second || clients->find(it->first) == clients->end()) {
+            ++it;
+            continue;
+        }
 		if (it->first == com.fd && flag == true)
 		{
 			++it;
 			continue ;
 		}
-		if (it->second->getChannelsSet().find(channelName) != it->second->getChannelsSet().end())
-		{
-			clientsIndex = getClientsIndex(it->first);
-			it->second->getBufferOut() += msg;
-			fds[clientsIndex].events |= POLLOUT;
-		}
+      	if (it->second->getChannelsSet().find(channelName) != it->second->getChannelsSet().end())
+        {
+            clientsIndex = getClientsIndex(it->first);
+            if (clientsIndex >= 0) {
+                it->second->getBufferOut() += msg;
+                fds[clientsIndex].events |= POLLOUT;
+            }
+        }
 		++it;
 	}
 }
@@ -73,6 +82,8 @@ void	Server::messageToAllChannels(s_commands& com, std::string& message)
 			broadcast(com.index, message, <index do canal>);
 	*/
 
+	if (!com.client)
+		return;
 	std::map<int, Channel*>::iterator	it;
 	std::set<std::string>&	myChannels = com.client->getChannelsSet();
 	message = trim(message) + "\r\n";
@@ -95,17 +106,19 @@ void	Server::messageToAllChannels(s_commands& com, std::string& message)
 
 void	Server::quit(s_commands& com)
 {
-	if (com.args.size() && com.args[0][0] == ':')
-	{
-		std::string line;
-		std::string	message;
-		com.args[0] = com.args[0].substr(1);
+    std::map<int,Client*>* clients = getClientsMap();
+    if (clients->find(com.fd) == clients->end() || !com.client)
+        return;
+    if (com.args.size() > 0 && !com.args[0].empty() && com.args[0][0] == ':')
+    {
+        std::string message;
+        com.args[0] = com.args[0].substr(1);
 
-		for (size_t i = 0; i < com.args.size(); i++)
-			message += com.args[i] + ' ';
-		
-		message = msg_quit(com, message);
-		messageToAllChannels(com, message);
-	}
-	desconect(com);
+        for (size_t i = 0; i < com.args.size(); i++)
+            message += com.args[i] + ' ';
+        
+        message = msg_quit(com, message);
+        messageToAllChannels(com, message);
+    }
+    desconect(com);
 }
