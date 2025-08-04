@@ -39,7 +39,7 @@ void	Server::cap(s_commands& com)
 {
 	if (com.args.size() < 1)
 	{
-		com.client->getBufferOut() += "410 :Invalid CAP subcommand\r\n";
+		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 410 " + com.client->getNickName() + " :Invalid CAP subcommand\r\n";
 		std::cerr << RED "Error: Invalid CAP subcommand" RESET << std::endl;
 		return ;
 	}
@@ -48,6 +48,12 @@ void	Server::cap(s_commands& com)
 
 	if (com.args[0] == "LS")
 	{
+		if (com.args.size() > 1 && com.args[1] == "302")
+		{
+			com.client->getBufferOut() += std::string(":") + SERVER_NAME + " CAP " + com.client->getNickName() + " LS * :\r\n";
+			com.client->getBufferOut() += std::string(":") + SERVER_NAME + " CAP " + com.client->getNickName() + " LS :\r\n";
+			return ;
+		}
 		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " CAP " + com.client->getNickName() + " LS :\r\n";
 		return ;
 	}

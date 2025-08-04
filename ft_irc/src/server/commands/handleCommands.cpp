@@ -58,12 +58,12 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 
 	if (!com.client->getAuthenticated())
 	{
-		if (command != "PASS" && command != "QUIT")
+		if (command != "CAP" && command != "PASS" && command != "QUIT")
 			return (false);
 	}
 	else if (!com.client->getRegistered())
 	{
-		const std::string	allowed[3] = {"USER", "NICK", "QUIT"};
+		const std::string	allowed[4] = {"CAP", "USER", "NICK", "QUIT"};
 		bool	isValid = false;
 
 		for (size_t i = 0; i < allowed->size(); i++)
