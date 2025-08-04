@@ -9,10 +9,10 @@ static std::vector<std::string>	getAllChannels(s_commands& com)
 	{
 		if (com.args[index][0] == ':')
 			break ;
-		if (std::find(channels.begin(), channels.end(), com.args[index].substr(1)) == channels.end())
+		if (std::find(channels.begin(), channels.end(), com.args[index]) == channels.end())
 		{
 			if (com.args[index][0] == '#')
-				channels.push_back(com.args[index].substr(1));
+				channels.push_back(com.args[index]);
 			else
 				channels.push_back(com.args[index]);
 		}
@@ -74,7 +74,6 @@ void	Server::newBroadcast(s_commands& com, std::string msg, std::string channelN
 			it->second->getBufferOut() += my_part_message(com.client->getNickName(), com.client->getUserName(), com.client->getHost(), channelName, msg);
 			fds[clientsIndex].events |= POLLOUT;
 		}
-
 		++it;
 	}
 }
@@ -99,6 +98,14 @@ void	Server::part(s_commands& com)
 
 	while (index < channelsVector.size() && !channelsVector[index].empty())
 	{
+		if (channelsVector[index][0] == '#')
+			channelsVector[index] = channelsVector[index].substr(1);
+		else
+		{
+			com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 403 " + com.client->getNickName() + " " + channelsVector[index] + " :No such nick/channel\r\n";
+			++index;
+			continue ;
+		}
 		channelIndex = getChannelsIndex(channelsVector[index]);
 		if (channelIndex == -1 || channelIndex == 0)
 		{
@@ -128,6 +135,10 @@ void	Server::part(s_commands& com)
 			if (com.client->getOperatorChannels().size() == 0)
 				com.client->setIsOperator(false);
 			com.client->setChannelOfTime(0);
+		}
+		else
+		{
+			com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 442 " + com.client->getNickName() + " :You're not on that channel\r\n";
 		}
 		++index;
 	}
