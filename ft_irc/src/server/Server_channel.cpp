@@ -601,11 +601,7 @@ void	Server::changeChannel(std::string channel, int clientFD, int flag)
 		{
 			channelIndex = getChannelsIndex(channel);
 			if (itc->second->getChannelOfTime() == channelIndex && flag != 1)
-			{
-				itc->second->getBufferOut() += std::string(":") + SERVER_NAME + " 443 " + itc->second->getNickName() + " " + itc->second->getNickName() + " #" + channelName + " :is already on channel" + "\r\n";
-				fds[clientIndex].events |= POLLOUT;
 				return ;
-			}
 			last = channels->find(itc->second->getChannelOfTime());
 			Channel* channelOfficial = itm->second;
 			if (itm->second->getInviteFlag())
