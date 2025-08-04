@@ -56,15 +56,16 @@ void	Server::messageToAllChannels(s_commands& com, std::string& message)
 
 void	Server::quit(s_commands& com)
 {
-	if (com.args.size())
+	if (com.args[0][0] == ':')
 	{
 		std::string line;
-		std::string	message = ":" + com.client->getNickName() + " ";
+		std::string	message;
+		com.args[0] = com.args[0].substr(1);
 
 		for (size_t i = 0; i < com.args.size(); i++)
 			message += com.args[i] + ' ';
 		
-		message += '\n';
+		message = msg_quit(com, message);
 		messageToAllChannels(com, message);
 	}
 	desconect(com);

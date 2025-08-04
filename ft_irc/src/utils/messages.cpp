@@ -229,3 +229,18 @@ std::string	msg_showchannelmodes(s_commands& com, Channel* &target)
 		+ "\r\n"
 	);
 }
+
+std::string	msg_quit(s_commands& com, const std::string &message)
+{
+	return (
+		":"
+		+ com.client->getNickName()
+		+ "!"
+		+ com.client->getUserName()
+		+ "@"
+		+ com.client->getHost()
+		+ " QUIT :"
+		+ message
+		+ "\r\n"
+	);
+}
