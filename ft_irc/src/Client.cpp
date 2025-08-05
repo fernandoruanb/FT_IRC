@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/28 15:02:35 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/08/05 17:44:38 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,4 +219,10 @@ void	Client::addMode(const char c, int index)
 {
 	if (!findMode(mode[index], c))
 		mode[index].push_back(c);
+}
+
+
+void	Client::setOperatorChannels(const std::string& channelName)
+{
+	this->operatorChannels.insert(channelName);
 }

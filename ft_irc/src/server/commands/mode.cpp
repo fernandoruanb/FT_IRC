@@ -131,6 +131,7 @@ void	Server::addUserMode(Client* &target, s_commands &com, std::string &sendBuff
 	if (findMode(target->getMode(currentChannel), 'o'))
 	{
 		target->setIsOperator(true);
+		target->setOperatorChannels(channel->getName());
 		channel->setOperator(target->getClientFD());
 	}
 	sendBuffer.clear();
@@ -253,6 +254,7 @@ static void	caseO(s_commands& com, s_mode& mode)
 	if (!client)
 		return;
 	client->setIsOperator(true);
+	client->setOperatorChannels(mode.target->getName());
 	client->addMode(mode.flag, mode.channelIndex);
 	mode.target->setOperator(client->getClientFD());
 }

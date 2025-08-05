@@ -125,13 +125,13 @@ void	Server::nick(s_commands& com)
 	if (!com.client->getRegistered() && com.client->getUserName() != "*")
 		com.client->setRegistered(true);
 	
-	std::string	message =	oldNick
-								+ "!"
-								+ com.client->getUserName()
-								+ "@"
-								+ com.client->getHost()
-								+ " NICK :"
-								+ com.client->getNickName();
+	std::string	message =	":"
+							+ oldNick
+							+ "!"
+							+ com.client->getUserName()
+							+ "@"
+							+ com.client->getHost()
+							+ " NICK :"
+							+ com.client->getNickName();
 	messageToAllChannels(com, message);
-	
 }

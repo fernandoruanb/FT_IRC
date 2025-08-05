@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:22:05 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/07/28 12:38:18 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/08/05 17:45:48 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ class	Client
 	public:
 		Client(int clientFD);
 		~Client(void);
+		void			setOperatorChannels(const std::string&);
 		void			setChannelOfTime(int channel);
 		void			setNickName(std::string nickname);
 		void			setUserName(std::string username);

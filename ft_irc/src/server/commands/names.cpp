@@ -27,14 +27,16 @@ static std::string	getNames(Channel* channel, s_commands& com, bool canSee)
 static void	showAllNames(s_commands& com, std::map<int, Channel*>* &channels, bool canSee)
 {
 	std::string	names;
-	std::string	prefix;
+	std::string	nick = com.client->getNickName();
+	std::string	channelName;
 
 	std::map<int, Channel*>::iterator it;
 	for (it = channels->begin(); it != channels->end(); it++)
 	{
-			prefix = it->second->getName();
-			names = prefix + ": " + getNames(it->second, com, canSee);
-			com.sendBuffer += "Animais presentes no canal #" + names + "\n";
+			channelName = it->second->getName();
+			names = getNames(it->second, com, canSee);
+			com.sendBuffer += msg_353(nick, channelName, names);
+			com.sendBuffer += msg_366(nick, channelName);
 	}
 }
 
@@ -42,6 +44,7 @@ static void	showChannel(s_commands& com, std::map<int, Channel*>* &channels, boo
 {
 	std::string	channelName = com.args[0].substr(1);
 	Channel	*channel = NULL;
+	std::string	nick = com.client->getNickName();
 
 	std::map<int, Channel*>::iterator it;
 	for (it = channels->begin(); it != channels->end(); it++)
@@ -55,7 +58,9 @@ static void	showChannel(s_commands& com, std::map<int, Channel*>* &channels, boo
 		return (callCmdMsg("No such channel", 401, com, com.sendBuffer));
 	
 	std::string	names = getNames(channel, com, canSee);
-	callCmdMsg(names, 353, com, com.sendBuffer);
+	// callCmdMsg(names, 353, com, com.sendBuffer);
+	com.sendBuffer += msg_353(nick, channelName, names);
+	com.sendBuffer += msg_366(nick, channelName);
 }
 
 /*

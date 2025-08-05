@@ -24,15 +24,15 @@ void	Server::desconect(s_commands& com)
 	this->numClients--;
 }
 
-std::string	trim(std::string& str)
-{
-	size_t	start = str.find_first_not_of(' ');
-	if (start == std::string::npos)
-		return (str);
-	size_t	end = str.find_last_not_of(' ');
+// std::string	trim(std::string& str)
+// {
+// 	size_t	start = str.find_first_not_of(' ');
+// 	if (start == std::string::npos)
+// 		return (str);
+// 	size_t	end = str.find_last_not_of(' ');
 
-	return (str.substr(start, end - start + 1));
-}
+// 	return (str.substr(start, end - start + 1));
+// }
 void	Server::newBroadcastAllChannels(s_commands& com, std::string msg, std::string channelName, bool flag)
 {
 	struct pollfd	(&fds)[1024] = *getMyFds();
@@ -86,7 +86,7 @@ void	Server::messageToAllChannels(s_commands& com, std::string& message)
 		return;
 	std::map<int, Channel*>::iterator	it;
 	std::set<std::string>&	myChannels = com.client->getChannelsSet();
-	message = trim(message) + "\r\n";
+	message += "\r\n";
 
 	for (it = this->channels->begin(); it != this->channels->end(); it++)
 	{
@@ -97,8 +97,8 @@ void	Server::messageToAllChannels(s_commands& com, std::string& message)
 			if (*sit == channel->getName())
 			{
 				// int	index = this->getChannelsIndex(channel->getName());
-				com.sendBuffer += message;
-				this->newBroadcastAllChannels(com, message, channel->getName(), true);
+				// com.sendBuffer += message;
+				this->newBroadcastAllChannels(com, message, channel->getName(), com.command != "NICK");
 				break;
 			}
 	}
