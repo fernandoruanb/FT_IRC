@@ -255,11 +255,32 @@ static void	caseO(s_commands& com, s_mode& mode)
 	Client*	client = getTargetClient(com, com.args[2]);
 	if (!client)
 		return;
-	client->setIsOperator(true);
-	client->setOperatorChannels(mode.target->getName());
-	client->addMode(mode.flag, mode.channelIndex);
-	mode.target->setOperator(client->getClientFD());
-	mode.target->getOperatorsNames();
+	if (mode.sign == '+')
+	{
+		client->setIsOperator(true);
+		client->setOperatorChannels(mode.target->getName());
+		if (!mode.flagFound)
+			client->addMode(mode.flag, mode.channelIndex);
+		mode.target->setOperator(client->getClientFD());
+		mode.target->getOperatorsNames();
+		return;
+	}
+	if (mode.sign == '-' && mode.flagFound)
+	{
+		size_t	pos = mode.currentMode.find(mode.flag);
+
+		mode.currentMode.erase(pos, 1);
+		client->setIsOperator(false);
+
+		std::string	name = mode.target->getName();
+		std::set<std::string>::iterator cpos = client->getOperatorChannels().find(name);
+		client->getOperatorChannels().erase(cpos);
+		
+		std::set<int>::iterator	tpos = mode.target->getOperatorsSet().find(com.client->getClientFD());
+		mode.target->getOperatorsSet().erase(tpos);
+		mode.target->getOperatorsNames();
+		mode.target->addNewMember(client->getClientFD());
+	}
 }
 
 static void	caseI(s_commands& com, s_mode& mode)
