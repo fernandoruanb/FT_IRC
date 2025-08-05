@@ -257,6 +257,7 @@ static void	caseO(s_commands& com, s_mode& mode)
 	client->setOperatorChannels(mode.target->getName());
 	client->addMode(mode.flag, mode.channelIndex);
 	mode.target->setOperator(client->getClientFD());
+	mode.target->getOperatorsNames();
 }
 
 static void	caseI(s_commands& com, s_mode& mode)

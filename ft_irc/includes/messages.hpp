@@ -52,4 +52,4 @@ std::string	msg_quit(s_commands& com, const std::string &message);
 std::string	msg_err_invalidparameter(s_commands& com, Channel*& channel);
 std::string	msg_353(const std::string& nick, const std::string& channelName, const std::string& names);
 std::string	msg_366(const std::string& nick, const std::string& channelName);
-
+std::string	msg_endlist(const std::string& nick);

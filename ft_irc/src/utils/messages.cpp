@@ -283,3 +283,12 @@ std::string	msg_366(const std::string& nick, const std::string& channelName)
 		+ " :End of /NAMES list.\r\n"
 	);
 }
+
+std::string	msg_endlist(const std::string& nick)
+{
+	return (
+		":" SERVER_NAME " 323 "
+		+ nick
+		+ " :End of /LIST\r\n"
+	);
+}

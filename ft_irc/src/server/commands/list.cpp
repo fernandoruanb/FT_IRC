@@ -79,5 +79,5 @@ void	Server::list(s_commands& com)
 		}
 	}
 
-	com.sendBuffer += "E a lista termina aqui\n";
+	com.sendBuffer += msg_endlist(com.client->getNickName());
 }
