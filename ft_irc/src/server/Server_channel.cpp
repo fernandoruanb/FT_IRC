@@ -243,7 +243,7 @@ void	Server::inviteToChannel(std::string channelName, int operatorFD, int client
 	std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE " received an invite to " << YELLOW << channelName << LIGHT_BLUE " channel by " << YELLOW << operatorFD << std::endl;
 }
 
-void	Server::changeTopic(std::string channelName, int clientFD, std::string topic)
+void	Server::changeTopic(s_commands& com, std::string channelName, int clientFD, std::string topic)
 {
 	channelName = getLower(channelName);
 	std::map<int, Channel*>* channels = getChannelsMap();
@@ -313,9 +313,11 @@ void	Server::changeTopic(std::string channelName, int clientFD, std::string topi
 	nick = itc->second->getNickName();
 	user = itc->second->getUserName();
 	host = itc->second->getHost();
+	std::string msgEveryone = std::string(":") + nick + "!" + user + "@" + host + " TOPIC " + "#" + channelName + " :" + topic + "\r\n"; 
 	it->second->setOwnerTopic(nick);
 	std::cout << LIGHT_BLUE "The topic of the channel " << YELLOW << it->second->getName() << LIGHT_BLUE " changed to " << YELLOW << topic << RESET << std::endl;
 	messageTarget = getClientsIndex(clientFD);
+	newBroadcastAllChannels(com, msgEveryone, channelName, true);
 	itc->second->getBufferOut() += my_topic_message(nick, user, host, channelName, topic);
 	fds[messageTarget].events |= POLLOUT;
 }

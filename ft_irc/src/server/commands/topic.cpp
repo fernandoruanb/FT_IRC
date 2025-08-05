@@ -46,7 +46,7 @@ void	Server::topic(s_commands& com)
 				topic += " ";
 			++index;
 		}
-		changeTopic(channel, com.fd, topic);
+		changeTopic(com, channel, com.fd, topic);
 		fds[com.index].events |= POLLOUT;
 		return ;
 	}
