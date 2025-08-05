@@ -62,11 +62,7 @@ void    Server::broadcast(int sender, std::string line, int targetChannel)
 			targetChannelName = (*channels)[targetChannel]->getName();
 			if (checkCompatibility(fds[sender].fd, fds[index].fd, targetChannelName))
 			{
-				std::cout << "A mensagem do owner: " << line << std::endl;
-				(*clients)[fds[index].fd]->getBufferOut() += this->sendBuffer[sender] + " " + it->second->getNickName() + " #" + targetChannelName + " :" + line;
-				std::cout << ORANGE "ownerChannelName: " << ownerChannelName << std::endl;
-				std::cout << BRIGHT_GREEN "clientChannelName: " << clientChannelName << RESET << std::endl;
-				std::cout << "The History: " << (*clients)[fds[index].fd]->getSendHistory()[ownerChannel] << std::endl;
+				(*clients)[fds[index].fd]->getBufferOut() += this->sendBuffer[sender]  + " #" + targetChannelName + " :" + line;
 				fds[index].events |= POLLOUT;
 			}
 		}
