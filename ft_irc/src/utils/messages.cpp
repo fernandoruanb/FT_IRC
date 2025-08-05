@@ -96,7 +96,7 @@ std::string	my_notice_error(const std::string& nickname, const std::string& mess
 
 std::string	my_kick_message(const std::string& nickname, const std::string& username, const std::string& hostname, const std::string& message, const std::string& target, const std::string& channel)
 {
-	return (":" + nickname + "!" + username + "@" + hostname + " KICK " + "#" + channel + " " + target + " : " + message + "\r\n");
+	return (":" + nickname + "!" + username + "@" + hostname + " KICK " + "#" + channel + " " + target + " :" + message + "\r\n");
 }
 
 std::string	my_invite_message(const std::string& nickname, const std::string& username, const std::string& hostname, const std::string& target, const std::string& channel)
