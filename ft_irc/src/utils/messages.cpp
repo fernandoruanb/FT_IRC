@@ -292,3 +292,16 @@ std::string	msg_endlist(const std::string& nick)
 		+ " :End of /LIST\r\n"
 	);
 }
+
+std::string	msg_showtopic(const std::string& channelName, const std::string& size, const std::string& topic)
+{
+	return (
+		"#"
+		+ channelName
+		+ " "
+		+ size
+		+ ": "
+		+ topic
+		+ "\r\n"
+	);
+}

@@ -67,13 +67,7 @@ void	Server::list(s_commands& com)
 				std::stringstream ss;
 				ss << getChannelSize(target);
 
-				com.sendBuffer += "#"
-					+ target->getName()
-					+ " "
-					+ ss.str()
-					+ ": "
-					+ target->getTopic()
-					+ "\n";
+				com.sendBuffer += msg_showtopic(target->getName(), ss.str(), target->getTopic());
 				break;
 			}
 		}

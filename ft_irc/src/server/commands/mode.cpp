@@ -206,7 +206,7 @@ static void	caseL(s_commands& com, s_mode& mode)
 		com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), mode.target->getName(), "You're not channel operator");
 		return;
 	}
-	if (mode.sign == '+' && !mode.flagFound)
+	if (mode.sign == '+')
 	{
 		if (mode.len != 3)
 		{
@@ -222,7 +222,8 @@ static void	caseL(s_commands& com, s_mode& mode)
 			com.sendBuffer += msg_err_invalidparameter(com, mode.target);
 			return;
 		}
-		mode.currentMode += mode.flag;
+		if (!mode.flagFound)
+			mode.currentMode += mode.flag;
 		mode.target->setUserLimit(limit);
 		return;
 	}
