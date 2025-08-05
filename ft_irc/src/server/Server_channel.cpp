@@ -433,7 +433,7 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD, std::
 		itm->second->getMembersSet().erase(itch->first);
 		if (itch->second->getOperatorChannels().size() == 0)
 			itch->second->setIsOperator(false);
-		this->changeChannel("generic", itch->first, 0);
+		this->changeChannel("generic", itch->first, 2);
 	}
 	std::cout << LIGHT_BLUE "The client " << YELLOW << clientFD << LIGHT_BLUE " has been kicked by " << YELLOW << owner << LIGHT_BLUE " and lost all privileges coming back to " << YELLOW "generic" << LIGHT_BLUE " Channel" RESET << std::endl;
 	messageTarget = getClientsIndex(clientFD);
@@ -610,6 +610,7 @@ void	Server::changeChannel(std::string channel, int clientFD, int flag)
 				if (!theKing && itc->second->getInviteChannels().find(channelName) == itc->second->getInviteChannels().end())
 				{
 					std::cerr << RED "Error: The client " << YELLOW << itc->first << RED " doesn't have the invite necessary to change to this channel " << YELLOW << channelName <<  RESET << std::endl;
+					itc->second->getBufferOut() += std::string(":") + SERVER_NAME + " 473 " + itc->second->getNickName() + " " + itm->second->getName() + " :Cannot join channel (+i)\r\n";
 					return ;
 				}
 			}
