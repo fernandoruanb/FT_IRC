@@ -307,3 +307,13 @@ std::string	msg_showtopic(const std::string& channelName, const std::string& siz
 		+ "\r\n"
 	);
 }
+std::string	msg_badchannelkey(const std::string& nick, const std::string& channelName)
+{
+	return (
+		":" SERVER_NAME " 475 "
+		+ nick
+		+ " #"
+		+ channelName
+		+ " :Cannot join channel (+k)\r\n"
+	);
+}

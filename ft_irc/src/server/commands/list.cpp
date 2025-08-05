@@ -29,19 +29,6 @@ static void	showEverybody(s_commands& com, std::map<int, Channel*>* &channels)
 	com.sendBuffer += msg_endlist(com.client->getNickName());;
 }
 
-/*
-	Lista os canais, numero de usuarios e topico(se tiver)
-		LIST
-		#canal1 15: topico
-		#canal2 2: topico
-		Fim da lista
-	
-	Tambem podemos limitar a listar os canais visiveis
-		LIST #canal1,#canal2
-			#canal1 15: topico
-			#canal2 2: topico
-			Fim da lista
-*/
 void	Server::list(s_commands& com)
 {
 	if (com.args.size() == 0)

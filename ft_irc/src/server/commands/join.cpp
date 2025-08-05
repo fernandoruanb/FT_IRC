@@ -86,7 +86,7 @@ void	Server::join(s_commands& com)
 		{
 			if (!validPass(currentChannel, passArgs[i]))
 			{
-				com.sendBuffer += "Senha invalida\n";
+				com.sendBuffer += msg_badchannelkey(com.client->getNickName(), currentChannel->getName());
 				continue;
 			}
 		}
@@ -95,7 +95,7 @@ void	Server::join(s_commands& com)
 			if (!passArgs.empty() &&  firstPass == passArgs[passIndex])
 				changeChannel(firstChannel->getName(), com.fd, 1);
 			else
-				com.sendBuffer += "Senha invalida do canal " + firstChannel->getName() + "\n";
+				com.sendBuffer += msg_badchannelkey(com.client->getNickName(), currentChannel->getName());
 			return;
 		}
 		if (currentChannel->isMemberOfChannel(com.fd))
@@ -107,11 +107,5 @@ void	Server::join(s_commands& com)
 			else
 				changeChannel(currentChannel->getName(), com.fd, 1);
 		}
-
-		std::cout << "Membros do " + currentChannel->getName() + ": " + currentChannel->getClientsNames() << std::endl;
 	}
-
-	std::cout << "Membros do " + firstChannel->getName() + ": " + firstChannel->getClientsNames() << std::endl;
-	// changeChannel(firstChannel->getName(), com.fd, 0);
-	std::cout << "Membros do " + firstChannel->getName() + ": " + firstChannel->getClientsNames() << std::endl;
 }
