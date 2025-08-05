@@ -155,6 +155,7 @@ static void	caseT(s_commands& com, s_mode& mode)
 	if (mode.sign == '-' && mode.flagFound)
 	{
 		size_t	pos = mode.currentMode.find(mode.flag);
+		mode.target->setTopicFlag(false);
 		mode.currentMode.erase(pos, 1);
 	}
 }

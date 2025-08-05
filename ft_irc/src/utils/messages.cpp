@@ -293,14 +293,16 @@ std::string	msg_endlist(const std::string& nick)
 	);
 }
 
-std::string	msg_showtopic(const std::string& channelName, const std::string& size, const std::string& topic)
+std::string	msg_showtopic(const std::string& channelName, const std::string& size, const std::string& topic, const std::string& nick)
 {
 	return (
-		"#"
+		":" SERVER_NAME " 322 "
+		+ nick
+		+ " #"
 		+ channelName
 		+ " "
 		+ size
-		+ ": "
+		+ " :"
 		+ topic
 		+ "\r\n"
 	);

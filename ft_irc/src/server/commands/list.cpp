@@ -22,17 +22,11 @@ static void	showEverybody(s_commands& com, std::map<int, Channel*>* &channels)
 			std::stringstream ss;
 			ss << getChannelSize(target);
 
-			com.sendBuffer += "#"
-				+ target->getName()
-				+ " "
-				+ ss.str()
-				+ ": "
-				+ target->getTopic()
-				+ "\n";
+			com.sendBuffer += msg_showtopic(target->getName(), ss.str(), target->getTopic(), com.client->getNickName());
 		}
 	}
 
-	com.sendBuffer += "E acabou\n";
+	com.sendBuffer += msg_endlist(com.client->getNickName());;
 }
 
 /*
@@ -67,7 +61,7 @@ void	Server::list(s_commands& com)
 				std::stringstream ss;
 				ss << getChannelSize(target);
 
-				com.sendBuffer += msg_showtopic(target->getName(), ss.str(), target->getTopic());
+				com.sendBuffer += msg_showtopic(target->getName(), ss.str(), target->getTopic(), com.client->getNickName());
 				break;
 			}
 		}
