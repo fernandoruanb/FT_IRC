@@ -423,7 +423,6 @@ void	Server::kickFromChannel(std::string channel, int owner, int clientFD, std::
 	host = own->second->getHost();
 	target = itch->second->getNickName();
 	itm->second->removeMember(itch->first);
-	std::cout << "kick " << itm->second->getMembersNum() << std::endl;
 	if (itm->second->getMembersNum() == 0)
 		deleteChannel(itm->second->getName(), itch->first);
 	else

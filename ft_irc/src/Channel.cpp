@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:36:43 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/01 18:13:18 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/08/05 20:03:26 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,7 +115,6 @@ void	Channel::addNewMember(int clientFD)
 	this->members.insert(clientFD);
 	this->getOperatorsNames();
 	membersNum = this->getOperatorsSet().size() + this->getMembersSet().size();
-	std::cout << "AddNewMember " << membersNum << std::endl;
 }
 
 void	Channel::removeMember(int clientFD)
@@ -126,7 +125,6 @@ void	Channel::removeMember(int clientFD)
 	this->getOperatorsSet().erase(clientFD);
 	this->getOperatorsNames();
 	membersNum = this->getOperatorsSet().size() + this->getMembersSet().size();
-	std::cout << "removeMember " << membersNum << std::endl;
 }
 
 Channel::Channel(std::string name): name(name), topic("We love IRC"), userLimit(1024), membersNum(0), inviteFlag(false), topicFlag(false)
