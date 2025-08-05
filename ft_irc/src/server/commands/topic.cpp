@@ -50,4 +50,6 @@ void	Server::topic(s_commands& com)
 		fds[com.index].events |= POLLOUT;
 		return ;
 	}
+	else
+		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 403 " + com.client->getNickName() + " " + com.args[0] + " :No such nick/channel\r\n";
 }
