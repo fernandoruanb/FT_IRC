@@ -259,6 +259,7 @@ std::string	msg_err_invalidparameter(s_commands& com, Channel*& channel)
 		+ " :Invalid user limit\r\n"
 	);
 }
+
 std::string	msg_353(const std::string& nick, const std::string& channelName, const std::string& names)
 {
 	return (

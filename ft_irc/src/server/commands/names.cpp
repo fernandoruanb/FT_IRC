@@ -55,7 +55,10 @@ static void	showChannel(s_commands& com, std::map<int, Channel*>* &channels, boo
 		}
 
 	if (!channel)
-		return (callCmdMsg("No such channel", 401, com, com.sendBuffer));
+	{
+		com.sendBuffer += my_nosuchnickchannel(nick, channelName);
+		return;
+	}
 	
 	std::string	names = getNames(channel, com, canSee);
 	// callCmdMsg(names, 353, com, com.sendBuffer);
