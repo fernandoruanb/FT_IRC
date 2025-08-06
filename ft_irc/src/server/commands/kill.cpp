@@ -89,7 +89,7 @@ void	Server::kill(s_commands& com)
 	struct pollfd (&fds)[1024] = *getMyFds();
 	std::map<int, Client*>* clients = getClientsMap();
 	std::string	nick = com.args[0];
-	std::string	message = "ERROR: You have been killed by " + com.client->getNickName() + " : ";
+	std::string	message = "ERROR: You have been killed by " + com.client->getNickName() + " :";
 	int	clientFD;
 
 	if (com.args[1][0] != ':')
