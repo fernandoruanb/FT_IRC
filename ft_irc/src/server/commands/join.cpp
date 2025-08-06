@@ -103,9 +103,9 @@ void	Server::join(s_commands& com)
 				changeChannel(currentChannel->getName(), com.fd, 2);
 			else
 			{
-				std::string messageToEveryone = std::string(":") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " JOIN :" +  "#" + currentChannel->getName() + "\r\n";
-				changeChannel(currentChannel->getName(), com.fd, 1);
+				std::string messageToEveryone = std::string(":") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " JOIN " +  "#" + currentChannel->getName() + "\r\n";
 				newBroadcastAllChannels(com, messageToEveryone, currentChannel->getName(), true);
+				changeChannel(currentChannel->getName(), com.fd, 1);
 			}
 		}
 	}

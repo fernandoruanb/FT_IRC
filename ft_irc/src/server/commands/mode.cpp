@@ -300,7 +300,7 @@ void	Server::addChannelMode(s_commands &com, Channel* &target, int channelIndex)
 
 	if (target->getName() == "Generic" || !findMode(mode, 'o'))
 	{
-		com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), "Generic", "You're not channel operator");
+		com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), target->getName(), "You're not channel operator");
 		return;
 	}
 	size_t		len = com.args.size();
