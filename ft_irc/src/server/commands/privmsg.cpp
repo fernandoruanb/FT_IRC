@@ -76,7 +76,10 @@ void	Server::privmsg(s_commands& com)
 	int	clientFD;
 
 	if (com.args.size() < 2)
+	{
+		this->sendBuffer[com.index] += std::string(":") + SERVER_NAME + " 461 " + com.client->getNickName() + " PRIVMSG " + ":Not enough parameters\r\n";
 		return ;
+	}
 
 	if (channelsVector.empty() && clientsVector.empty())
 		return ;

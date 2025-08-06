@@ -51,10 +51,13 @@ void	Server::join(s_commands& com)
 	std::vector<std::string>	passArgs;
 
 	if (com.args.size() < 1)
+	{
+		this->sendBuffer[com.index] += std::string(":") + SERVER_NAME + " 461 " + com.client->getNickName() + " JOIN " + ":Not enough parameters\r\n";
 		return ;
+	}
 	if (com.args[0].empty() || com.args[0][0] != '#')
 	{
-		this->sendBuffer[com.index] += msg_err_nosuchchannel(com.client->getNickName(), com.args[0]);
+		this->sendBuffer[com.index] += std::string(":") + SERVER_NAME + " 403 " + com.client->getNickName() + " " + com.args[0] + " :No such nick/channel\r\n";
 		return ;
 	}
 
