@@ -14,12 +14,25 @@ static std::string	getNames(Channel* channel, s_commands& com, bool canSee)
 		std::map<int, Client*>::iterator	cit = com.clients->find(fd);
 		if (cit != com.clients->end())
 			client = cit->second;
-		
-		if (client && (canSee || !findMode(client->getMode(com.client->getChannelOfTime()), 'i')))
+		(void)canSee;
+		if (client && (!client->getIsInvisible()))
 			result += client->getNickName() + " ";
 	}
+	
+	std::set<int>	operators = channel->getOperatorsSet();
+	std::set<int>::const_iterator	oit;
+	for (oit = operators.begin(); oit != operators.end(); oit++)
+	{
+		int fd = *it;
+		Client*	client = NULL;
 
-	result += channel->getOperatorsNames();
+		std::map<int, Client*>::iterator	cit = com.clients->find(fd);
+		if (cit != com.clients->end())
+			client = cit->second;
+	
+		if (client && (!client->getIsInvisible()))
+			result += client->getNickName() + " ";
+	}
 
 	return (result);
 }
@@ -69,7 +82,6 @@ void	Server::names(s_commands& com)
 {
 	bool	canSee = (
 		this->isKing(com.client->getClientFD())
-		|| findMode(com.client->getMode(com.client->getChannelOfTime()), 'o')
 	);
 
 	if (com.args.empty())

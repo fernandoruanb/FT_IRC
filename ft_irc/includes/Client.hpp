@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jonas <jonas@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:22:05 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/05 17:45:48 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/08/06 17:27:06 by jonas            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@ class	Client
 		std::string		bufferOut;
 		std::string		host;
 		std::string		serverName;
+		bool			isInvisible;
+		char			globalModes;
 		// std::string		mode;
 		std::map<int, std::string>	mode;
 		Client(const Client &other);
@@ -48,6 +50,8 @@ class	Client
 	public:
 		Client(int clientFD);
 		~Client(void);
+		bool			getIsInvisible(void) const;
+		void			setIsInvisible(bool);
 		void			setOperatorChannels(const std::string&);
 		void			setChannelOfTime(int channel);
 		void			setNickName(std::string nickname);
@@ -60,7 +64,7 @@ class	Client
 		void			setHost(std::string host);
 		void			setServerName(const std::string&);
 		void			setMode(const std::string&, int channelFd);
-		const std::string	&getMode(int index) const;
+		const std::string	getMode(int index) const;
 		void			addMode(const char c, int index);
 		// void			setMode(const std::string&);
 		// const std::string&		getMode(void) const;
