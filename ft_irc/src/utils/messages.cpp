@@ -41,7 +41,7 @@ std::string msg_err_unknowncommand(const std::string& cmd) {
 }
 
 std::string msg_err_nosuchchannel(const std::string& nick, const std::string& channel) {
-    return ":" SERVER_NAME " 403 " + nick + " #" + channel + " :No such channel\r\n";
+    return ":" SERVER_NAME " 403 " + nick + " #" + channel + " :No such nick/channel\r\n";
 }
 
 std::string msg_err_notonchannel(const std::string& nick, const std::string& channel) {
