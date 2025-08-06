@@ -41,6 +41,7 @@ SRCS =	utils/messages.cpp \
 		server/commands/quit.cpp \
 		server/commands/topic.cpp \
 		server/commands/ping.cpp \
+		server/commands/who.cpp \
 		server/Server_broadcast.cpp \
 		server/Server_channel.cpp \
 		server/Server_getters.cpp \

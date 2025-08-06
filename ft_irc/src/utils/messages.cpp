@@ -317,3 +317,7 @@ std::string	msg_badchannelkey(const std::string& nick, const std::string& channe
 		+ " :Cannot join channel (+k)\r\n"
 	);
 }
+
+std::string msg_err_nosuchnick(const std::string& nick, const std::string& target) {
+    return ":" SERVER_NAME " 401 " + nick + " " + target + " :No such nick/channel\r\n";
+}

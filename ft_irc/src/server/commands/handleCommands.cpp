@@ -28,6 +28,7 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	myMap["TOPIC"] = &Server::topic;
 	myMap["CAP"] = &Server::cap;
 	myMap["WHOIS"] = &Server::whois;
+	myMap["WHO"] = &Server::who;
 
 	size_t	j;
 	for (j = 0; j < buffer.size(); j++)

@@ -55,3 +55,4 @@ std::string	msg_366(const std::string& nick, const std::string& channelName);
 std::string	msg_endlist(const std::string& nick);
 std::string	msg_showtopic(const std::string& channelName, const std::string& size, const std::string& topic, const std::string& nick);
 std::string	msg_badchannelkey(const std::string& nick, const std::string& channelName);
+std::string msg_err_nosuchnick(const std::string& nick, const std::string& target);

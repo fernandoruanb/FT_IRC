@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jonas <jonas@student.42.fr>                +#+  +:+       +#+        */
+/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/06 15:41:28 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/08/06 16:01:06 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,6 +159,7 @@ class	Server
 		void	pass(s_commands&);
 		void	privmsg(s_commands&);
 		void	quit(s_commands&);
+		void 	who(s_commands& com);
 		void	messageToAllChannels(s_commands&, std::string&);
 		void	desconect(s_commands&);
 		void	addUserMode(Client* &target, s_commands &com, std::string &sendBuffer, std::map<int, Channel*>* &channels);
