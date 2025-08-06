@@ -50,7 +50,8 @@ static void whoChannel(s_commands& com, const std::string& targetChannel, std::m
 	}
 	
 	if (!channel) {
-		com.sendBuffer += msg_err_nosuchchannel(com.client->getNickName(), targetChannel);
+		com.sendBuffer += msg_err_nosuchchannel(com.client->getNickName(), "#" + targetChannel);
+		std::cout << RED "Channel not found: " RESET << targetChannel << std::endl; // DEBUG
 		return;
 	}
 	
@@ -65,15 +66,21 @@ static void whoChannel(s_commands& com, const std::string& targetChannel, std::m
 	}
 	
 	if (!isInChannel) {
-		com.sendBuffer += msg_err_notonchannel(com.client->getNickName(), targetChannel);
+		com.sendBuffer += msg_err_notonchannel(com.client->getNickName(), "#" + targetChannel);
+		std::cout << RED "Client not in channel: " RESET << targetChannel << std::endl; // DEBUG
 		return;
 	}
 	
 	// Obter membros do canal - seguindo padrão do names.cpp
 	std::set<int> members = channel->getMembersSet();
-	
+	std::set<int> operators = channel->getOperatorsSet();
+
+	std::cout << YELLOW "DEBUG: Channel members count: " RESET << members.size() << std::endl; // DEBUG
+	std::cout << YELLOW "DEBUG: Channel operators count: " RESET << operators.size() << std::endl; // DEBUG
+
 	std::set<int>::const_iterator mit;
 	for (mit = members.begin(); mit != members.end(); ++mit) {
+		std::cout << "DEBUG: Iterating member fd: " << *mit << std::endl; // DEBUG
 		int fd = *mit;
 		Client* member = NULL;
 		
@@ -90,18 +97,53 @@ static void whoChannel(s_commands& com, const std::string& targetChannel, std::m
 				flags += "@";
 			}
 			
-			// Resposta 352 (RPL_WHOREPLY)
-			com.sendBuffer += ":" SERVER_NAME " 352 " + com.client->getNickName() 
+			//debug 
+			std::string msg = ":" SERVER_NAME " 352 " + com.client->getNickName() 
 							+ " #" + targetChannel + " " + member->getUserName() 
 							+ " " + member->getHost() + " " SERVER_NAME " " 
 							+ member->getNickName() + " " + flags + " :0 " 
 							+ member->getRealName() + "\r\n";
+
+			std::cout << msg;
+			com.sendBuffer += msg;
+
+			// Resposta 352 (RPL_WHOREPLY)
+			// com.sendBuffer += ":" SERVER_NAME " 352 " + com.client->getNickName() 
+			// 				+ " #" + targetChannel + " " + member->getUserName() 
+			// 				+ " " + member->getHost() + " " SERVER_NAME " " 
+			// 				+ member->getNickName() + " " + flags + " :0 " 
+			// 				+ member->getRealName() + "\r\n";
 		}
 	}
-	
-	// Resposta 315 (RPL_ENDOFWHO)
-	com.sendBuffer += ":" SERVER_NAME " 315 " + com.client->getNickName() 
-					+ " #" + targetChannel + " :End of WHO list\r\n";
+
+    // ITERAR PELOS OPERADORES
+    std::set<int>::const_iterator oit;
+    for (oit = operators.begin(); oit != operators.end(); ++oit) {
+        std::cout << "DEBUG: Iterating operator fd: " << *oit << std::endl;
+        int fd = *oit;
+        Client* op = NULL;
+        
+        std::map<int, Client*>::iterator cit = com.clients->find(fd);
+        if (cit != com.clients->end())
+            op = cit->second;
+        
+        if (op) {
+            std::string flags = "H@"; // Operador com @
+            
+            std::string msg = ":" SERVER_NAME " 352 " + com.client->getNickName() 
+                            + " #" + targetChannel + " " + op->getUserName() 
+                            + " " + op->getHost() + " " SERVER_NAME " " 
+                            + op->getNickName() + " " + flags + " :0 " 
+                            + op->getRealName() + "\r\n";
+
+            std::cout << msg;
+            com.sendBuffer += msg;
+        }
+    }
+    
+    // Resposta 315 (RPL_ENDOFWHO)
+    com.sendBuffer += ":" SERVER_NAME " 315 " + com.client->getNickName() 
+                    + " #" + targetChannel + " :End of WHO list\r\n";
 }
 
 
@@ -112,7 +154,7 @@ void Server::who(s_commands& com) {
 	}
 	std::string target = com.args[0];
 	if (target[0] == '#') {
-		whoChannel(com, target, this->channels);
+		whoChannel(com, target.substr(1), this->channels);
 	} else {
 		whoUser(com, target);
 	}
