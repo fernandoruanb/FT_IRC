@@ -6,7 +6,7 @@
 /*   By: jonas <jonas@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/05 17:25:36 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/08/06 15:41:28 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,6 +139,7 @@ class	Server
 		void	tryRegister(s_commands& com);
 		
 		//Commands
+		void    whois(s_commands& com);
 		void	user(s_commands&);
 		bool	handleCommands(std::map<int, Client*>* &clients, std::string& buffer, int fd, int i);
 		void    cap(s_commands& com);
