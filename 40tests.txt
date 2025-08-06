@@ -1,0 +1,242 @@
+A seguir, 40 cenários de teste para o **ft\_irc**, cobrindo registro, comandos básicos, operações de canal, modos, tópicos e KICK. Ao passar em todos eles, seu servidor atende aos requisitos mandatórios e está pronto para entrega.
+
+---
+
+### 1–8. Registro e Nicks
+
+1. **PRIVMSG antes de registrar**
+
+   * **Procedimento:** Conectar via TCP e enviar `PRIVMSG #X :oi` sem `NICK`/`USER`.
+   * **Esperado:** `451 ERR_NOTREGISTERED PRIVMSG :You have not registered`
+
+2. **JOIN sem registrar**
+
+   * **Proc.:** `JOIN #X` sem `NICK`/`USER`.
+   * **Esp.:** `451 ERR_NOTREGISTERED JOIN :You have not registered`
+
+3. **Só NICK, sem USER**
+
+   * **Proc.:** `NICK foo` → `JOIN #X`.
+   * **Esp.:** `451 ERR_NOTREGISTERED JOIN :You have not registered`
+
+4. **Só USER, sem NICK**
+
+   * **Proc.:** `USER a b c :d` → `JOIN #X`.
+   * **Esp.:** `451 ERR_NOTREGISTERED JOIN :You have not registered`
+
+5. **Registro válido**
+
+   * **Proc.:** `NICK foo` + `USER a b c :d`.
+   * **Esp.:** Receber `001 RPL_WELCOME`, `002 RPL_YOURHOST`, etc., sem erro.
+
+6. **Colisão de nick**
+
+   * **Proc.:** Cliente1 registra `NICK bar`; Cliente2 registra `NICK bar`.
+   * **Esp.:** Cliente2 recebe `433 ERR_NICKNAMEINUSE bar :Nickname is already in use`
+
+7. **Mudança de nick válida**
+
+   * **Proc.:** Após registro, enviar `NICK baz`.
+   * **Esp.:** Broadcast `:bar!user@host NICK baz`
+
+8. **Nick inválido**
+
+   * **Proc.:** `NICK !@#`.
+   * **Esp.:** `432 ERR_ERRONEUSNICKNAME !@# :Erroneous nickname`
+
+---
+
+### 9–18. JOIN / PART / PRIVMSG em canal
+
+9. **JOIN único canal**
+
+   * **Proc.:** `JOIN #One`.
+   * **Esp.:**
+
+     ```
+     :foo!u@h JOIN :#One
+     :server 353 foo = #One :foo
+     :server 366 foo #One :End of /NAMES list.
+     ```
+
+10. **JOIN múltiplos canais**
+
+    * **Proc.:** `JOIN #A,#B`.
+    * **Esp.:** Fluxo de JOIN/353/366 para cada canal, na ordem.
+
+11. **JOIN em canal já no qual está**
+
+    * **Proc.:** em `#One`, `JOIN #One`.
+    * **Esp.:** `443 ERR_USERONCHANNEL foo #One :is already on channel`
+    Obs.: Grandes servidores como irc.libera.chat apenas ignoram o comando do JOIN quando percebem que já se está no canal. O nosso servidor adota o mesmo comportamento.
+
+12. **JOIN canal sem “#”**
+
+    * **Proc.:** `JOIN One`.
+    * **Esp.:** `403 ERR_NOSUCHCHANNEL One :No such channel`
+
+13. **PART de canal registrado**
+
+    * **Proc.:** `JOIN #X`; depois `PART #X`.
+    * **Esp.:**
+
+      ```
+      :foo!u@h PART #X
+      ```
+
+      e o canal é apagado se vazio.
+
+14. **PART sem parâmetros**
+
+    * **Proc.:** `PART`.
+    * **Esp.:** `461 ERR_NEEDMOREPARAMS PART :Not enough parameters`
+
+15. **PART em canal não membro**
+
+    * **Proc.:** `PART #Y` (não entrou).
+    * **Esp.:** `442 ERR_NOTONCHANNEL foo #Y :You're not on that channel`
+
+16. **Remoção de canal vazio**
+
+    * **Proc.:** `JOIN #Temp`; `PART #Temp`.
+    * **Esp.:** Internamente, `#Temp` sai do map de canais.
+
+17. **PRIVMSG para canal**
+
+    * **Proc.:** em `#Chat`, `PRIVMSG #Chat :oi`.
+    * **Esp.:** Outros clientes em `#Chat` recebem `:foo!u@h PRIVMSG #Chat :oi`
+
+18. **PRIVMSG para canal não membro**
+
+    * **Proc.:** `PRIVMSG #No :oi`.
+    * **Esp.:** `404 ERR_CANNOTSENDTOCHAN foo #No :Cannot send to channel`
+
+---
+
+### 19–22. Mensagens privadas e NOTICE
+
+19. **PRIVMSG para usuário existente**
+
+    * **Proc.:** Usuário1 envia `PRIVMSG user2 :hello`.
+    * **Esp.:** `:user1!u@h PRIVMSG user2 :hello` chega em user2.
+
+20. **PRIVMSG para usuário inexistente**
+
+    * **Proc.:** `PRIVMSG nobody :hi`.
+    * **Esp.:** `401 ERR_NOSUCHNICK foo nobody :No such nick/channel`
+
+21. **NOTICE em canal**
+
+    * **Proc.:** `NOTICE #One :msg`.
+    * **Esp.:** Broadcast `:foo!u@h NOTICE #One :msg` sem erro de falta de parâmetros.
+
+22. **NOTICE para usuário inexistente**
+
+    * **Proc.:** `NOTICE nobody :msg`.
+    * **Esp.:** **Nenhum erro** (NOTICE suprime erro de destino ausente).
+
+---
+
+### 23–30. Modos de canal (MODE)
+
+23. **MODE +i (invite-only)**
+
+    * **Proc.:** Operador faz `MODE #X +i`; outro tenta `JOIN #X`.
+    * **Esp.:** `473 ERR_INVITEONLYCHAN foo #X :Cannot join channel (+i)`
+
+24. **MODE -i (remove invite-only)**
+
+    * **Proc.:** `MODE #X -i`; JOIN novamente.
+    * **Esp.:** Entra normalmente.
+
+25. **MODE +t (tópico só operador)**
+
+    * **Proc.:** `MODE #X +t`; user não-op faz `TOPIC #X :t`.
+    * **Esp.:** `482 ERR_CHANOPRIVSNEEDED foo #X :You're not channel operator`
+
+26. **MODE -t (libera tópico)**
+
+    * **Proc.:** `MODE #X -t`; non-op faz `TOPIC #X :t2`.
+    * **Esp.:** Broadcast `:foo!u@h TOPIC #X :t2`
+
+27. **MODE +k (key)**
+
+    * **Proc.:** `MODE #X +k secret`; outro faz `JOIN #X secret`.
+    * **Esp.:** Entra normalmente; sem key → `475 ERR_BADCHANNELKEY`.
+
+28. **MODE -k (remove key)**
+
+    * **Proc.:** `MODE #X -k`; JOIN sem key.
+    * **Esp.:** Entra normalmente.
+
+29. **MODE +l (limit)**
+
+    * **Proc.:** `MODE #X +l 1`; segundo user tenta JOIN.
+    * **Esp.:** `471 ERR_CHANNELISFULL foo #X :Cannot join channel (limit)`
+
+30. **MODE -l (remove limit)**
+
+    * **Proc.:** `MODE #X -l`; JOIN do segundo user.
+    * **Esp.:** Entra normalmente.
+
+31. **MODE +o (grant op)**
+
+    * **Proc.:** Operador faz `MODE #X +o user2`.
+    * **Esp.:** Broadcast `:foo!u@h MODE #X +o user2`
+
+32. **MODE -o (remove op)**
+
+    * **Proc.:** `MODE #X -o user2`.
+    * **Esp.:** Broadcast `:foo!u@h MODE #X -o user2`
+
+---
+
+### 33–36. Tópico (TOPIC)
+
+33. **Ver tópico ausente**
+
+    * **Proc.:** `TOPIC #X` sem topic.
+    * **Esp.:** `331 RPL_NOTOPIC foo #X :No topic is set`
+
+34. **Setar tópico como operador**
+
+    * **Proc.:** `TOPIC #X :Bem-vindos`.
+    * **Esp.:** Broadcast `:foo!u@h TOPIC #X :Bem-vindos`
+
+35. **Setar tópico sem permissão (+t)**
+
+    * **Proc.:** `MODE #X +t`; non-op faz `TOPIC #X :x`.
+    * **Esp.:** `482 ERR_CHANOPRIVSNEEDED foo #X :You're not channel operator`
+
+36. **Ver tópico após set**
+
+    * **Proc.:** `TOPIC #X`.
+    * **Esp.:** `332 RPL_TOPIC foo #X :Bem-vindos`
+
+---
+
+### 37–40. KICK
+
+37. **KICK simples**
+
+    * **Proc.:** Dois users em `#X`; op faz `KICK #X user2 :bye`.
+    * **Esp.:** Broadcast `:foo!u@h KICK #X user2 :bye`
+
+38. **KICK múltiplos**
+
+    * **Proc.:** `KICK #X user1,user2 :motivo`.
+    * **Esp.:** Ambos user1 e user2 removidos, um KICK broadcast para cada.
+
+39. **KICK auto (self-kick)**
+
+    * **Proc.:** Operador faz `KICK #X foo`.
+    * **Esp.:** `400 ERR_UNKNOWNERROR foo KICK :Cannot kick yourself`
+
+40. **KICK usuário inexistente**
+
+    * **Proc.:** `KICK #X nobody :motivo`.
+    * **Esp.:** `401 ERR_NOSUCHNICK foo nobody :No such nick/channel`
+
+---
+
+💡 Com esses 40 testes você cobre **todas** as funcionalidades obrigatórias do `ft_irc`. Quando todos passarem, seu servidor está pronto para submissão.
