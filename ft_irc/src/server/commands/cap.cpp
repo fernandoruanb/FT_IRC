@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cap.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fruan-ba <fruan-ba@student.42.fr>          +#+  +:+       +#+        */
+/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/04 10:58:40 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/04 10:58:40 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/08/06 14:55:18 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,6 @@ void	Server::cap(s_commands& com)
 	{
 		if (com.args.size() > 1 && com.args[1] == "302")
 		{
-			//com.client->getBufferOut() += std::string(":") + SERVER_NAME + " CAP " + com.client->getNickName() + " LS * :\r\n";
 			com.client->getBufferOut() += std::string(":") + SERVER_NAME + " CAP " + com.client->getNickName() + " LS :\r\n";
 			return ;
 		}

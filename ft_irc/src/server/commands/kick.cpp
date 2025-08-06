@@ -1,25 +1,5 @@
 #include "../includes/Server.hpp"
 
-/*static int	getTheTargetFD(const std::string target, int numClients)
-{
-	std::map<int, Client*>* clients = getClientsMap();
-
-	struct pollfd (&fds)[1024] = *getMyFds();
-	int	index = 1;
-	int	targetFD = -1;
-
-	while (index < numClients && fds[index].fd != -1)
-	{
-		if ((*clients)[fds[index].fd]->getNickName() == target)
-		{
-			targetFD = fds[index].fd;
-			return (targetFD);
-		}
-		++index;
-	}
-	return (targetFD);
-}*/
-
 static std::vector<std::string>	getAllClients(s_commands& com)
 {
 	std::vector<std::string>	clients;

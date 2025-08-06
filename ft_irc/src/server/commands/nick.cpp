@@ -70,12 +70,6 @@ bool	validNick(s_commands& com)
 	return (true);
 }
 
-
-/*
-	ainda falta
-		-mensagem para tds os canais q esse user esta
-		:antigoNick!user@host NICK :novoNick
-*/
 void	Server::nick(s_commands& com)
 {
 	std::string	oldNick = com.client->getNickName();
@@ -99,9 +93,6 @@ void	Server::nick(s_commands& com)
 		{
 			finalNick = generateUniqueNick(requestedNick, clients);
 			com.client->setNickName(finalNick);
-			if (finalNick != requestedNick) {
-				// nao consegui enviar mensagem, se alguem quiser tentar ...
-			}
 		}
 		else
 		{
@@ -115,13 +106,8 @@ void	Server::nick(s_commands& com)
 				return;
 			}
 		}
-		// com.sendBuffer.clear();
-		// com.sendBuffer = "Hello " + com.client->getNickName() + "\n";
-		// this->tryRegister(com);
 	}
 	this->sendBuffer[com.index] = msg_notice("NICK " + com.client->getNickName());
-	// if (!com.client->getRegistered())
-	// 	com.sendBuffer += msg_err_notregistered();
 	if (!com.client->getRegistered() && com.client->getUserName() != "*")
 		com.client->setRegistered(true);
 	

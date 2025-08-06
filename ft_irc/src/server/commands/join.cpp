@@ -33,13 +33,7 @@ static void	getArgs(s_commands& com, std::vector<std::string>& myChannels, std::
 		it++;
 	}
 }
-/*
-	Sintax
 
-		JOIN #canal senha123
-		||
-		JOIN #canal1,#canal2 senha1, senha2
-*/
 void	Server::join(s_commands& com)
 {
 	Channel*	firstChannel = NULL;

@@ -2,20 +2,12 @@
 
 static bool	findTheEnd(const char c)
 {
-	// return (c == ' ' || c == '\n' || c == '\r' || c == '\0'
-	// 	|| (std::islower(c)));
 	return ((c < 'A' || c > 'Z'));
 }
 
 bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffer, int fd, int i)
 {
 	std::map<std::string, void (Server::*)(s_commands&)>	myMap;
-	/*
-		Add your commands here
-		
-		NOTE: you dont need to check if the buffer has the command in your function
-			this function already do it
-	*/
 	myMap["USER"] = &Server::user;
 	myMap["PING"] = &Server::handlePing;
 	myMap["MODE"] = &Server::mode;

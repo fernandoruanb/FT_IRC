@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jonas <jonas@student.42.fr>                +#+  +:+       +#+        */
+/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/04 17:40:41 by jonas            ###   ########.fr       */
+/*   Updated: 2025/08/06 15:00:11 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,58 +14,6 @@
 #include "../includes/Client.hpp"
 #include "../includes/messages.hpp"
 #include <cstring>
-
-
-// void	handleNick(std::map<int, Client*>* clients, int fd, std::string buffer, int pollIndex) {
-	
-// }
-
-// bool Server::handleClientAuthentication(std::map<int, Client*>* clients, int fd, char* buffer, int pollIndex) {
-// 	std::map<int, Client*>::iterator it = clients->find(fd);
-// 	if (it != clients->end()) {
-// 		Client* client = it->second;
-// 		if (!client->getAuthenticated()) {
-// 			struct pollfd (&fds)[1024] = *getMyFds();
-// 			std::string input(buffer);
-// 			if (input.empty() || input == "\r" || input == "\n" || input == "\r\n") {
-// 				return true; // Ignore empty inputs
-// 			}
-// 			if (input.rfind("PASS ", 0) == 0) {
-// 				std::string pass = input.substr(5);
-// 				pass.erase(pass.find_last_not_of("\r\n") + 1);
-// 				if (pass == this->getPassword()) {
-// 					client->setAuthenticated(true);
-// 					this->sendBuffer[pollIndex].clear();
-// 					this->sendBuffer[pollIndex] += msg_notice("Authentication successful");
-// 					this->sendBuffer[pollIndex] += msg_notice("USER <username> <hostname> <servername> :<realname>");
-// 					fds[pollIndex].events |= POLLOUT;
-// 					return true;
-// 				} else {	
-// 					this->sendBuffer[pollIndex].clear();
-// 					this->sendBuffer[pollIndex] += msg_err_passwdmismatch();
-// 					fds[pollIndex].events |= POLLOUT;
-// 					return false;
-// 				}
-// 			   } else {
-// 				   this->sendBuffer[pollIndex].clear();
-// 				   this->sendBuffer[pollIndex] += msg_err_needmoreparams("PASS");
-// 				   fds[pollIndex].events |= POLLOUT;
-// 				   return false;
-// 			}
-// 		}
-// 	}
-// 	return true;
-// }
-
-// void	Server::registeredMessage(s_commands& com)
-// {
-// 	com.sendBuffer += msg_welcome(com.client->getNickName());
-// 	com.sendBuffer += msg_yourhost(com.client->getNickName());
-// 	com.sendBuffer += msg_created(com.client->getNickName());
-// 	com.sendBuffer += msg_svrinfo(com.client->getNickName());
-// }
-
-
 
 void Server::tryRegister(s_commands& com)
 {
@@ -103,8 +51,6 @@ void	Server::addNewClient(int clientFD)
 	fds[index].events = POLLIN;
 	fcntl(clientFD, F_SETFL, O_NONBLOCK);
 	this->numClients++;
-	// NOTICE message to the new client. Asking for authentication.
-	// this->sendBuffer[index] = msg_notice("Connected. Please authenticate with \"PASS <password>\"");
 	fds[index].events |= POLLOUT;
 	std::cout << BRIGHT_GREEN "New Client added: " << YELLOW << clientFD << RESET << std::endl;
 }

@@ -54,7 +54,6 @@ void    Server::broadcast(int sender, std::string line, int targetChannel)
 		{
 			targetChannelName = (*channels)[targetChannel]->getName();
 			this->sendBuffer[index] += this->sendBuffer[sender] + " #" + targetChannelName + " :" + line;
-			//this->sendBuffer[index] += " " + it->second->getNickName() + " :" + line;
 			fds[index].events |= POLLOUT;
 		}
 		if (client->getAuthenticated() && client->getNickName() != "*" && client->getRegistered() && clientCurrentChannel != ownerChannel)

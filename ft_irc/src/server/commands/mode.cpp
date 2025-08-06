@@ -25,7 +25,6 @@ static	Client	*getTargetClient(s_commands &com, const std::string& name)
 static Channel*	getTargetChannel(s_commands &com, std::map<int, Channel*>* &channels)
 {
 	std::map<int, Channel*>::iterator	it;
-	//	Removing # from #<chanelName>
 	std::string	name = com.args[0].substr(1);
 
 	for (it = channels->begin(); it != channels->end(); it++)
@@ -54,13 +53,6 @@ static void	showModes(s_commands& com, std::map<int, Channel*>* &channels, bool 
 		com.sendBuffer += msg_showchannelmodes(com, target);
 }
 
-/*
-	Check if (char)mode is in myModes
-
-	how to use
-
-		findMode(getMode(), 'o');
-*/
 bool	findMode(const std::string& myModes, const char mode)
 {
 	if (myModes.empty())
@@ -77,8 +69,7 @@ void	Server::addUserMode(Client* &target, s_commands &com, std::string &sendBuff
 {
 	if (com.args.size() != 2 || !isSigned(com.args[1][0]))
 		return;
-	
-	// //vc so pode alterar o seu proprio mode c vc n for operador
+
 	std::string	myMode = com.client->getMode(com.client->getChannelOfTime());
 	int		currentChannel = com.client->getChannelOfTime();
 	bool	iAmOperator = this->isKing(com.client->getClientFD()) || findMode(myMode, 'o');
@@ -98,7 +89,6 @@ void	Server::addUserMode(Client* &target, s_commands &com, std::string &sendBuff
 	Channel*	channel = NULL;
 	std::map<int, Channel*>::iterator	it = channels->find(currentChannel);
 	channel = it->second;
-	//	Check the target modes
 	for (size_t i = 0; i < args.size(); i++)
 	{
 		char	mode = args[i];
@@ -106,14 +96,11 @@ void	Server::addUserMode(Client* &target, s_commands &com, std::string &sendBuff
 
 		if (mode != 'i' && mode != 'o')
 		{
-			// std::cout << "Mode: " << mode << std::endl;
 			com.sendBuffer += msg_err_unknownmode(com, mode);
 			return;
 		}
 		if (mode == 'o' && !iAmOperator)
 		{
-			// std::cout << "achei? " << iAmOperator << std::endl;
-			// std::cout << "meu modo: " + com.client->getMode(currentChannel) << std::endl;
 			com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), channel->getName(), "You're not channel operator");
 			return;
 		}
@@ -136,7 +123,6 @@ void	Server::addUserMode(Client* &target, s_commands &com, std::string &sendBuff
 	}
 	sendBuffer.clear();
 	sendBuffer = msg_mode_userwelldone(com, target);
-	// std::cout << target->getNickName() << " Is operator: " << target->getIsOperator() << std::endl;
 }
 
 static void	caseT(s_commands& com, s_mode& mode)
@@ -356,31 +342,7 @@ void	Server::addChannelMode(s_commands &com, Channel* &target, int channelIndex)
 	com.sendBuffer += msg_showchannelmodes(com, target);
 	std::cout << "senha do canal: " << target->getPassWord() << std::endl;
 }
-/*
-	Handle user modes
 
-	221 - default code for mode
-	mode var default value = "+"
-
-	//	Show channel/user modes
-	MODE <nick/#channel> || MODE <target> i(no sign flag)
-	output:
-		- No modes
-			:irc.example.com 221 Miku +
-		-With modes
-			:irc.example.com 221 Miku +i
-
-	MODE <nick/#channel> +/- io
-	channel must have the # before name
-
-	flags
-	i(user) - invisible to WHO and NAMES						-	MODE <nick> +/-i
-	i(channel) - only invite channel
-	o - OPERATOR privilege to one user of the channel	-	MODE #channel +/-o <nick> || MODE <nick> +/-o
-	t - only operators can change the topic				-	MODE #channel +/-t
-	k - asks for password to enter the channel			-	MODE #channel +/-k <passwd>
-	l - limit the users amount in the channel			-	MODE #channel +/-l <amount>
-*/
 void	Server::mode(s_commands &com)
 {
 	if (!com.args.size())

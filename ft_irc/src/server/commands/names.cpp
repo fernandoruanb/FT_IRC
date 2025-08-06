@@ -61,23 +61,10 @@ static void	showChannel(s_commands& com, std::map<int, Channel*>* &channels, boo
 	}
 	
 	std::string	names = getNames(channel, com, canSee);
-	// callCmdMsg(names, 353, com, com.sendBuffer);
 	com.sendBuffer += msg_353(nick, channelName, names);
 	com.sendBuffer += msg_366(nick, channelName);
 }
 
-/*
-	List all users in a channel
-
-	if use NAMES - no arguments
-		shows all user in public channels
-	
-	Sintaxes
-		NAMES #channel
-		NAMES #channel,#channel2,#etc...
-
-		no spaces afters comas
-*/
 void	Server::names(s_commands& com)
 {
 	bool	canSee = (
