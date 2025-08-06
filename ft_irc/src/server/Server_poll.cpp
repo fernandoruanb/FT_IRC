@@ -78,7 +78,7 @@ void	Server::PollInputClientMonitoring(void)
 		   bytes = recv(fds[index].fd, buffer, 512, 0);
 			if (bytes > 0) {
 				buffer[bytes] = '\0';
-				this->recvBuffer[index] += buffer; // Acumula o que chegou
+				this->recvBuffer[index] += buffer;
 
 				size_t pos;
 				while ((pos = this->recvBuffer[index].find('\n')) != std::string::npos)

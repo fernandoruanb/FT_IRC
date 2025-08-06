@@ -162,7 +162,6 @@ static void	caseK(s_commands& com, s_mode& mode)
 			com.sendBuffer += msg_err_needmoreparams(com.client->getNickName(), "MODE");
 			return;
 		}
-		// std::cout << "indice do canal: " << mode.channelIndex << std::endl;
 		if (hasPermition)
 		{
 			if (!mode.flagFound)

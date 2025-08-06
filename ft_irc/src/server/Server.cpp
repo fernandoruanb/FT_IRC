@@ -6,7 +6,7 @@
 /*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/06 15:00:11 by fcaldas-         ###   ########.fr       */
+/*   Updated: 2025/08/06 15:08:56 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,10 +110,6 @@ Server::Server(std::string portCheck, std::string password): supremeKey("hunter4
 		this->channels = getChannelsMap();
 		(*channels)[0] = new Channel("generic");
 		numChannels++;
-		//isso eh um test
-		// this->createNewChannel("One", 5);
-		// this->changeChannel("One", 5);
-
 		port = atoiIRC(portCheck);
 		if (port == -1)
 			throw std::exception();

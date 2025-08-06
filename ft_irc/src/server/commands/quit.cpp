@@ -24,15 +24,6 @@ void	Server::desconect(s_commands& com)
 	this->numClients--;
 }
 
-// std::string	trim(std::string& str)
-// {
-// 	size_t	start = str.find_first_not_of(' ');
-// 	if (start == std::string::npos)
-// 		return (str);
-// 	size_t	end = str.find_last_not_of(' ');
-
-// 	return (str.substr(start, end - start + 1));
-// }
 void	Server::newBroadcastAllChannels(s_commands& com, std::string msg, std::string channelName, bool flag)
 {
 	struct pollfd	(&fds)[1024] = *getMyFds();

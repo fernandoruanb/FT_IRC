@@ -112,7 +112,5 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	}
 
 	fds[com.index].events |= POLLOUT;
-	// Limpa o buffer do cliente após processar comando válido
-	// this->recvBuffer[com.index].clear();
 	return (true);
 }
