@@ -131,7 +131,7 @@ std::string	my_join_rpl_topic_whotime(const std::string& nick, const std::string
 
 std::string	my_join_rpl_namreply(const std::string &nick, const std::string& channel)
 {
-	return (":" SERVER_NAME " 353 " + nick + " #" + channel + " " + ":");
+	return (":" SERVER_NAME " 353 " + nick + " = #" + channel + " " + ":");
 }
 
 std::string	my_join_rpl_endofnames(const std::string &nick, const std::string& channel)
