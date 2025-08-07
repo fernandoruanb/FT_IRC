@@ -647,7 +647,7 @@ void	Server::changeChannel(std::string channel, int clientFD, int flag)
 				if (!theKing && itc->second->getInviteChannels().find(channelName) == itc->second->getInviteChannels().end())
 				{
 					std::cerr << RED "Error: The client " << YELLOW << itc->first << RED " doesn't have the invite necessary to change to this channel " << YELLOW << channelName <<  RESET << std::endl;
-					itc->second->getBufferOut() += std::string(":") + SERVER_NAME + " 473 " + itc->second->getNickName() + " " + itm->second->getName() + " :Cannot join channel (+i)\r\n";
+					itc->second->getBufferOut() += std::string(":") + SERVER_NAME + " 473 " + itc->second->getNickName() + " #" + itm->second->getName() + " :Cannot join channel (+i)\r\n";
 					return ;
 				}
 			}
