@@ -43,7 +43,7 @@ void	Server::join(s_commands& com)
 	Channel*	currentChannel = NULL;
 	std::vector<std::string>	channelsArgs;
 	std::vector<std::string>	passArgs;
-
+	
 	if (com.args.size() < 1)
 	{
 		this->sendBuffer[com.index] += std::string(":") + SERVER_NAME + " 461 " + com.client->getNickName() + " JOIN " + ":Not enough parameters\r\n";
@@ -54,6 +54,7 @@ void	Server::join(s_commands& com)
 		this->sendBuffer[com.index] += std::string(":") + SERVER_NAME + " 403 " + com.client->getNickName() + " " + com.args[0] + " :No such nick/channel\r\n";
 		return ;
 	}
+	setCurrentCommand(com);
 
 	getArgs(com, channelsArgs, passArgs);
 
@@ -103,8 +104,8 @@ void	Server::join(s_commands& com)
 				changeChannel(currentChannel->getName(), com.fd, 2);
 			else
 			{
-				std::string messageToEveryone = std::string(":") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " JOIN " +  "#" + currentChannel->getName() + "\r\n";
-				newBroadcastAllChannels(com, messageToEveryone, currentChannel->getName(), true);
+				// std::string messageToEveryone = std::string(":") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " JOIN " +  "#" + currentChannel->getName() + "\r\n";
+				// newBroadcastAllChannels(com, messageToEveryone, currentChannel->getName(), true);
 				changeChannel(currentChannel->getName(), com.fd, 1);
 			}
 		}

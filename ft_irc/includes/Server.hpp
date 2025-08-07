@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/06 16:01:06 by fcaldas-         ###   ########.fr       */
+/*   Updated: 2025/08/06 23:45:22 by nasser           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,7 @@ class	Server
 	private:
 		Server(void);
 		struct pollfd (*fds)[1024];
+		s_commands	*currentCommand;
 		std::string	recvBuffer[1024];
 		std::string	sendBuffer[1024];
 		std::map<int, Channel*>* channels;
@@ -179,6 +180,8 @@ class	Server
 		int	getPort(void)	const;
 		int	getNumberOfClients(void) const;
 		struct pollfd	(&getPollFds(void))[1024];
+		void	setCurrentCommand(s_commands &com);
+		s_commands*	getCurrentCommand(void) const;
 };
 std::ofstream operator<<(std::ostream &out, const Server &other);
 

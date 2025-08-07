@@ -5,6 +5,11 @@ int	Server::getServerIRC(void) const
 	return (serverIRC);
 }
 
+s_commands	*Server::getCurrentCommand(void) const
+{
+	return (this->currentCommand);
+}
+
 struct pollfd	(&Server::getPollFds(void))[1024]
 {
 	return (*fds);

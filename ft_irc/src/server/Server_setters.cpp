@@ -19,3 +19,7 @@ void	Server::setServerIRC(int serverFD)
 {
 	this->serverIRC = serverFD;
 }
+void	Server::setCurrentCommand(s_commands &com)
+{
+	this->currentCommand = &com;
+}

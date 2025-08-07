@@ -561,6 +561,9 @@ void	Server::deleteChannel(std::string channel, int clientFD, bool flag)
 
 void	Server::changeChannel(std::string channel, int clientFD, int flag)
 {
+    s_commands* com = getCurrentCommand();
+    if (!com)
+		return;
 	channel = getLower(channel);
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Client*>::iterator itc = clients->find(clientFD);
@@ -639,6 +642,8 @@ void	Server::changeChannel(std::string channel, int clientFD, int flag)
 				client->getBufferOut() += my_part_message(nick, user, host, last->second->getName(), message);
 			if (flag != 2)
 			{
+				std::string messageToEveryone = std::string(":") + com->client->getNickName() + "!" + com->client->getUserName() + "@" + com->client->getHost() + " JOIN " +  "#" + itm->second->getName() + "\r\n";
+				newBroadcastAllChannels(*com, messageToEveryone, channel, true);
 				client->getBufferOut() += my_join_message(nick, user, host, channel);
 				client->getBufferOut() += my_join_rpl_topic(nick, channel, topic);
 				if (!time.empty())
