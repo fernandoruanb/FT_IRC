@@ -157,6 +157,5 @@ void	Server::kill(s_commands& com)
 	clients->erase(clientFD);
 	com.isOnline = false;
 
-	std::cout << "The clientFD: " << clientFD << std::endl;
 	std::cout << BRIGHT_GREEN "You killed the target" RESET << std::endl;
 }

@@ -95,7 +95,6 @@ void	Server::PollInputClientMonitoring(void)
 
 					cleanEnd(line);
 					std::string	firstArg = getFirstArg(line);
-					std::cout << "Line content: " << firstArg << std::endl;
 					if (!firstArg.empty())
 						this->sendBuffer[index] += msg_err_unknowncommand(firstArg);
 					fds[index].events |= POLLOUT;

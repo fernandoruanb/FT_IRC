@@ -37,9 +37,6 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	
 	struct	pollfd	(&fds)[1024] = *getMyFds();
 	std::string	command = buffer.substr(0, j);
-
-	//log for debug
-	std::cout << "Comando [" << command << "]" << std::endl;
 	
 	if (myMap.find(command) == myMap.end())
 		return (false);
@@ -79,13 +76,6 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 		}
 	}
 	
-	//log for debug
-	std::cout << "argc: " << com.args.size() << std::endl;
-	std::cout << "arguments: " << arguments << std::endl;
-
-	for (size_t i = 0;  i < com.args.size(); i++)
-		std::cout << "My args array[" << i << "]: " << com.args[i] << std::endl;
-
 	if (com.client->getAuthenticated() && com.client->getRegistered())
 		com.isOnline = true;
 
@@ -93,7 +83,6 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 
 	if (com.isOnline)
 	{
-		std::cout << "getRegistred: " << com.client->getRegistered() << std::endl;
 		if (com.client->getAuthenticated() && com.client->getRegistered() && com.client->getChannelsSet().find("generic") == com.client->getChannelsSet().end())
 		{
 			//std::string messageToEveryone = std::string(":") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " JOIN " + "#generic" + "\r\n";

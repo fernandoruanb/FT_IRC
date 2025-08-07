@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/07 17:40:39 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/08/07 18:36:16 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,9 +127,7 @@ class	Server
 		void    sendNoticeMessageToClient(s_commands& com, int clientFD, int clientIndex, std::string message);
 		void    sendNoticeMessageToEveryone(s_commands& com, std::string channel, std::string message);
 		void	broadcast(int index, std::string line, int targetChannel = -1);
-		void	chargePrivileges(int target);
 		void	startPollFds(void);
-		bool	handleClientAuthentication(std::map<int, Client*>* clients, int fd, char* buffer, int pollIndex);
 		void	privmsg(int index, int sender, std::string message);
 		void	init(int port, std::string password);
 		int	findGoodIndex(void);
@@ -138,8 +136,6 @@ class	Server
 		void	PollInputClientMonitoring(void);
 		void	PollOutMonitoring(void);
 		static void	handleSignal(int signal);
-		bool	isValidArgs(const std::string &buffer, size_t pos, bool &op);
-		std::string	getText(std::string& buffer, size_t *pos, std::map<int, Client*>* clients, bool check_name);
 		void	tryRegister(s_commands& com);
 		
 		//Commands
@@ -186,7 +182,7 @@ class	Server
 		void	setCurrentCommand(s_commands &com);
 		s_commands*	getCurrentCommand(void) const;
 };
-std::ofstream operator<<(std::ostream &out, const Server &other);
+std::ostream &operator<<(std::ostream &out, const Server &other);
 
 bool	isEmptyInput(const std::string &line);
 std::map<int, Channel*>* getChannelsMap(void);

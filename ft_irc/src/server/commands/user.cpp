@@ -2,7 +2,6 @@
 
 void	Server::user(s_commands	&com)
 {
-
 	if (com.client->getRegistered()){
 		this->sendBuffer[com.index] += msg_err_alreadyregistered(com.client->getNickName());
 		return;

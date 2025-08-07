@@ -6,7 +6,7 @@
 /*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:36:43 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/05 20:03:26 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/08/07 18:39:44 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,4 +222,10 @@ void	Channel::setOperator(int fd)
 void	Channel::setMembersNum(int n)
 {
 	this->membersNum = n;
+}
+
+std::ostream&	operator<<(std::ostream &out, Channel &other)
+{
+	out << other.getName();
+	return (out);
 }

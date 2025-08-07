@@ -104,5 +104,4 @@ void	Server::names(s_commands& com)
 	if (com.args.empty())
 		return (showAllNames(com, this->channels, canSee));
 	showChannel(com, this->channels, canSee);
-
 }

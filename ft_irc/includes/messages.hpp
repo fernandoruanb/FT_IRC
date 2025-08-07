@@ -37,7 +37,6 @@ std::string     my_join_rpl_topic_whotime(const std::string& nick, const std::st
 std::string     my_join_rpl_namreply(const std::string &nick, const std::string& channel);
 std::string     my_join_rpl_endofnames(const std::string &nick, const std::string &channel);
 std::string     my_part_message(const std::string& nick, const std::string& user, const std::string& host, const std::string& channel,  const std::string& message);
-std::string     my_topic_operator_error(const std::string& nick, const std::string& channel, const std::string& message);
 std::string     my_useronchannel(const std::string& owner, const std::string& nick, const std::string& channel, const std::string& message);
 std::string     my_notonchannel(const std::string& nick, const std::string& channel, const std::string& message);
 std::string     my_nosuchnickchannel(const std::string& nick, const std::string& forget);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/07 12:18:16 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/08/07 18:37:39 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -308,4 +308,11 @@ int	Server::getClientsFdByName(std::string nickname)
 bool	Server::isKing(int fd) const
 {
 	return (this->kingsOfIRC.find(fd) != this->kingsOfIRC.end());
+}
+
+std::ostream& operator<<(std::ostream &out, const Server &other)
+{
+	(void)other;
+	out << SERVER_NAME;
+	return (out);
 }

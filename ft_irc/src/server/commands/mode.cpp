@@ -243,7 +243,6 @@ static bool	caseK(s_commands& com, s_mode& mode)
 		{
 			if (!mode.flagFound)
 				mode.currentMode += mode.flag;
-			std::cout << "A senha vai ser: " << com.args[mode.argIndex] << std::endl;
 			mode.target->setPassWord(com.args[mode.argIndex++]);
 			return (0);
 		}
@@ -280,7 +279,6 @@ static bool	caseL(s_commands& com, s_mode& mode)
 			return (1);
 		}
 		int	limit;
-		std::cout << "O limite vai ser: " << com.args[mode.argIndex] << std::endl;
 		std::istringstream	ss(com.args[mode.argIndex++]);
 
 		ss >> limit;
@@ -409,8 +407,6 @@ void	Server::addChannelMode(s_commands &com, Channel* &target, int channelIndex)
 	myMap['l'] = &caseL;
 	myMap['t'] = &caseT;
 
-	std::cout << "Meu target eh o canal: " << target->getName() << std::endl;
-
 	int	argCnt = 2;
 	for (i = 0; i < flags.size(); i++)
 	{
@@ -430,7 +426,6 @@ void	Server::addChannelMode(s_commands &com, Channel* &target, int channelIndex)
 
 	target->setMode(currentMode);
 	com.sendBuffer += msg_showchannelmodes(com, target, sign + flags);
-	std::cout << "senha do canal: " << target->getPassWord() << std::endl;
 }
 
 void	Server::mode(s_commands &com)

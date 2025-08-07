@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jonas <jonas@student.42.fr>                +#+  +:+       +#+        */
+/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:22:05 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/06 17:27:06 by jonas            ###   ########.fr       */
+/*   Updated: 2025/08/07 18:41:23 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,6 @@ class	Client
 		std::set<std::string>	inviteChannels;
 		std::set<std::string>	channels;
 		Client(void);
-		void			addChannel(std::string channel);
-		void			removeChannel(std::string channel);
 	public:
 		Client(int clientFD);
 		~Client(void);
@@ -66,8 +64,6 @@ class	Client
 		void			setMode(const std::string&, int channelFd);
 		const std::string	getMode(int index) const;
 		void			addMode(const char c, int index);
-		// void			setMode(const std::string&);
-		// const std::string&		getMode(void) const;
 		const std::string	&getServerName(void) const;
 		std::set<std::string>&		getChannelsSet(void);
 		std::string		getNickName(void) const;
@@ -84,7 +80,6 @@ class	Client
 		bool			getRegistered(void) const;
 		std::string		getHost(void) const; // nickname!username@host
 		std::string     (&getSendHistory(void))[1024];
-		std::set<int>&	getChannels(void);
 		bool			hasNick(void) const;
 		bool			hasUser(void) const;
 		void	setMasterFlag(bool MasterFlag);
