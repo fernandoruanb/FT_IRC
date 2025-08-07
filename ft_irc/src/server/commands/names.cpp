@@ -1,39 +1,56 @@
 #include "../includes/Server.hpp"
 
-static std::string	getNames(Channel* channel, s_commands& com, bool canSee)
+static bool	setCanSee(Client* caller, Client *other, bool isOper, Channel* channel)
 {
-	std::set<int>	members = channel->getMembersSet();
-	std::string		result;
+	int	callerFd = caller->getClientFD();
+	int	otherFd = other->getClientFD();
 
+	bool	sameChannel =
+		(channel->isMemberOfChannel(callerFd) || channel->isOperatorOfChannel(callerFd))
+		&& (channel->isMemberOfChannel(otherFd) || channel->isOperatorOfChannel(otherFd));
+
+	return (isOper || caller->getNickName() == other->getNickName() || sameChannel);
+}
+
+static std::string	fillResult(const std::set<int> &members, s_commands& com, bool canSee, Channel* channel, bool flag = false)
+{
 	std::set<int>::const_iterator it;
+	std::string	result;
+
 	for (it = members.begin(); it != members.end(); it++)
 	{
 		int	fd = *it;
 		Client	*client = NULL;
+		bool	myCanSee = false;
 
 		std::map<int, Client*>::iterator	cit = com.clients->find(fd);
 		if (cit != com.clients->end())
 			client = cit->second;
-		(void)canSee;
-		if (client && (!client->getIsInvisible()))
-			result += client->getNickName() + " ";
-	}
-	
-	std::set<int>	operators = channel->getOperatorsSet();
-	std::set<int>::const_iterator	oit;
-	for (oit = operators.begin(); oit != operators.end(); oit++)
-	{
-		int fd = *it;
-		Client*	client = NULL;
-
-		std::map<int, Client*>::iterator	cit = com.clients->find(fd);
-		if (cit != com.clients->end())
-			client = cit->second;
-	
-		if (client && (!client->getIsInvisible()))
-			result += client->getNickName() + " ";
+		
+		if (client)
+		{
+			myCanSee = setCanSee(com.client, client, canSee, channel);
+			if ((!client->getIsInvisible()) || myCanSee)
+				result += (flag ? "@" : "") + client->getNickName() + " ";
+		}
 	}
 
+	return (result);
+}
+
+static std::string	getNames(Channel* channel, s_commands& com, bool canSee)
+{
+	std::string		result;
+
+	if (!channel)
+		return (result);
+
+	std::set<int>	members = channel->getMembersSet();
+	
+
+	result = fillResult(members, com, canSee, channel);
+	result += fillResult(channel->getOperatorsSet(), com, canSee, channel, 1);
+	
 	return (result);
 }
 
