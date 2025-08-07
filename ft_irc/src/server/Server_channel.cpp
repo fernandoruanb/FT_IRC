@@ -559,11 +559,44 @@ void	Server::deleteChannel(std::string channel, int clientFD, bool flag)
 	std::cerr << RED "Error: The channel " << YELLOW << channel << RED " doesn't exist" RESET << std::endl;
 }
 
+void	Server::newBroadcastAllChannels(int clientFD, std::string message, std::string channel, bool flag)
+{
+	struct pollfd	(&fds)[1024] = *getMyFds();
+	std::map<int, Client*>*	clients = getClientsMap();
+	std::map<int, Client*>::iterator it = clients->begin();
+	int	clientsIndex;
+	int	channelIndex = getChannelsIndex(channel);
+
+	if (channelIndex == -1)
+	{
+		(*clients)[clientFD]->getBufferOut() += std::string(":") + SERVER_NAME + " 403 " + (*clients)[clientFD]->getNickName() + " " + channel + " :No such channel\r\n";
+		return ;
+	}
+	while (it != clients->end())
+	{
+        	if (!it->second || clients->find(it->first) == clients->end()) 
+		{
+            		++it;
+            		continue;
+        	}
+		if (it->first == clientFD && flag == true)
+		{
+			++it;
+			continue ;
+		}
+      		if (it->second->getChannelsSet().find(channel) != it->second->getChannelsSet().end())
+        	{
+            		clientsIndex = getClientsIndex(it->first);
+           	 	if (clientsIndex >= 0) 
+                		it->second->getBufferOut() += message;
+                	fds[clientsIndex].events |= POLLOUT;
+		}
+		++it;
+	}
+}
+
 void	Server::changeChannel(std::string channel, int clientFD, int flag)
 {
-    s_commands* com = getCurrentCommand();
-    if (!com)
-		return;
 	channel = getLower(channel);
 	std::map<int, Client*>* clients = getClientsMap();
 	std::map<int, Client*>::iterator itc = clients->find(clientFD);
@@ -642,8 +675,8 @@ void	Server::changeChannel(std::string channel, int clientFD, int flag)
 				client->getBufferOut() += my_part_message(nick, user, host, last->second->getName(), message);
 			if (flag != 2)
 			{
-				std::string messageToEveryone = std::string(":") + com->client->getNickName() + "!" + com->client->getUserName() + "@" + com->client->getHost() + " JOIN " +  "#" + itm->second->getName() + "\r\n";
-				newBroadcastAllChannels(*com, messageToEveryone, channel, true);
+				std::string messageToEveryone = std::string(":") + nick + "!" + user + "@" + host + " JOIN " +  "#" + itm->second->getName() + "\r\n";
+				newBroadcastAllChannels(itc->first, messageToEveryone, itm->second->getName(), true);
 				client->getBufferOut() += my_join_message(nick, user, host, channel);
 				client->getBufferOut() += my_join_rpl_topic(nick, channel, topic);
 				if (!time.empty())

@@ -6,7 +6,7 @@
 /*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/06 23:45:22 by nasser           ###   ########.fr       */
+/*   Updated: 2025/08/07 11:26:01 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,7 @@ class	Server
 		Server&	operator=(const Server &other);
 		Server(const Server &other);
 
+		void    newBroadcastAllChannels(int clientFD, std::string message, std::string channel, bool flag);
 		void    newBroadcastKill(s_commands& com, std::string msg, std::string complement, std::string channelName, bool flag);
 		void    newBroadcast(s_commands& com, std::string msg, std::string channelName, bool flag);
 		bool    checkCompatibility(int ownerFD, int clientFD, std::string targetChannel);
