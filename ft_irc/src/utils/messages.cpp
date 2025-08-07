@@ -221,7 +221,7 @@ std::string	msg_showusermodes(s_commands& com, Client* &target)
 	);
 }
 
-std::string	msg_showchannelmodes(s_commands& com, Channel* &target)
+std::string	msg_showchannelmodes(s_commands& com, Channel* &target, const std::string& modes)
 {
 	return (
 		":" SERVER_NAME " 324 "
@@ -229,7 +229,7 @@ std::string	msg_showchannelmodes(s_commands& com, Channel* &target)
 		+ " #"
 		+ target->getName()
 		+ " +"
-		+ target->getMode()
+		+ modes
 		+ "\r\n"
 	);
 }

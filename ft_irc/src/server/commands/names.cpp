@@ -1,26 +1,56 @@
 #include "../includes/Server.hpp"
 
-static std::string	getNames(Channel* channel, s_commands& com, bool canSee)
+static bool	setCanSee(Client* caller, Client *other, bool isOper, Channel* channel)
 {
-	std::set<int>	members = channel->getMembersSet();
-	std::string		result;
+	int	callerFd = caller->getClientFD();
+	int	otherFd = other->getClientFD();
 
+	bool	sameChannel =
+		(channel->isMemberOfChannel(callerFd) || channel->isOperatorOfChannel(callerFd))
+		&& (channel->isMemberOfChannel(otherFd) || channel->isOperatorOfChannel(otherFd));
+
+	return (isOper || caller->getNickName() == other->getNickName() || sameChannel);
+}
+
+static std::string	fillResult(const std::set<int> &members, s_commands& com, bool canSee, Channel* channel, bool flag = false)
+{
 	std::set<int>::const_iterator it;
+	std::string	result;
+
 	for (it = members.begin(); it != members.end(); it++)
 	{
 		int	fd = *it;
 		Client	*client = NULL;
+		bool	myCanSee = false;
 
 		std::map<int, Client*>::iterator	cit = com.clients->find(fd);
 		if (cit != com.clients->end())
 			client = cit->second;
 		
-		if (client && (canSee || !findMode(client->getMode(com.client->getChannelOfTime()), 'i')))
-			result += client->getNickName() + " ";
+		if (client)
+		{
+			myCanSee = setCanSee(com.client, client, canSee, channel);
+			if ((!client->getIsInvisible()) || myCanSee)
+				result += (flag ? "@" : "") + client->getNickName() + " ";
+		}
 	}
 
-	result += channel->getOperatorsNames();
+	return (result);
+}
 
+static std::string	getNames(Channel* channel, s_commands& com, bool canSee)
+{
+	std::string		result;
+
+	if (!channel)
+		return (result);
+
+	std::set<int>	members = channel->getMembersSet();
+	
+
+	result = fillResult(members, com, canSee, channel);
+	result += fillResult(channel->getOperatorsSet(), com, canSee, channel, 1);
+	
 	return (result);
 }
 
@@ -69,7 +99,6 @@ void	Server::names(s_commands& com)
 {
 	bool	canSee = (
 		this->isKing(com.client->getClientFD())
-		|| findMode(com.client->getMode(com.client->getChannelOfTime()), 'o')
 	);
 
 	if (com.args.empty())

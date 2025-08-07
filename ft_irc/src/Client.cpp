@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jonas <jonas@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/05 17:44:38 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/08/06 17:59:22 by jonas            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #include "../includes/colours.hpp"
 
 Client::Client(int fd)
-	: channelOfTime(0), clientFD(fd), authenticated(false), registered(false), isOperator(false), nickname("*"), username("*"), masterFlag(false), host("localhost")
+	: channelOfTime(0), clientFD(fd), authenticated(false), registered(false), isOperator(false), nickname("*"), username("*"), masterFlag(false), host("localhost"), isInvisible(false), globalModes('*')
 {
 	std::cout << LIGHT_BLUE << "Constructor Client* Called in fd: " MAGENTA << fd << RESET << std::endl;
 }
@@ -206,13 +206,18 @@ void Client::setMode(const std::string &mode, int channelFd)
 	this->mode[channelFd] = mode;
 }
 
-const std::string &Client::getMode(int index) const
+const std::string Client::getMode(int index) const
 {
+	std::string	result;
+
+	if (globalModes != '*')
+		result = std::string(1, globalModes);
+
 	std::map<int, std::string>::const_iterator it = mode.find(index);
 	if (it != this->mode.end())
-		return (it->second);
-	static const std::string	empty;
-	return (empty);
+		result += it->second;
+
+	return (result);
 }
 
 void	Client::addMode(const char c, int index)
@@ -225,4 +230,16 @@ void	Client::addMode(const char c, int index)
 void	Client::setOperatorChannels(const std::string& channelName)
 {
 	this->operatorChannels.insert(channelName);
+}
+
+bool	Client::getIsInvisible(void) const
+{
+	return (isInvisible);
+}
+void	Client::setIsInvisible(bool flag)
+{
+	isInvisible = flag;
+	std::map<int, std::string>::iterator it;
+
+	globalModes = (flag ? 'i': '*');
 }
