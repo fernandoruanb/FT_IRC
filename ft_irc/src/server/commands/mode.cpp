@@ -183,8 +183,29 @@ void	Server::addUserMode(Client* &target, s_commands &com, std::string &sendBuff
 				currentMode += mode;
 			if (sign == '-' && isActive)
 			{
+				int	channelsIndex = getChannelsIndexMode(channel->getName());
+				int	clientFD = target->getClientFD();
+				std::string	channelName = channel->getName();
+
 				size_t	pos = currentMode.find(mode);
 				currentMode.erase(pos, 1);
+
+				std::string	message = std::string(":")
+								+ com.client->getNickName()
+								+ "!"
+								+ com.client->getUserName()
+								+ "@" + com.client->getHost()
+								+ " MODE #" + channelName
+								+ " -o "
+								+ (*clients)[clientFD]->getNickName()
+								+ "\r\n";
+				(*channels)[channelsIndex]->getOperatorsSet().erase(clientFD);
+				(*channels)[channelsIndex]->getMembersSet().insert(clientFD);
+				(*clients)[clientFD]->getOperatorChannels().erase(channelName);
+				(*clients)[clientFD]->getChannelsSet().insert(channelName);
+				if ((*clients)[clientFD]->getOperatorChannels().size() == 0)
+					(*clients)[clientFD]->setIsOperator(false);
+				newBroadcastAllChannelsMode(com, message, channelName, false);
 			}
 			target->setMode(currentMode, currentChannel);
 		}
