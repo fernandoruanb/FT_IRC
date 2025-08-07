@@ -384,11 +384,11 @@ void	Server::addChannelMode(s_commands &com, Channel* &target, int channelIndex)
 {
 	std::string	mode = com.client->getMode(channelIndex);
 
-	if (target->getName() == "generic" || !findMode(mode, 'o'))
-	{
-		com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), target->getName(), "You're not channel operator");
-		return;
-	}
+	// if (target->getName() == "generic" || (!findMode(mode, 'o') || !this->isKing(com.client->getClientFD())))
+	// {
+	// 	com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), target->getName(), "You're not channel operator");
+	// 	return;
+	// }
 	size_t		len = com.args.size();
 	if (len < 2)
 		return;

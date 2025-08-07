@@ -223,13 +223,14 @@ std::string	msg_showusermodes(s_commands& com, Client* &target)
 
 std::string	msg_showchannelmodes(s_commands& com, Channel* &target, const std::string& modes)
 {
+	(void)modes;
 	return (
 		":" SERVER_NAME " 324 "
 		+ com.client->getNickName()
 		+ " #"
 		+ target->getName()
-		+ " +"
-		+ modes
+		+ " "
+		+ com.args[1]
 		+ "\r\n"
 	);
 }
