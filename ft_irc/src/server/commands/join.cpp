@@ -1,13 +1,17 @@
 #include "../includes/Server.hpp"
 
-static bool	validPass(Channel* &channel, const std::string& pass)
+static bool	validPass(Channel* channel, const std::string& pass)
 {
+	if (!channel)
+		return (false);
 	return (!findMode(channel->getMode(), 'k')
 			|| channel->getPassWord() == pass);
 }
 
-static Channel*	getChannel(const std::string& chanName, std::map<int, Channel*>* &channels)
+static Channel*	getChannel(const std::string& chanName, std::map<int, Channel*>* channels)
 {
+	if (!channels)
+		return (NULL);
 	std::map<int, Channel*>::iterator	it;
 
 	for (it = channels->begin(); it != channels->end(); it++)
@@ -36,6 +40,7 @@ static void	getArgs(s_commands& com, std::vector<std::string>& myChannels, std::
 
 void	Server::join(s_commands& com)
 {
+	bool		isKing = this->isKing(com.client->getClientFD());
 	Channel*	firstChannel = NULL;
 	size_t		passIndex = 0;
 	bool		create = false;
@@ -54,7 +59,7 @@ void	Server::join(s_commands& com)
 		this->sendBuffer[com.index] += std::string(":") + SERVER_NAME + " 403 " + com.client->getNickName() + " " + com.args[0] + " :No such nick/channel\r\n";
 		return ;
 	}
-	setCurrentCommand(com);
+	// setCurrentCommand(com);
 
 	getArgs(com, channelsArgs, passArgs);
 
@@ -79,18 +84,17 @@ void	Server::join(s_commands& com)
 			}
 			firstChannel = currentChannel;
 		}
-
 		if (i < passArgs.size() && !passArgs[i].empty())
 		{
-			if (!validPass(currentChannel, passArgs[i]))
+			if (!isKing && !validPass(currentChannel, passArgs[i]))
 			{
 				com.sendBuffer += msg_badchannelkey(com.client->getNickName(), currentChannel->getName());
 				continue;
 			}
 		}
-		if (!firstPass.empty())
+		if (!firstPass.empty() || isKing)
 		{
-			if (!passArgs.empty() &&  firstPass == passArgs[passIndex])
+			if (isKing || (!passArgs.empty() && firstPass == passArgs[passIndex]))
 				changeChannel(firstChannel->getName(), com.fd, 1);
 			else
 				com.sendBuffer += msg_badchannelkey(com.client->getNickName(), currentChannel->getName());
@@ -103,11 +107,7 @@ void	Server::join(s_commands& com)
 			if (com.client->getChannelsSet().find(currentChannel->getName()) != com.client->getChannelsSet().end())
 				changeChannel(currentChannel->getName(), com.fd, 2);
 			else
-			{
-				// std::string messageToEveryone = std::string(":") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " JOIN " +  "#" + currentChannel->getName() + "\r\n";
-				// newBroadcastAllChannels(com, messageToEveryone, currentChannel->getName(), true);
 				changeChannel(currentChannel->getName(), com.fd, 1);
-			}
 		}
 	}
 }
