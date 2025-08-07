@@ -5,6 +5,74 @@ s_mode::s_mode(char s, char f, bool ff, Channel* &t, std::string& c, size_t l, i
 	: sign(s), flag(f), flagFound(ff), target(t), currentMode(c), len(l), channelIndex(i), isKing(k)
 {}
 
+int     getChannelsIndexMode(std::string channel)
+{
+        channel = getLower(channel);
+        std::map<int, Channel*>* channels = getChannelsMap();
+        std::map<int, Channel*>::iterator itch = channels->begin();
+
+        while (itch != channels->end())
+        {
+                if (itch->second->getName() == channel)
+                        return (itch->first);
+                ++itch;
+        }
+        return (-1);
+}
+
+int     getClientsIndexMode(int clientFD)
+{
+        struct pollfd (&fds)[1024] = *getMyFds();
+        int     index;
+
+        index = 1;
+        while (index < 1024 && fds[index].fd != -1)
+        {
+                if (fds[index].fd == clientFD)
+                        return (index);
+                ++index;
+        }
+        return (-1);
+}
+
+void	newBroadcastAllChannelsMode(s_commands& com, std::string msg, std::string channelName, bool flag)
+{
+	struct pollfd	(&fds)[1024] = *getMyFds();
+	std::map<int, Client*>*	clients = getClientsMap();
+	std::map<int, Client*>::iterator it = clients->begin();
+	int	clientsIndex;
+	int	channelIndex = getChannelsIndexMode(channelName);
+
+	if (channelIndex == -1)
+	{
+        if (!com.client || clients->find(com.fd) == clients->end())
+            return;
+		com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 403 " + com.client->getNickName() + " " + channelName + " :No such channel\r\n";
+		return ;
+	}
+	while (it != clients->end())
+	{
+        if (!it->second || clients->find(it->first) == clients->end()) {
+            ++it;
+            continue;
+        }
+		if (it->first == com.fd && flag == true)
+		{
+			++it;
+			continue ;
+		}
+      	if (it->second->getChannelsSet().find(channelName) != it->second->getChannelsSet().end())
+        {
+            clientsIndex = getClientsIndexMode(it->first);
+            if (clientsIndex >= 0) {
+                it->second->getBufferOut() += msg;
+                fds[clientsIndex].events |= POLLOUT;
+            }
+        }
+		++it;
+	}
+}
+
 static bool	isSigned(const char c)
 {
 	return (c == '+' || c == '-');
@@ -226,36 +294,6 @@ static void	caseL(s_commands& com, s_mode& mode)
 	}
 }
 
-int     getChannelsIndexMode(std::string channel)
-{
-        channel = getLower(channel);
-        std::map<int, Channel*>* channels = getChannelsMap();
-        std::map<int, Channel*>::iterator itch = channels->begin();
-
-        while (itch != channels->end())
-        {
-                if (itch->second->getName() == channel)
-                        return (itch->first);
-                ++itch;
-        }
-        return (-1);
-}
-
-int     getClientsIndexMode(int clientFD)
-{
-        struct pollfd (&fds)[1024] = *getMyFds();
-        int     index;
-
-        index = 1;
-        while (index < 1024 && fds[index].fd != -1)
-        {
-                if (fds[index].fd == clientFD)
-                        return (index);
-                ++index;
-        }
-        return (-1);
-}
-
 static void	caseO(s_commands& com, s_mode& mode)
 {
 	if (!mode.isKing)
@@ -269,37 +307,42 @@ static void	caseO(s_commands& com, s_mode& mode)
 		return;
 	}
 	Client*	client = getTargetClient(com, com.args[2]);
+
 	if (!client)
 		return;
+	int	clientFD = client->getClientFD();
+	std::string channel = mode.target->getName();
+	std::map<int,Client*>* clients = getClientsMap();
+	std::map<int,Channel*>* channels = getChannelsMap();
+	int	channelsIndex = getChannelsIndexMode(channel);
+	int	clientsIndex = getClientsIndexMode(clientFD);
+
 	if (mode.sign == '+')
 	{
+		std::string	message = std::string(":") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " MODE " + "#" + channel + " +o " + (*clients)[clientFD]->getNickName() + "\r\n";
 		client->setIsOperator(true);
 		client->setOperatorChannels(mode.target->getName());
 		if (!mode.flagFound)
 			client->addMode(mode.flag, mode.channelIndex);
 		mode.target->setOperator(client->getClientFD());
 		mode.target->getOperatorsNames();
+		newBroadcastAllChannelsMode(com, message, channel, false);
 		return;
 	}
 	else if (mode.sign == '-')
 	{
-		int	clientFD = client->getClientFD();
-		std::string channel = mode.target->getName();
-		std::map<int,Client*>* clients = getClientsMap();
-		std::map<int,Channel*>* channels = getChannelsMap();
-		int	channelsIndex = getChannelsIndexMode(channel);
-		int	clientsIndex = getClientsIndexMode(clientFD);
-
 		if (channelsIndex == -1)
 			return ;
 		if (clientsIndex == -1)
 			return ;
+		std::string	message = std::string(":") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " MODE " + "#" + channel + " -o " + (*clients)[clientFD]->getNickName() + "\r\n";
 		(*channels)[channelsIndex]->getOperatorsSet().erase(clientFD);
 		(*channels)[channelsIndex]->getMembersSet().insert(clientFD);
 		(*clients)[clientFD]->getOperatorChannels().erase(channel);
 		(*clients)[clientFD]->getChannelsSet().insert(channel);
 		if ((*clients)[clientFD]->getOperatorChannels().size() == 0)
 			(*clients)[clientFD]->setIsOperator(false);
+		newBroadcastAllChannelsMode(com, message, channel, false);
 		return ;
 	}
 }
