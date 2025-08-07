@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nasser <nasser@student.42.fr>              +#+  +:+       +#+        */
+/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 13:34:33 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/07 12:21:08 by fruan-ba         ###   ########.fr       */
+/*   Updated: 2025/08/07 17:40:39 by jopereir         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,8 +72,9 @@ struct	s_mode
 	size_t		len;
 	id_t		channelIndex;
 	bool		isKing;
+	int			&argIndex;
 
-	s_mode(char s, char f, bool ff, Channel* &t, std::string& c, size_t l, int i, bool k);
+	s_mode(char s, char f, bool ff, Channel* &t, std::string& c, size_t l, int i, bool k, int& ai);
 };
 
 class	Server
