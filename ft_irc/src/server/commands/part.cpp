@@ -108,6 +108,12 @@ void	Server::part(s_commands& com)
 		channelIndex = getChannelsIndex(channelsVector[index]);
 		if (channelIndex == -1 || channelIndex == 0)
 		{
+			if (channelsVector[index] == "generic")
+			{
+				com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 482 " + com.client->getNickName() + " #generic :Cannot leave the default channel\r\n"; 
+				++index;
+				continue ;
+			}
 			com.client->getBufferOut() += std::string(":") + SERVER_NAME + " 403 " + com.client->getNickName() + " " + channelsVector[index] + " :No such nick/channel\r\n";
 			++index;
 			continue ;
