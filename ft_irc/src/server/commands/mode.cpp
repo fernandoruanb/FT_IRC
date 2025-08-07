@@ -120,7 +120,7 @@ static void	showModes(s_commands& com, std::map<int, Channel*>* &channels, bool 
 	if (target)
 	{
 		std::string	mode = target->getMode();
-		com.sendBuffer += msg_showchannelmodes(com, target, mode);
+		com.sendBuffer += msg_showchannelmodes(com, target, "+" + mode);
 	}
 }
 
@@ -200,18 +200,18 @@ void	Server::addUserMode(Client* &target, s_commands &com, std::string &sendBuff
 	sendBuffer = msg_mode_userwelldone(com, target);
 }
 
-static void	caseT(s_commands& com, s_mode& mode)
+static bool	caseT(s_commands& com, s_mode& mode)
 {
 	if (!mode.isKing)
 	{
 		com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), mode.target->getName(), "You're not channel operator");
-		return;
+		return (1);
 	}
 	if (mode.sign == '+' && !mode.flagFound)
 	{
 		mode.currentMode += mode.flag;
 		mode.target->setTopicFlag(true);
-		return;
+		return (0);
 	}
 	if (mode.sign == '-' && mode.flagFound)
 	{
@@ -219,13 +219,15 @@ static void	caseT(s_commands& com, s_mode& mode)
 		mode.target->setTopicFlag(false);
 		mode.currentMode.erase(pos, 1);
 	}
+
+	return (0);
 }
-static void	caseK(s_commands& com, s_mode& mode)
+static bool	caseK(s_commands& com, s_mode& mode)
 {
 	if (!mode.isKing)
 	{
 		com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), mode.target->getName(), "You're not channel operator");
-		return;
+		return (1);
 	}
 
 	bool	hasPermition = findMode(com.client->getMode(mode.channelIndex), 'o');
@@ -235,17 +237,17 @@ static void	caseK(s_commands& com, s_mode& mode)
 		if (mode.len != 3)
 		{
 			com.sendBuffer += msg_err_needmoreparams(com.client->getNickName(), "MODE");
-			return;
+			return (1);
 		}
 		if (hasPermition)
 		{
 			if (!mode.flagFound)
 				mode.currentMode += mode.flag;
 			mode.target->setPassWord(com.args[2]);
-			return;
+			return (0);
 		}
 		com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), mode.target->getName(), "You're not channel operator");
-		return;
+		return (1);
 	}
 	if (mode.sign == '-' && mode.flagFound)
 	{
@@ -254,25 +256,27 @@ static void	caseK(s_commands& com, s_mode& mode)
 			size_t	pos = mode.currentMode.find(mode.flag);
 			mode.currentMode.erase(pos, 1);
 			mode.target->getPassWord().clear();
-			return;
+			return (0);
 		}
 		com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), mode.target->getName(), "You're not channel operator");
-		return;
+		return (1);
 	}
+
+	return (0);
 }
-static void	caseL(s_commands& com, s_mode& mode)
+static bool	caseL(s_commands& com, s_mode& mode)
 {
 	if (!mode.isKing)
 	{
 		com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), mode.target->getName(), "You're not channel operator");
-		return;
+		return (1);
 	}
 	if (mode.sign == '+')
 	{
 		if (mode.len != 3)
 		{
 			com.sendBuffer += msg_err_needmoreparams(com.client->getNickName(), "MODE");
-			return;
+			return (1);
 		}
 		int	limit;
 		std::istringstream	ss(com.args[2]);
@@ -281,42 +285,43 @@ static void	caseL(s_commands& com, s_mode& mode)
 		if (ss.fail())
 		{
 			com.sendBuffer += msg_err_invalidparameter(com, mode.target);
-			return;
+			return (1);
 		}
 		if (!mode.flagFound)
 			mode.currentMode += mode.flag;
 		mode.target->setUserLimit(limit);
-		return;
+		return (0);
 	}
 	if (mode.sign == '-' && mode.flagFound)
 	{
 		if (mode.len != 2)
 		{
 			com.sendBuffer += msg_err_needmoreparams(com.client->getNickName(), "MODE");
-			return;
+			return (1);
 		}
 		size_t	pos = mode.currentMode.find(mode.flag);
 		mode.currentMode.erase(pos, 1);
 		mode.target->setUserLimit(1024);
 	}
+	return (0);
 }
 
-static void	caseO(s_commands& com, s_mode& mode)
+static bool	caseO(s_commands& com, s_mode& mode)
 {
 	if (!mode.isKing)
 	{
 		com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), mode.target->getName(), "You're not channel operator");
-		return;
+		return (1);
 	}
 	if (mode.len != 3)
 	{
 		com.sendBuffer += msg_err_needmoreparams(com.client->getNickName(), "MODE");
-		return;
+		return (1);
 	}
 	Client*	client = getTargetClient(com, com.args[2]);
 
 	if (!client)
-		return;
+		return (1);
 	int	clientFD = client->getClientFD();
 	std::string channel = mode.target->getName();
 	std::map<int,Client*>* clients = getClientsMap();
@@ -334,14 +339,14 @@ static void	caseO(s_commands& com, s_mode& mode)
 		mode.target->setOperator(client->getClientFD());
 		mode.target->getOperatorsNames();
 		newBroadcastAllChannelsMode(com, message, channel, false);
-		return;
+		return (0);
 	}
 	else if (mode.sign == '-')
 	{
 		if (channelsIndex == -1)
-			return ;
+			return (1);
 		if (clientsIndex == -1)
-			return ;
+			return (1);
 		std::string	message = std::string(":") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " MODE " + "#" + channel + " -o " + (*clients)[clientFD]->getNickName() + "\r\n";
 		(*channels)[channelsIndex]->getOperatorsSet().erase(clientFD);
 		(*channels)[channelsIndex]->getMembersSet().insert(clientFD);
@@ -350,27 +355,28 @@ static void	caseO(s_commands& com, s_mode& mode)
 		if ((*clients)[clientFD]->getOperatorChannels().size() == 0)
 			(*clients)[clientFD]->setIsOperator(false);
 		newBroadcastAllChannelsMode(com, message, channel, false);
-		return ;
 	}
+
+	return (0);
 }
 
-static void	caseI(s_commands& com, s_mode& mode)
+static bool	caseI(s_commands& com, s_mode& mode)
 {
 	if (!mode.isKing)
 	{
 		com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), mode.target->getName(), "You're not channel operator");
-		return;
+		return (1);
 	}
 	if (mode.len != 2)
 	{
 		com.sendBuffer += msg_err_needmoreparams(com.client->getNickName(), "MODE");
-		return;
+		return (1);
 	}
 	if (mode.sign == '+' && !mode.flagFound)
 	{
 		mode.currentMode += mode.flag;
 		mode.target->setInviteFlag(true);
-		return;
+		return (0);
 	}
 	if (mode.sign == '-' && mode.flagFound)
 	{
@@ -378,18 +384,14 @@ static void	caseI(s_commands& com, s_mode& mode)
 		mode.currentMode.erase(pos, 1);
 		mode.target->setInviteFlag(false);
 	}
+	return (0);
 }
 
 void	Server::addChannelMode(s_commands &com, Channel* &target, int channelIndex)
 {
 	std::string	mode = com.client->getMode(channelIndex);
-
-	// if (target->getName() == "generic" || (!findMode(mode, 'o') || !this->isKing(com.client->getClientFD())))
-	// {
-	// 	com.sendBuffer += msg_err_chanoprivsneeded(com.client->getNickName(), target->getName(), "You're not channel operator");
-	// 	return;
-	// }
 	size_t		len = com.args.size();
+	
 	if (len < 2)
 		return;
 
@@ -398,7 +400,7 @@ void	Server::addChannelMode(s_commands &com, Channel* &target, int channelIndex)
 	std::string	flags = com.args[1].substr(1);
 	std::string	Channel = com.args[0];
 	size_t		i;
-	std::map<char, void (*)(s_commands&, s_mode&)>	myMap;
+	std::map<char, bool (*)(s_commands&, s_mode&)>	myMap;
 	myMap['i'] = &caseI;
 	myMap['o'] = &caseO;
 	myMap['k'] = &caseK;
@@ -419,18 +421,23 @@ void	Server::addChannelMode(s_commands &com, Channel* &target, int channelIndex)
 			|| findMode(com.client->getMode(this->getChannelsIndex(target->getName())), 'o')
 		);
 		s_mode	mode(sign, flag, flagFound, target, currentMode, len, channelIndex, k);	
-		myMap[flag](com, mode);
+		if (myMap[flag](com, mode))
+			return;
 	}
 
 	target->setMode(currentMode);
-	com.sendBuffer += msg_showchannelmodes(com, target, flags);
+	com.sendBuffer += msg_showchannelmodes(com, target, sign + flags);
 	std::cout << "senha do canal: " << target->getPassWord() << std::endl;
 }
 
 void	Server::mode(s_commands &com)
 {
 	if (!com.args.size())
-		return (callCmdMsg("Not enough parameters", 461, com, this->sendBuffer[com.index]));
+	{
+		std::cout << "paramos aqui\n";
+		com.sendBuffer += msg_err_needmoreparams(com.client->getNickName(), com.command);
+		return;
+	}
 
 	bool	isUser = com.args[0][0] != '#';
 
