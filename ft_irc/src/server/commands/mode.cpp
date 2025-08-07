@@ -225,6 +225,37 @@ static void	caseL(s_commands& com, s_mode& mode)
 		mode.target->setUserLimit(1024);
 	}
 }
+
+int     getChannelsIndexMode(std::string channel)
+{
+        channel = getLower(channel);
+        std::map<int, Channel*>* channels = getChannelsMap();
+        std::map<int, Channel*>::iterator itch = channels->begin();
+
+        while (itch != channels->end())
+        {
+                if (itch->second->getName() == channel)
+                        return (itch->first);
+                ++itch;
+        }
+        return (-1);
+}
+
+int     getClientsIndexMode(int clientFD)
+{
+        struct pollfd (&fds)[1024] = *getMyFds();
+        int     index;
+
+        index = 1;
+        while (index < 1024 && fds[index].fd != -1)
+        {
+                if (fds[index].fd == clientFD)
+                        return (index);
+                ++index;
+        }
+        return (-1);
+}
+
 static void	caseO(s_commands& com, s_mode& mode)
 {
 	if (!mode.isKing)
@@ -250,21 +281,26 @@ static void	caseO(s_commands& com, s_mode& mode)
 		mode.target->getOperatorsNames();
 		return;
 	}
-	if (mode.sign == '-' && mode.flagFound)
+	else if (mode.sign == '-')
 	{
-		size_t	pos = mode.currentMode.find(mode.flag);
+		int	clientFD = client->getClientFD();
+		std::string channel = mode.target->getName();
+		std::map<int,Client*>* clients = getClientsMap();
+		std::map<int,Channel*>* channels = getChannelsMap();
+		int	channelsIndex = getChannelsIndexMode(channel);
+		int	clientsIndex = getClientsIndexMode(clientFD);
 
-		mode.currentMode.erase(pos, 1);
-		client->setIsOperator(false);
-
-		std::string	name = mode.target->getName();
-		std::set<std::string>::iterator cpos = client->getOperatorChannels().find(name);
-		client->getOperatorChannels().erase(cpos);
-		
-		std::set<int>::iterator	tpos = mode.target->getOperatorsSet().find(com.client->getClientFD());
-		mode.target->getOperatorsSet().erase(tpos);
-		mode.target->getOperatorsNames();
-		mode.target->addNewMember(client->getClientFD());
+		if (channelsIndex == -1)
+			return ;
+		if (clientsIndex == -1)
+			return ;
+		(*channels)[channelsIndex]->getOperatorsSet().erase(clientFD);
+		(*channels)[channelsIndex]->getMembersSet().insert(clientFD);
+		(*clients)[clientFD]->getOperatorChannels().erase(channel);
+		(*clients)[clientFD]->getChannelsSet().insert(channel);
+		if ((*clients)[clientFD]->getOperatorChannels().size() == 0)
+			(*clients)[clientFD]->setIsOperator(false);
+		return ;
 	}
 }
 

@@ -6,7 +6,7 @@
 /*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 10:02:08 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/06 15:08:56 by fcaldas-         ###   ########.fr       */
+/*   Updated: 2025/08/07 12:18:16 by fruan-ba         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,6 +167,27 @@ void	Server::handleSignal(int signal)
 	}
 }
 
+void	Server::removeOperatorPower(int clientFD, std::string channel)
+{
+	std::map<int,Channel*>* channels = getChannelsMap();
+	std::map<int,Client*>* clients = getClientsMap();
+	int	channelsIndex;
+	int	clientsIndex;
+
+	channelsIndex = getChannelsIndex(channel);
+	clientsIndex = getClientsIndex(clientFD);
+
+	if (channelsIndex == -1)
+		return ;
+	if (clientsIndex == -1)
+		return ;
+	(*channels)[channelsIndex]->getOperatorsSet().erase(clientFD);
+	(*channels)[channelsIndex]->getMembersSet().insert(clientFD);
+	(*clients)[clientFD]->getOperatorChannels().erase(channel);
+	(*clients)[clientFD]->getChannelsSet().insert(channel);
+	if ((*clients)[clientFD]->getOperatorChannels().size() == 0)
+		(*clients)[clientFD]->setIsOperator(false);
+}
 void	Server::init(int port, std::string password)
 {
 	this->setPassword(password);
