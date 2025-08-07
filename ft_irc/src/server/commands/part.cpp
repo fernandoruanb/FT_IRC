@@ -40,7 +40,6 @@ static std::string	getTheMessage(s_commands& com)
 					message += " ";
 				++index;
 			}
-			message += "\r\n";
 			return (message);
 		}
 		++index;
@@ -93,7 +92,7 @@ void	Server::part(s_commands& com)
 	int	channelIndex;
 	std::size_t	index = 0;
 
-	if (msg.empty() || msg == " \r\n")
+	if (msg.empty())
 		msg = "I left the channel";
 
 	while (index < channelsVector.size() && !channelsVector[index].empty())
