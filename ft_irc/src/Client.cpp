@@ -6,7 +6,7 @@
 /*   By: jonas <jonas@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/06 17:59:22 by jonas            ###   ########.fr       */
+/*   Updated: 2025/08/08 09:06:05 by jonas            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -242,4 +242,13 @@ void	Client::setIsInvisible(bool flag)
 	std::map<int, std::string>::iterator it;
 
 	globalModes = (flag ? 'i': '*');
+}
+
+void	Client::delMode(const char c, int index)
+{
+	std::string&	currentMode = this->mode[index];
+	
+	size_t pos = currentMode.find(c);
+	if (pos != std::string::npos)
+		currentMode.erase(pos, 1);	
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jopereir <jopereir@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jonas <jonas@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 15:22:05 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/07 18:41:23 by jopereir         ###   ########.fr       */
+/*   Updated: 2025/08/08 09:08:39 by jonas            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ class	Client
 		void			setMode(const std::string&, int channelFd);
 		const std::string	getMode(int index) const;
 		void			addMode(const char c, int index);
+		void			delMode(const char c, int index);
 		const std::string	&getServerName(void) const;
 		std::set<std::string>&		getChannelsSet(void);
 		std::string		getNickName(void) const;

@@ -362,12 +362,13 @@ static bool	caseO(s_commands& com, s_mode& mode)
 		newBroadcastAllChannelsMode(com, message, channel, false);
 		return (0);
 	}
-	else if (mode.sign == '-')
+	if (mode.sign == '-')
 	{
 		if (channelsIndex == -1)
 			return (1);
 		if (clientsIndex == -1)
 			return (1);
+		client->delMode('o', mode.channelIndex);
 		std::string	message = std::string(":") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " MODE " + "#" + channel + " -o " + (*clients)[clientFD]->getNickName() + "\r\n";
 		(*channels)[channelsIndex]->getOperatorsSet().erase(clientFD);
 		(*channels)[channelsIndex]->getMembersSet().insert(clientFD);
