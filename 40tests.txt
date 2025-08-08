@@ -74,6 +74,7 @@ A seguir, 40 cenários de teste para o **ft\_irc**, cobrindo registro, comandos 
 
     * **Proc.:** `JOIN One`.
     * **Esp.:** `403 ERR_NOSUCHCHANNEL One :No such channel`
+    Obs.: Algumas implementações de servidores em casos como JOIN one,#two,#three ao detectarem um error no início podem ser mais rígidos e pararem o processamento. Outros servidores passam isso. Na nossa implementação, colocamos isso como rígido, interrompendo para evitar escaladas de error.
 
 13. **PART de canal registrado**
 
