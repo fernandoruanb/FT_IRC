@@ -8,21 +8,15 @@ void	Server::user(s_commands	&com)
 	}
 	size_t	len = com.args.size();
 
-	if (len < 4)
-		return (callCmdMsg("Not enough parameters", 461, com, com.sendBuffer));
-
-	if (com.args[0] == "*" || com.args[0] == "system")
-		return (callCmdMsg("Not enough parameters", 461, com, com.sendBuffer));
+	if (len < 4 || com.args[0] == "*" || com.args[0] == "system" || com.args[3][0] != ':')
+	{
+		com.sendBuffer = msg_err_needmoreparams(com.client->getNickName(), com.command);
+		return ;
+	}
 
 	com.client->setUserName(com.args[0]);
 	com.client->setHost(com.args[1]);
 	com.client->setServerName(com.args[2]);
-
-	if (com.args[3][0] != ':')
-	{
-		com.sendBuffer = msg_err_needmoreparams(com.client->getNickName(), com.command);
-		return;
-	}
 
 	com.args[3] = com.args[3].substr(1);
 	std::string	name;

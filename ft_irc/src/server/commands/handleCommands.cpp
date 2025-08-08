@@ -85,11 +85,9 @@ bool	Server::handleCommands(std::map<int, Client*>* &clients, std::string& buffe
 	{
 		if (com.client->getAuthenticated() && com.client->getRegistered() && com.client->getChannelsSet().find("generic") == com.client->getChannelsSet().end())
 		{
-			//std::string messageToEveryone = std::string(":") + com.client->getNickName() + "!" + com.client->getUserName() + "@" + com.client->getHost() + " JOIN " + "#generic" + "\r\n";
 			changeChannel("generic", com.fd, 1);
 			com.client->getChannelsSet().insert("generic");
 			com.client->setChannelOfTime(0);
-			//newBroadcastAllChannels(com, messageToEveryone, "generic", true);
 		}
 
 		if (!signin && com.client->getRegistered())
