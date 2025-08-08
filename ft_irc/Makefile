@@ -1,6 +1,6 @@
 #Name of the program or the library
 
-NAME = ircserver
+NAME = ircserv
 
 #Compilers and flags
 
