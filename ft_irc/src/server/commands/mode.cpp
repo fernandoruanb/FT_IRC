@@ -179,8 +179,28 @@ void	Server::addUserMode(Client* &target, s_commands &com, std::string &sendBuff
 			target->setIsInvisible(sign == '+');
 		else if (mode == 'o')
 		{
+			int	channelsIndex = getChannelsIndexMode(channel->getName());
+			int	clientFD = target->getClientFD();
+			std::string	channelName = channel->getName();
 			if (sign == '+' && !isActive)
+			{
+				std::string     message = std::string(":")
+                                                                + com.client->getNickName()
+                                                                + "!"
+                                                                + com.client->getUserName()
+                                                                + "@" + com.client->getHost()
+                                                                + " MODE #" + channelName
+                                                                + " +o "
+                                                                + (*clients)[clientFD]->getNickName()
+                                                                + "\r\n";
 				currentMode += mode;
+				(*channels)[channelsIndex]->getOperatorsSet().insert(clientFD);
+				(*channels)[channelsIndex]->getMembersSet().erase(clientFD);
+				(*clients)[clientFD]->getOperatorChannels().insert(channelName);
+				(*clients)[clientFD]->getChannelsSet().insert(channelName);
+				(*clients)[clientFD]->setIsOperator(true);
+				newBroadcastAllChannelsMode(com, message, channelName, false);
+			}
 			if (sign == '-' && isActive)
 			{
 				int	channelsIndex = getChannelsIndexMode(channel->getName());
