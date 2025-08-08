@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jonas <jonas@student.42.fr>                +#+  +:+       +#+        */
+/*   By: fcaldas- <fcaldas-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/09 16:06:24 by fruan-ba          #+#    #+#             */
-/*   Updated: 2025/08/08 09:06:05 by jonas            ###   ########.fr       */
+/*   Updated: 2025/08/08 14:40:42 by fcaldas-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,16 +180,6 @@ const std::string &Client::getServerName(void) const
 {
 	return (this->serverName);
 }
-
-// void			Client::setMode(const std::string& c)
-// {
-// 	mode = c;
-// }
-
-// const std::string&		Client::getMode(void) const
-// {
-// 	return (mode);
-// }
 
 bool Client::hasNick(void) const
 {

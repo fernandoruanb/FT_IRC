@@ -59,7 +59,7 @@ void	Server::join(s_commands& com)
 		this->sendBuffer[com.index] += std::string(":") + SERVER_NAME + " 403 " + com.client->getNickName() + " " + com.args[0] + " :No such nick/channel\r\n";
 		return ;
 	}
-	// setCurrentCommand(com);
+
 
 	getArgs(com, channelsArgs, passArgs);
 
