@@ -13,6 +13,7 @@ void	Server::startPollFds(void)
 		fds[index].fd = -1;
 		index++;
 	}
+	
 }
 
 void	Server::PollServerRoom(void)
