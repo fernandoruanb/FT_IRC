@@ -88,7 +88,7 @@ Start[Server Start]
 
 Init[Init Socket<br>Bind<br>Listen]
 
-PollLoop[poll()]
+PollLoop["poll()"]
 
 NewClient[Accept New Client]
 
@@ -129,18 +129,18 @@ Input[Command String]
 
 Lookup[Map Lookup<br>map<string, member function>]
 
-USER[user()]
-PING[handlePing()]
-MODE[mode()]
-NICK[nick()]
-JOIN[join()]
-PRIVMSG[privmsg()]
-KICK[kick()]
-INVITE[invite()]
-LIST[list()]
-WHO[who()]
-WHOIS[whois()]
-QUIT[quit()]
+USER["user()"]
+PING["handlePing()"]
+MODE["mode()"]
+NICK["nick()"]
+JOIN["join()"]
+PRIVMSG["privmsg()"]
+KICK["kick()"]
+INVITE["invite()"]
+LIST["list()"]
+WHO["who()"]
+WHOIS["whois()"]
+QUIT["quit()"]
 
 Input --> Lookup
 
