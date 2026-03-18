@@ -25,9 +25,7 @@
   <img src="https://img.shields.io/badge/Status-Completed-brightgreen?style=for-the-badge" alt="Status Completed">
 </p>
 
-# FT_IRC
-
-A minimal IRC (Internet Relay Chat) server implementation in C++ compatible with standard IRC clients such as `Irssi`.
+# About the Project
 
 The server implements the core parts of the IRC protocol and supports multiple clients, channels, and operator privileges using a non-blocking polling architecture.
 
