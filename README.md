@@ -1,3 +1,30 @@
+<p align="center">
+  <img src="https://assets.content.technologyadvice.com/636456225511427113_2ddb67efee.webp" alt="Illustrative IRC example GIF" width="100%">
+</p>
+<p align="center">
+<sub>IRC Server, the "ancient Discord".</sub>
+</p>
+
+<h1 align="center">
+  <a href="https://github.com/fernandoruanb/ft_irc">
+    <img src="https://github.com/ayogun/42-project-badges/raw/main/badges/ft_irce.png" alt="ft_irc badge" width="200">
+  </a>
+  <br>
+  ft_irc
+  <br>
+</h1>
+
+<h4 align="center">
+  A minimal IRC server implementation in <a href="https://isocpp.org/" target="_blank">C++</a> compatible with standard IRC clients such as <code>Irssi</code>.
+</h4>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Final%20Score-100%2F125-00C853?style=for-the-badge" alt="Final Score 100/125">
+  <img src="https://img.shields.io/badge/Mandatory%20Project-IRC%20Server-6A5ACD?style=for-the-badge" alt="Mandatory Project IRC Server">
+  <img src="https://img.shields.io/badge/Language-C%2B%2B-00599C?style=for-the-badge&logo=cplusplus" alt="Language C++">
+  <img src="https://img.shields.io/badge/Status-Completed-brightgreen?style=for-the-badge" alt="Status Completed">
+</p>
+
 # FT_IRC
 
 A minimal IRC (Internet Relay Chat) server implementation in C++ compatible with standard IRC clients such as `Irssi`.
